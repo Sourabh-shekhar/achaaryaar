@@ -266,7 +266,7 @@ export default function CheckoutPage() {
                                     Subtotal
                                 </span>
 
-                                <span className="font-semibold">
+                                <span className="font-semibold text-gray-900">
                                     ₹{subtotal}
                                 </span>
                             </div>
@@ -276,7 +276,7 @@ export default function CheckoutPage() {
                                     Shipping
                                 </span>
 
-                                <span className="font-semibold">
+                                <span className="font-semibold text-gray-900">
                                     ₹{shipping}
                                 </span>
                             </div>
@@ -284,7 +284,7 @@ export default function CheckoutPage() {
                             <hr />
 
                             <div className="flex justify-between text-xl font-bold">
-                                <span>Total</span>
+                                <span className="text-gray-900">Total</span>
                                 <span className="text-orange-600">
                                     ₹{total}
                                 </span>
