@@ -196,7 +196,7 @@ export default function CheckoutPage() {
                                                 })
                                             }
                                         />
-                                        <span className="font-medium">
+                                        <span className="font-medium text-gray-900">
                                             Cash on Delivery (COD)
                                         </span>
                                     </label>
@@ -214,7 +214,7 @@ export default function CheckoutPage() {
                                                 })
                                             }
                                         />
-                                        <span className="font-medium">
+                                        <span className="font-medium text-gray-900">
                                             Pay Online (UPI, Card, Net Banking)
                                         </span>
                                     </label>
