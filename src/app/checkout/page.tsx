@@ -29,7 +29,34 @@ export default function CheckoutPage() {
     const total = subtotal + shipping;
 
     const handlePlaceOrder = async () => {
-        console.log("Button clicked");
+         if (!formData.fullName.trim()) {
+        alert("Please enter your full name");
+        return;
+    }
+
+    if (!/^[0-9]{10}$/.test(formData.phone)) {
+        alert("Please enter a valid 10-digit phone number");
+        return;
+    }
+
+    if (!formData.address.trim()) {
+        alert("Please enter your address");
+        return;
+    }
+
+    if (!formData.city.trim()) {
+        alert("Please enter your city");
+        return;
+    }
+
+    if (!/^[0-9]{6}$/.test(formData.pincode)) {
+        alert("Please enter a valid 6-digit pincode");
+        return;
+    }
+        if (items.length === 0) {
+        alert("Your cart is empty");
+        return;
+    }
 
         try {
             const response = await fetch("/api/orders", {
@@ -93,7 +120,7 @@ export default function CheckoutPage() {
                                             fullName: e.target.value,
                                         })
                                     }
-                                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                   className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
                                 />
                             </div>
 
@@ -112,7 +139,7 @@ export default function CheckoutPage() {
                                             phone: e.target.value,
                                         })
                                     }
-                                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
                                 />
                             </div>
 
@@ -131,7 +158,7 @@ export default function CheckoutPage() {
                                             address: e.target.value,
                                         })
                                     }
-                                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                   className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
                                 />
                             </div>
 
