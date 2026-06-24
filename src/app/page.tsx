@@ -2,7 +2,19 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import ProductCard from "@/components/ProductCard";
 
-export default function Home() {
+async function getProducts() {
+  const res = await fetch("http://localhost:3000/api/products", {
+    cache: "no-store",
+  });
+
+  const data = await res.json();
+
+  return data.products || [];
+}
+
+export default async function Home() {
+  const products = await getProducts();
+
   return (
     <>
       <Navbar />
@@ -14,23 +26,16 @@ export default function Home() {
         </h2>
 
         <div className="grid md:grid-cols-3 gap-8">
-          <ProductCard
-            name="Aam Ka Aachar"
-            description="Traditional Bihar Mango Pickle"
-            price="₹99 / 250g"
-          />
-
-          <ProductCard
-            name="Garlic Pickle"
-            description="Rich garlic flavour with spices"
-            price="₹109 / 250g"
-          />
-
-          <ProductCard
-            name="Elephant Yam Pickle"
-            description="Authentic Suran Pickle"
-            price="₹129 / 250g"
-          />
+          {products.map((product: any) => (
+            <ProductCard
+              key={product._id}
+              _id={product._id}
+              name={product.name}
+              description={product.description}
+              image={product.image}
+              variants={product.variants}
+            />
+          ))}
         </div>
       </section>
     </>

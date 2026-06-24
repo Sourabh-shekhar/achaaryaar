@@ -42,7 +42,7 @@ export default function CartPage() {
             <div className="space-y-6">
               {items.map((item) => (
                 <div
-                  key={item.name}
+                  key={`${item.name}-${item.selectedVariant}`}
                   className="bg-white rounded-2xl p-6 shadow-xl border border-gray-300"
                 >
                   <div className="flex justify-between items-center">
@@ -54,10 +54,15 @@ export default function CartPage() {
                       <p className="text-gray-700 mt-2">
                         {item.price}
                       </p>
+                      <p className="text-gray-700">
+                        Variant: {item.selectedVariant}
+                      </p>
                     </div>
 
                     <button
-                      onClick={() => removeItem(item.name)}
+                      onClick={() =>
+                        removeItem(item.name, item.selectedVariant)
+                      }
                       className="bg-red-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-red-700 transition"
                     >
                       Remove
@@ -66,7 +71,12 @@ export default function CartPage() {
 
                   <div className="mt-5 flex items-center gap-3">
                     <button
-                      onClick={() => decreaseQuantity(item.name)}
+                      onClick={() =>
+                        decreaseQuantity(
+                          item.name,
+                          item.selectedVariant
+                        )
+                      }
                       className="bg-red-500 text-white w-8 h-8 rounded-lg font-bold hover:bg-red-600 transition"
                     >
                       -
@@ -77,7 +87,12 @@ export default function CartPage() {
                     </span>
 
                     <button
-                      onClick={() => increaseQuantity(item.name)}
+                      onClick={() =>
+                        increaseQuantity(
+                          item.name,
+                          item.selectedVariant
+                        )
+                      }
                       className="bg-orange-600 text-white w-8 h-8 rounded-lg font-bold hover:bg-orange-700 transition"
                     >
                       +
@@ -116,8 +131,8 @@ export default function CartPage() {
                 </div>
 
                 <Link href="/checkout"
-                className="block w-full mt-4 bg-orange-600 text-white py-4 rounded-xl font-bold text-center hover:bg-orange-700 transition">
-                 Proceed to Checkout
+                  className="block w-full mt-4 bg-orange-600 text-white py-4 rounded-xl font-bold text-center hover:bg-orange-700 transition">
+                  Proceed to Checkout
                 </Link>
               </div>
             </div>

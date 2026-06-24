@@ -14,9 +14,10 @@ export default function CheckoutPage() {
         city: "",
         pincode: "",
         paymentMethod: "cod",
+        email: "",
     });
     const items = useCartStore((state) => state.items);
-
+    console.log("Cart Items:", items);
     const subtotal = items.reduce((total, item) => {
         const price = parseInt(
             item.price.match(/\d+/)?.[0] || "0"
@@ -29,36 +30,43 @@ export default function CheckoutPage() {
     const total = subtotal + shipping;
 
     const handlePlaceOrder = async () => {
-         if (!formData.fullName.trim()) {
-        alert("Please enter your full name");
-        return;
-    }
+        if (!formData.fullName.trim()) {
+            alert("Please enter your full name");
+            return;
+        }
 
-    if (!/^[0-9]{10}$/.test(formData.phone)) {
-        alert("Please enter a valid 10-digit phone number");
-        return;
-    }
+        if (!/^[0-9]{10}$/.test(formData.phone)) {
+            alert("Please enter a valid 10-digit phone number");
+            return;
+        }
 
-    if (!formData.address.trim()) {
-        alert("Please enter your address");
-        return;
-    }
+        if (!formData.address.trim()) {
+            alert("Please enter your address");
+            return;
+        }
 
-    if (!formData.city.trim()) {
-        alert("Please enter your city");
-        return;
-    }
+        if (!formData.city.trim()) {
+            alert("Please enter your city");
+            return;
+        }
 
-    if (!/^[0-9]{6}$/.test(formData.pincode)) {
-        alert("Please enter a valid 6-digit pincode");
-        return;
-    }
+        if (!/^[0-9]{6}$/.test(formData.pincode)) {
+            alert("Please enter a valid 6-digit pincode");
+            return;
+        }
         if (items.length === 0) {
-        alert("Your cart is empty");
-        return;
-    }
+            alert("Your cart is empty");
+            return;
+        }
 
         try {
+            console.log("Sending Order Data:", {
+                ...formData,
+                items,
+                subtotal,
+                shipping,
+                total,
+            });
             const response = await fetch("/api/orders", {
                 method: "POST",
                 headers: {
@@ -120,7 +128,7 @@ export default function CheckoutPage() {
                                             fullName: e.target.value,
                                         })
                                     }
-                                   className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
                                 />
                             </div>
 
@@ -142,7 +150,21 @@ export default function CheckoutPage() {
                                     className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
                                 />
                             </div>
+                            <div>
+                                <label className="font-bold">Email</label>
 
+                                <input
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            email: e.target.value,
+                                        })
+                                    }
+                                    className="w-full border p-4 rounded-xl"
+                                />
+                            </div>
                             <div>
                                 <label className="block text-gray-700 font-semibold mb-2">
                                     Address
@@ -158,7 +180,7 @@ export default function CheckoutPage() {
                                             address: e.target.value,
                                         })
                                     }
-                                   className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
                                 />
                             </div>
 
@@ -291,7 +313,7 @@ export default function CheckoutPage() {
                             </div>
 
                             <button
-                            type="button"
+                                type="button"
 
                                 onClick={handlePlaceOrder}
                                 className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-orange-700 transition mt-4"

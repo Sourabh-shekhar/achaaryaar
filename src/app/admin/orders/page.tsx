@@ -1,12 +1,22 @@
 "use client";
-
+import AdminAnalytics from "@/components/AdminAnalytics";
 import { useEffect, useState } from "react";
-//const [orders, setOrders] = useState<any[]>([]);
+import { useRouter } from "next/navigation";
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState<any[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("All");
+    const router = useRouter();
 
     useEffect(() => {
+        const isAdmin = localStorage.getItem("isAdmin");
+
+        if (!isAdmin) {
+            router.push("/admin/login");
+            return;
+        }
+
         fetchOrders();
     }, []);
 
@@ -47,6 +57,29 @@ export default function AdminOrdersPage() {
             console.error(error);
         }
     };
+    const deleteOrder = async (id: string) => {
+        const confirmDelete = confirm(
+            "Are you sure you want to delete this order?"
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            const res = await fetch(`/api/orders/${id}`, {
+                method: "DELETE",
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                alert("Order deleted successfully");
+                fetchOrders();
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Failed to delete order");
+        }
+    };
     const totalOrders = orders.length;
 
     const pendingOrders = orders.filter(
@@ -61,11 +94,39 @@ export default function AdminOrdersPage() {
         (total: number, order: any) => total + (order.total || 0),
         0
     );
+    const filteredOrders = orders.filter((order: any) => {
+
+        const matchesSearch =
+            (order.fullName || "")
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()) ||
+            (order.phone || "")
+                .toString()
+                .includes(searchTerm);
+
+        const matchesStatus =
+            statusFilter === "All" ||
+            order.status === statusFilter;
+
+        return matchesSearch && matchesStatus;
+    });
     return (
         <div className="min-h-screen bg-gray-100 p-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-8">
-                Admin Orders Dashboard
-            </h1>
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-4xl font-bold text-gray-900">
+                    Admin Orders Dashboard
+                </h1>
+
+                <button
+                    onClick={() => {
+                        localStorage.removeItem("isAdmin");
+                        router.push("/admin/login");
+                    }}
+                    className="bg-red-600 text-white px-5 py-2 rounded-xl font-semibold hover:bg-red-700"
+                >
+                    Logout
+                </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
                 <div className="bg-white p-6 rounded-2xl shadow-lg border">
@@ -109,7 +170,31 @@ export default function AdminOrdersPage() {
                 </div>
 
             </div>
-            {!orders || orders.length === 0 ? (
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+
+                <input
+                    type="text"
+                    placeholder="Search by customer name or phone..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="flex-1 p-4 rounded-2xl border border-gray-300 shadow-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="p-4 rounded-2xl border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                    <option value="All">All Orders</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                </select>
+
+            </div>
+            <AdminAnalytics orders={orders} />
+            {filteredOrders.length === 0 ? (
                 <div className="bg-white rounded-2xl shadow-md p-6">
                     <p className="text-lg text-gray-700">
                         No orders found.
@@ -117,13 +202,13 @@ export default function AdminOrdersPage() {
                 </div>
             ) : (
                 <div className="space-y-6">
-                    {orders.map((order: any) => (
+                    {filteredOrders.map((order: any) => (
                         <div
                             key={order._id}
                             className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
                         >
                             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                                {order.fullName}
+                                {order.fullName || order.name || "No Name"}
                             </h2>
 
                             <div className="space-y-2">
@@ -173,14 +258,14 @@ export default function AdminOrdersPage() {
                                             updateStatus(order._id, e.target.value)
                                         }
                                         className={`border rounded-lg px-3 py-2 font-semibold ${order.status === "Pending"
-                                                ? "bg-yellow-100 text-yellow-800"
-                                                : order.status === "Confirmed"
-                                                    ? "bg-blue-100 text-blue-800"
-                                                    : order.status === "Shipped"
-                                                        ? "bg-purple-100 text-purple-800"
-                                                        : order.status === "Delivered"
-                                                            ? "bg-green-100 text-green-800"
-                                                            : "bg-gray-100 text-gray-800"
+                                            ? "bg-yellow-100 text-yellow-800"
+                                            : order.status === "Confirmed"
+                                                ? "bg-blue-100 text-blue-800"
+                                                : order.status === "Shipped"
+                                                    ? "bg-purple-100 text-purple-800"
+                                                    : order.status === "Delivered"
+                                                        ? "bg-green-100 text-green-800"
+                                                        : "bg-gray-100 text-gray-800"
                                             }`}
                                     >
                                         <option value="Pending">Pending</option>
@@ -207,20 +292,47 @@ export default function AdminOrdersPage() {
                                             </p>
 
                                             <p className="text-gray-700">
-                                                Quantity: {item.quantity}
+                                                Variant: {item.selectedVariant || item.quantityType || "N/A"}
                                             </p>
 
                                             <p className="text-gray-700">
-                                                Price: {item.price}
+                                                Quantity Ordered: {item.quantity}
+                                            </p>
+
+                                            <p className="text-gray-700">
+                                                Price: ₹{item.price}
+                                            </p>
+
+                                            <p className="text-gray-700">
+                                                Total: ₹{item.price * item.quantity}
                                             </p>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <p className="text-sm text-gray-500 mt-6">
-                                Order ID: {order._id}
-                            </p>
+                            <div className="flex justify-between items-center mt-6">
+                                <p className="text-sm text-gray-500">
+                                    Order ID: {order._id}
+                                </p>
+                                <button
+                                    onClick={() =>
+                                        window.open(
+                                            `/admin/invoice/${order._id}`,
+                                            "_blank"
+                                        )
+                                    }
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 mr-3"
+                                >
+                                    Print Invoice
+                                </button>
+                                <button
+                                    onClick={() => deleteOrder(order._id)}
+                                    className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
+                                >
+                                    Delete Order
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>

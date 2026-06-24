@@ -2,7 +2,11 @@ import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema(
   {
-    fullname: String,
+    fullName: {
+      type: String,
+      required: true,
+    },
+
     phone: String,
     address: String,
     city: String,
@@ -10,6 +14,7 @@ const OrderSchema = new mongoose.Schema(
     paymentMethod: String,
     items: Array,
     total: Number,
+
     status: {
       type: String,
       default: "Pending",
