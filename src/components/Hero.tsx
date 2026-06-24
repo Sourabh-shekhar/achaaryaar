@@ -1,33 +1,44 @@
+"use client";
+
 import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-400 text-white py-16">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="bg-gradient-to-r from-orange-600 to-yellow-500 py-20">
+      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
 
-        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-          Authentic Homemade Pickles
-        </h1>
+        <div>
+          <h1 className="text-5xl font-extrabold text-white">
+            Authentic Homemade Pickles
+          </h1>
 
-        <p className="mt-6 text-lg md:text-xl max-w-3xl">
-          Traditional Bihar recipes crafted with premium ingredients,
-          rich spices and homemade goodness.
-        </p>
+          <p className="text-white text-xl mt-6">
+            Experience the authentic taste of Bihar.
+          </p>
 
-        <div className="mt-8 flex flex-wrap gap-4">
-          <Link
-            href="/products"
-            className="bg-white text-orange-700 px-8 py-4 rounded-xl font-bold hover:scale-105 transition duration-300"
-          >
-            Shop Now
-          </Link>
+          <div className="flex gap-4 mt-8">
+            <Link
+              href="/products"
+              className="bg-white text-orange-600 px-8 py-4 rounded-xl font-bold"
+            >
+              Shop Now
+            </Link>
 
-          <Link
-            href="/recipes"
-            className="border-2 border-white px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-orange-700 transition duration-300"
-          >
-            View Recipes
-          </Link>
+            <Link
+              href="/contact"
+              className="border-2 border-white text-white px-8 py-4 rounded-xl"
+            >
+              Contact Us
+            </Link>
+          </div>
+        </div>
+
+        <div>
+          <img
+            src="/image/hero-pickle.png"
+            alt="Achaaryaar"
+            className="rounded-3xl shadow-2xl w-full"
+          />
         </div>
 
       </div>

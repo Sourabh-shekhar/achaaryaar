@@ -1,60 +1,67 @@
-export default function ProductsPage() {
+import ProductCard from "@/components/ProductCard";
+
+async function getProducts() {
+  const res = await fetch(
+    `${process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000"}/api/products`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  const data = await res.json();
+  return data.products || [];
+}
+
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: { search?: string };
+}) {
+  const products = await getProducts();
+
+  const search = searchParams.search?.toLowerCase() || "";
+
+  const filteredProducts = products.filter((product: any) =>
+    product.name.toLowerCase().includes(search)
+  );
+
   return (
-    <div className="min-h-screen p-10">
-      <h1 className="text-5xl font-bold mb-8">
-        Our Pickles
-      </h1>
+    <div className="min-h-screen bg-gray-50 py-16">
+      <div className="max-w-7xl mx-auto px-6">
 
-      <div className="grid md:grid-cols-3 gap-6">
+        <h1 className="text-5xl font-bold text-center text-gray-900 mb-12">
+          Our Pickles
+        </h1>
 
-        <div className="border rounded-xl p-6">
-          <h2 className="text-2xl font-bold">
-            Aam Ka Aachar
-          </h2>
-
-          <p className="mt-2">
-            Traditional Bihar Mango Pickle
+        {search && (
+          <p className="text-center text-gray-600 mb-8">
+            Search Results for:
+            <span className="font-bold text-orange-600">
+              {" "}{search}
+            </span>
           </p>
+        )}
 
-          <div className="mt-4">
-            <p>250g - ₹99</p>
-            <p>500g - ₹179</p>
-            <p>1kg - ₹329</p>
+        {filteredProducts.length === 0 ? (
+          <div className="text-center text-2xl text-gray-600">
+            No products found 😔
           </div>
-        </div>
-
-        <div className="border rounded-xl p-6">
-          <h2 className="text-2xl font-bold">
-            Garlic Pickle
-          </h2>
-
-          <p className="mt-2">
-            Rich garlic flavour with spices
-          </p>
-
-          <div className="mt-4">
-            <p>250g - ₹109</p>
-            <p>500g - ₹199</p>
-            <p>1kg - ₹379</p>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-8">
+            {filteredProducts.map((product: any) => (
+              <ProductCard
+                key={product._id}
+                _id={product._id}
+                name={product.name}
+                description={product.description}
+                image={product.image}
+                variants={product.variants}
+              />
+            ))}
           </div>
-        </div>
-
-        <div className="border rounded-xl p-6">
-          <h2 className="text-2xl font-bold">
-            Elephant Yam Pickle
-          </h2>
-
-          <p className="mt-2">
-            Traditional Suran Pickle
-          </p>
-
-          <div className="mt-4">
-            <p>250g - ₹129</p>
-            <p>500g - ₹239</p>
-            <p>1kg - ₹449</p>
-          </div>
-        </div>
-
+        )}
       </div>
     </div>
   );

@@ -14,6 +14,16 @@ export async function GET(
 
     const product = await Product.findById(id);
 
+    if (!product) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Product not found",
+        },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
       product,
