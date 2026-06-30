@@ -25,7 +25,7 @@ await transporter.sendMail({
       <div style="text-align:center;">
 
         <img
-          src="https://achaaryaar.vercel.app/image/logo.png"
+          src="https://achaaryaar-git-main-sourabh-shekhars-projects.vercel.app/image/logo.png"
           alt="Achaaryaar Logo"
           width="180"
         />
