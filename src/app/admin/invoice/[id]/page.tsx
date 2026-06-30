@@ -13,7 +13,9 @@ export default function InvoicePage() {
   }, []);
 
   const fetchOrder = async () => {
-    const res = await fetch("/api/orders");
+    const res = await fetch(`${baseUrl}/api/orders`, {
+      cache: "no-store",
+    });
     const data = await res.json();
 
     if (data.success) {
