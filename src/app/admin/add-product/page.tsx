@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import { baseUrl } from "@/lib/baseUrl";
 export default function AddProductPage() {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [form, setForm] = useState({

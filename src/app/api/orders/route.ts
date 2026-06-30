@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import { baseUrl } from "@/lib/baseUrl";
 import { sendOrderConfirmation } from "@/lib/sendEmail";
 // Create Order
 export async function POST(req: Request) {

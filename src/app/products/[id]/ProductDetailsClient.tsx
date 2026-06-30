@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
-
+import { baseUrl } from "@/lib/baseUrl";
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 
 type Weight = {

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { baseUrl } from "@/lib/baseUrl";
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 
 export default function CheckoutPage() {

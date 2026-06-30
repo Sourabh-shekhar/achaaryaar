@@ -1,10 +1,7 @@
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "./ProductDetailsClient";
+import { baseUrl } from "@/lib/baseUrl";
 
-const baseUrl =
-  process.env.NODE_ENV === "production"
-    ? "https://achaaryaar-git-main-sourabh-shekhars-projects.vercel.app"
-    : "http://localhost:3000";
 
 async function getProduct(id: string) {
   const res = await fetch(

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { baseUrl } from "@/lib/baseUrl";
 export default function AdminProductsPage() {
     const router = useRouter();
     const [imageFile, setImageFile] = useState<File | null>(null);

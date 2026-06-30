@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { baseUrl } from "@/lib/baseUrl";
 
 export default function InvoicePage() {
   const params = useParams();

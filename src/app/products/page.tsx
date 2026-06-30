@@ -1,5 +1,5 @@
 import ProductCard from "@/components/ProductCard";
-
+import { baseUrl } from "@/lib/baseUrl";
 const COLORS = {
   forest: "#1C3D2E",
   forestMid: "#2A5540",
@@ -11,10 +11,7 @@ const COLORS = {
   muted: "#7A6F65",
 };
 
-const baseUrl =
-  process.env.NODE_ENV === "production"
-    ? "https://achaaryaar-git-main-sourabh-shekhars-projects.vercel.app"
-    : "http://localhost:3000";
+
 
 async function getProducts() {
   const res = await fetch(`${baseUrl}/api/products`, {

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
-
+import { baseUrl } from "@/lib/baseUrl";
 export async function GET() {
   try {
     await connectDB();

@@ -1,7 +1,7 @@
 "use client";
  
 import { useState } from "react";
- 
+ import { baseUrl } from "@/lib/baseUrl";
 export default function ContactPage() {
   const [loading, setLoading] = useState(false);
  
