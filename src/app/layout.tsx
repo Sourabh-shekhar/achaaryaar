@@ -4,9 +4,13 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Providers from "./providers";
 import AuthProvider from "@/components/SessionProvider";
+import { Playfair_Display } from "next/font/google";
 
 
-
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
 const geistSans = Geist({
   subsets: ["latin"],
 });
@@ -42,11 +46,7 @@ export const metadata: Metadata = {
     type: "website",
   },
 
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/favicon.ico",
-  },
+
 };
 
 export default function RootLayout({
@@ -57,7 +57,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.className} ${geistMono.className}`}
+      className={`${geistSans.className} ${geistMono.className} ${playfair.className}`}
     >
       <body className="min-h-screen flex flex-col">
 

@@ -324,7 +324,7 @@ export default function CheckoutPage() {
                             <p className="text-[#7A6F65] text-sm mb-4">
                                 Your cart is empty.{" "}
                                 <Link
-                                    href="/shop"
+                                    href="/products"
                                     className="text-[#C18A42] font-semibold underline"
                                 >
                                     Browse pickles →

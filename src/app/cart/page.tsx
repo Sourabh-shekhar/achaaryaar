@@ -42,7 +42,7 @@ export default function CartPage() {
               Your cart is currently empty.
             </p>
             <Link
-              href="/shop"
+              href="/products"
               className="inline-block mt-4 bg-[#C18A42] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#A8742F] transition"
             >
               Browse Pickles →

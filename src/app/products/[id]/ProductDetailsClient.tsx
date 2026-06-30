@@ -38,7 +38,7 @@ export default function ProductDetailsClient({
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [toast, setToast] = useState<string | null>(null);
-
+  const [activeTab, setActiveTab] = useState("specifications");
   const gallery =
     product.images && product.images.length > 0
       ? product.images
@@ -68,6 +68,21 @@ export default function ProductDetailsClient({
     setToast(`${quantity} × ${product.name} (${selectedWeight.size}) added to cart`);
     setTimeout(() => setAdded(false), 1800);
     setTimeout(() => setToast(null), 3000);
+  };
+  const handleBuyNow = () => {
+    if (!selectedWeight || outOfStock) return;
+
+    addItem(
+      {
+        _id: product._id,
+        name: product.name,
+        price: selectedWeight.price,
+        selectedVariant: selectedWeight.size,
+      },
+      quantity
+    );
+
+    window.location.href = "/checkout";
   };
 
   const handleSelectWeight = (index: number) => {
@@ -111,7 +126,7 @@ export default function ProductDetailsClient({
   const fullStars = Math.round(rating);
 
   return (
-    <div className="min-h-screen bg-[#FBF7F1] py-16 relative">
+    <div className="min-h-screen bg-[#FBF7F1] py-16 pb-32 relative">
       {/* Toast */}
       {toast && (
         <div className="fixed top-6 right-6 z-50 bg-[#3D5640] text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-[fadeIn_0.2s_ease-out]">
@@ -125,7 +140,7 @@ export default function ProductDetailsClient({
           Home
         </Link>{" "}
         /{" "}
-        <Link href="/shop" className="hover:text-[#C18A42] transition">
+        <Link href="/products" className="hover:text-[#C18A42] transition">
           Shop
         </Link>{" "}
         / <span className="text-[#2D2A26] font-semibold">{product.name}</span>
@@ -148,11 +163,10 @@ export default function ProductDetailsClient({
                 <button
                   key={`${img}-${index}`}
                   onClick={() => setActiveImage(index)}
-                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition ${
-                    activeImage === index
-                      ? "border-[#C18A42]"
-                      : "border-[#E8DDD1] hover:border-[#C18A42]/60"
-                  }`}
+                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition ${activeImage === index
+                    ? "border-[#C18A42]"
+                    : "border-[#E8DDD1] hover:border-[#C18A42]/60"
+                    }`}
                 >
                   <img
                     src={img}
@@ -192,9 +206,8 @@ export default function ProductDetailsClient({
             </div>
             <span className="text-[#7A6F65] text-base">
               {rating > 0
-                ? `${rating.toFixed(1)} (${reviewsCount} ${
-                    reviewsCount === 1 ? "Review" : "Reviews"
-                  })`
+                ? `${rating.toFixed(1)} (${reviewsCount} ${reviewsCount === 1 ? "Review" : "Reviews"
+                })`
                 : "No reviews yet"}
             </span>
           </div>
@@ -219,13 +232,12 @@ export default function ProductDetailsClient({
                     key={`${weight.size}-${index}`}
                     disabled={isOut}
                     onClick={() => handleSelectWeight(index)}
-                    className={`border-2 p-4 rounded-2xl text-left transition shadow-sm ${
-                      isOut
-                        ? "border-[#E8DDD1] bg-[#F3EEE6] opacity-50 cursor-not-allowed"
-                        : isSelected
+                    className={`border-2 p-4 rounded-2xl text-left transition shadow-sm ${isOut
+                      ? "border-[#E8DDD1] bg-[#F3EEE6] opacity-50 cursor-not-allowed"
+                      : isSelected
                         ? "border-[#C18A42] bg-white ring-2 ring-[#C18A42]/30"
                         : "border-[#E8DDD1] bg-white hover:border-[#C18A42]/60"
-                    }`}
+                      }`}
                   >
                     <p className="font-bold text-lg text-[#2D2A26]">
                       {weight.size}
@@ -335,17 +347,28 @@ export default function ProductDetailsClient({
               )}
             </div>
           ) : (
-            <button
-              onClick={handleAddToCart}
-              disabled={outOfStock}
-              className={`w-full mt-8 py-4 rounded-2xl text-xl font-bold transition shadow-md ${
-                added
+            <div className="grid grid-cols-2 gap-4 mt-8">
+
+              <button
+                onClick={handleAddToCart}
+                disabled={outOfStock}
+                className={`py-4 rounded-2xl text-lg font-bold transition shadow-md ${added
                   ? "bg-[#4F6B52] text-white"
                   : "bg-[#C18A42] hover:bg-[#A8742F] text-white"
-              }`}
-            >
-              {added ? "Added to Cart ✓" : "Add to Cart"}
-            </button>
+                  }`}
+              >
+                {added ? "Added ✓" : "Add to Cart"}
+              </button>
+
+              <button
+                onClick={handleBuyNow}
+                disabled={outOfStock}
+                className="bg-[#3D5640] hover:bg-[#2F4533] text-white py-4 rounded-2xl text-lg font-bold transition shadow-md"
+              >
+                Buy Now
+              </button>
+
+            </div>
           )}
 
           <Link
@@ -383,49 +406,276 @@ export default function ProductDetailsClient({
         </div>
       </div>
 
-      {/* About this product */}
-      <section className="max-w-7xl mx-auto px-6 mt-24">
-        <div className="bg-white rounded-3xl shadow-lg border border-[#E8DDD1] p-10">
-          <h2
-            className="text-3xl font-extrabold text-[#2D2A26] mb-6"
-            style={{ fontFamily: FONT_DISPLAY }}
-          >
-            About {product.name}
-          </h2>
-          <p className="text-[#5A5249] text-lg leading-8">
-            {product.description}
-          </p>
+      {/* Product Information Tabs */}
 
-          <div className="grid md:grid-cols-3 gap-6 mt-10">
-            <div>
-              <h4 className="font-bold text-[#2D2A26] mb-2">
-                Made the Traditional Way
-              </h4>
-              <p className="text-[#7A6F65] text-sm leading-6">
-                Prepared using time-tested recipes with fresh, hand-picked
-                ingredients for an authentic, homemade taste.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-bold text-[#2D2A26] mb-2">
-                Quality You Can Trust
-              </h4>
-              <p className="text-[#7A6F65] text-sm leading-6">
-                No artificial colours or chemicals — just clean, carefully
-                sourced ingredients packed with care.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-bold text-[#2D2A26] mb-2">
-                Perfect Pairing
-              </h4>
-              <p className="text-[#7A6F65] text-sm leading-6">
-                Enjoy with rice, roti, paratha, curd rice, or your favourite
-                snacks for an extra burst of flavour.
-              </p>
-            </div>
+      <section className="max-w-7xl mx-auto px-6 mt-24">
+        <div className="bg-white rounded-3xl shadow-lg border border-[#E8DDD1] p-8">
+
+          {/* Tabs */}
+
+          <div className="flex flex-wrap gap-3 mb-8">
+
+            <button
+              onClick={() => setActiveTab("specifications")}
+              className={`px-6 py-3 rounded-xl font-semibold transition ${activeTab === "specifications"
+                ? "bg-[#3D5640] text-white"
+                : "bg-[#F3EDE3] text-[#2D2A26]"
+                }`}
+            >
+              Specifications
+            </button>
+
+            <button
+              onClick={() => setActiveTab("description")}
+              className={`px-6 py-3 rounded-xl font-semibold transition ${activeTab === "description"
+                ? "bg-[#3D5640] text-white"
+                : "bg-[#F3EDE3] text-[#2D2A26]"
+                }`}
+            >
+              Description
+            </button>
+
+            <button
+              onClick={() => setActiveTab("manufacturer")}
+              className={`px-6 py-3 rounded-xl font-semibold transition ${activeTab === "manufacturer"
+                ? "bg-[#3D5640] text-white"
+                : "bg-[#F3EDE3] text-[#2D2A26]"
+                }`}
+            >
+              Manufacturer Info
+            </button>
+
           </div>
+
+          {/* Specifications Tab */}
+
+          {activeTab === "specifications" && (
+            <div>
+              <h2
+                className="text-3xl font-extrabold text-[#2D2A26] mb-8"
+                style={{ fontFamily: FONT_DISPLAY }}
+              >
+                Specifications
+              </h2>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+
+                <div>
+                  <p className="text-sm text-[#7A6F65]">Brand</p>
+                  <p className="font-bold text-[#2D2A26]">Achaaryaar</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-[#7A6F65]">Type</p>
+                  <p className="font-bold text-[#2D2A26]">Pickle</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-[#7A6F65]">Base Ingredient</p>
+                  <p className="font-bold text-[#2D2A26]">Natural Ingredients</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-[#7A6F65]">Shelf Life</p>
+                  <p className="font-bold text-[#2D2A26]">18 - 24 Months</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-[#7A6F65]">Delivery Time</p>
+                  <p className="font-bold text-[#2D2A26]">6 - 8 Days</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-[#7A6F65]">Container Type</p>
+                  <p className="font-bold text-[#2D2A26]">Glass Jar</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-[#7A6F65]">Storage Instructions</p>
+                  <p className="font-bold text-[#2D2A26]">
+                    Store in a cool & dry place
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-[#7A6F65]">Country of Origin</p>
+                  <p className="font-bold text-[#2D2A26]">India</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-[#7A6F65]">Preservatives</p>
+                  <p className="font-bold text-[#2D2A26]">
+                    No Artificial Preservatives
+                  </p>
+                </div>
+
+              </div>
+            </div>
+          )}
+          {/* Description Tab */}
+{/* Description Tab */}
+{activeTab === "description" && (
+  <div className="bg-[#FFFDF8] rounded-3xl p-10">
+
+    {/* Heading */}
+    <h2
+      className="text-4xl md:text-5xl font-bold text-[#2D2A26] text-center"
+      style={{ fontFamily: "'Playfair Display', serif" }}
+    >
+      About {product.name}
+    </h2>
+
+    {/* Decorative Divider */}
+    <div className="flex items-center justify-center my-8">
+      <div className="h-[1px] w-1/3 bg-[#D6C5AE]"></div>
+
+      <span className="mx-4 text-3xl text-[#C18A42]">
+        ❦
+      </span>
+
+      <div className="h-[1px] w-1/3 bg-[#D6C5AE]"></div>
+    </div>
+
+    {/* Description */}
+    <div className="max-w-5xl mx-auto">
+
+      <p className="text-[#3B342D] text-xl leading-[3rem] mb-8 font-medium">
+        {product.description}
+      </p>
+
+      <div className="space-y-6 text-xl leading-10 text-[#3B342D]">
+
+        <div>
+          <span
+            className="font-bold text-[#2F5533]"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Ingredients :
+          </span>{" "}
+          Fresh Raw Mango, Mustard Oil, Salt, Mustard Seeds,
+          Fennel Seeds, Fenugreek Seeds, Turmeric,
+          Red Chilli Powder, Asafoetida (Hing)
+          and Traditional Indian Spices.
         </div>
+
+        <div>
+          <span
+            className="font-bold text-[#2F5533]"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Taste / Flavour :
+          </span>{" "}
+          Tangy, Spicy, Aromatic & Authentic Homemade Taste.
+        </div>
+
+        <div>
+          <span
+            className="font-bold text-[#2F5533]"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Category :
+          </span>{" "}
+          Pickles & Chutneys
+        </div>
+
+        <div>
+          <span
+            className="font-bold text-[#2F5533]"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Shelf Life :
+          </span>{" "}
+          18 - 24 Months
+        </div>
+
+        <div>
+          <span
+            className="font-bold text-[#2F5533]"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Delivery Time :
+          </span>{" "}
+          6 - 8 Days Across India
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Manufacturer Tab */}
+{activeTab === "manufacturer" && (
+  <div className="bg-white rounded-3xl border border-[#E8DDD1] p-10 shadow-md">
+
+    <h2
+      className="text-4xl font-bold text-[#2D2A26] mb-10"
+      style={{ fontFamily: "'Playfair Display', serif" }}
+    >
+      Manufacturer Information
+    </h2>
+
+    <div className="grid md:grid-cols-2 gap-8">
+
+      {/* Manufacturer */}
+      <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
+        <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
+          Manufacturer
+        </p>
+
+        <p className="text-2xl font-bold text-[#2D2A26]">
+          Achaaryaar Foods
+        </p>
+      </div>
+
+      {/* Packed By */}
+      <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
+        <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
+          Packed By
+        </p>
+
+        <p className="text-2xl font-bold text-[#2D2A26]">
+          Achaaryaar Foods
+        </p>
+      </div>
+
+      {/* Address */}
+      <div className="md:col-span-2 bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
+        <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
+          Address
+        </p>
+
+        <p className="text-lg font-semibold text-[#2D2A26] leading-8">
+          Kanti Kunj, Tarwara More <br />
+          Siwan, Bihar - 841226
+        </p>
+      </div>
+
+      {/* Customer Care */}
+      <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
+        <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
+          Customer Care
+        </p>
+
+        <p className="text-lg font-semibold text-[#2D2A26]">
+          support@achaaryaar.com
+        </p>
+      </div>
+
+      {/* Country */}
+      <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
+        <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
+          Country of Origin
+        </p>
+
+        <p className="text-lg font-semibold text-[#2D2A26]">
+          India
+        </p>
+      </div>
+
+    </div>
+  </div>
+)}
+</div>
       </section>
 
       {/* Related Products */}
@@ -464,6 +714,34 @@ export default function ProductDetailsClient({
             ))}
           </div>
         </section>
+      )}
+      {/* Mobile Sticky Cart Bar */}
+
+      {!outOfStock && selectedWeight && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-[#E8DDD1] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] p-4">
+
+          <div className="grid grid-cols-2 gap-3">
+
+            <div>
+              <p className="text-xs text-[#7A6F65]">
+                {selectedWeight.size}
+              </p>
+
+              <p className="text-2xl font-bold text-[#2D2A26]">
+                ₹{selectedWeight.price}
+              </p>
+            </div>
+
+            <button
+              onClick={handleAddToCart}
+              className="flex-1 bg-[#C18A42] hover:bg-[#A8742F] text-white py-3 rounded-xl font-bold transition"
+            >
+              Add to Cart
+            </button>
+
+          </div>
+
+        </div>
       )}
     </div>
   );

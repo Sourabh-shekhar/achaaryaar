@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { SiInstagram, SiFacebook, SiYoutube } from "react-icons/si";
@@ -23,6 +23,179 @@ const COLORS = {
 
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 const FONT_BODY = "system-ui, -apple-system, sans-serif";
+
+// ─── WELCOME POPUP ────────────────────────────────────────────────────────────
+function WelcomePopup() {
+  const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    const seen = sessionStorage.getItem("achaaryaar_welcome_seen");
+    if (!seen) {
+      const timer = setTimeout(() => setOpen(true), 900);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  function close() {
+    setClosing(true);
+    sessionStorage.setItem("achaaryaar_welcome_seen", "true");
+    setTimeout(() => {
+      setOpen(false);
+      setClosing(false);
+    }, 200);
+  }
+
+  if (!open) return null;
+
+  return (
+    <div
+      onClick={close}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(20,28,22,0.6)",
+        backdropFilter: "blur(4px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+        padding: "1.5rem",
+        opacity: closing ? 0 : 1,
+        transition: "opacity 0.2s ease",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: COLORS.cream,
+          borderRadius: 22,
+          maxWidth: 440,
+          width: "100%",
+          padding: "2.75rem 2.25rem 2.25rem",
+          position: "relative",
+          boxShadow: "0 30px 70px -20px rgba(0,0,0,0.45)",
+          textAlign: "center",
+          transform: closing ? "scale(0.96) translateY(8px)" : "scale(1) translateY(0)",
+          transition: "transform 0.22s ease",
+          border: `1px solid ${COLORS.sand}`,
+        }}
+      >
+        <button
+          onClick={close}
+          aria-label="Close"
+          style={{
+            position: "absolute",
+            top: 14,
+            right: 14,
+            background: "transparent",
+            border: "none",
+            fontSize: "1.1rem",
+            color: "rgba(45,42,38,0.4)",
+            cursor: "pointer",
+            lineHeight: 1,
+            padding: 8,
+          }}
+        >
+          ✕
+        </button>
+
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: "50%",
+            background: COLORS.forest,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.5rem",
+            margin: "0 auto 1.1rem",
+            boxShadow: "0 8px 20px rgba(79,107,82,0.35)",
+          }}
+        >
+          🥭
+        </div>
+
+        <div
+          style={{
+            fontSize: "0.68rem",
+            letterSpacing: "2.5px",
+            textTransform: "uppercase",
+            color: COLORS.gold,
+            fontWeight: 700,
+            marginBottom: "0.6rem",
+          }}
+        >
+          Namaste
+        </div>
+
+        <h3
+          style={{
+            fontFamily: FONT_DISPLAY,
+            fontSize: "1.7rem",
+            color: COLORS.ink,
+            fontWeight: 900,
+            marginBottom: "0.65rem",
+            lineHeight: 1.2,
+          }}
+        >
+          Welcome to Achaaryaar
+        </h3>
+
+        <p
+          style={{
+            color: COLORS.muted,
+            fontSize: "0.92rem",
+            lineHeight: 1.65,
+            marginBottom: "1.5rem",
+          }}
+        >
+          Recipes passed down through three generations, hand-mixed in small batches
+          and matured the traditional way — pure ingredients, no shortcuts, no
+          preservatives.
+        </p>
+
+        <div
+          style={{
+            background: "rgba(193,138,66,0.1)",
+            border: `1px dashed ${COLORS.gold}`,
+            borderRadius: 12,
+            padding: "0.9rem 1rem",
+            marginBottom: "1.6rem",
+          }}
+        >
+          <span style={{ fontSize: "0.78rem", color: COLORS.muted }}>Use code </span>
+          <span style={{ fontWeight: 900, color: COLORS.forest, letterSpacing: "1px" }}>
+            WELCOME10
+          </span>
+          <span style={{ fontSize: "0.78rem", color: COLORS.muted }}>
+            {" "}
+            for 10% off your first order
+          </span>
+        </div>
+
+        <Link
+          href="/products"
+          onClick={close}
+          style={{
+            background: COLORS.forest,
+            color: COLORS.white,
+            padding: "0.85rem 2.25rem",
+            borderRadius: 12,
+            fontWeight: 700,
+            textDecoration: "none",
+            display: "inline-block",
+            fontSize: "0.92rem",
+            boxShadow: "0 8px 20px rgba(79,107,82,0.3)",
+          }}
+        >
+          Explore Our Jars
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 // ─── TRUST STRIP ──────────────────────────────────────────────────────────────
 function TrustStrip() {
@@ -216,6 +389,132 @@ function Hero() {
   );
 }
 
+// ─── OFFER BANNER ─────────────────────────────────────────────────────────────
+function OfferBanner() {
+  return (
+    <section style={{ padding: "4rem 2rem 5rem", background: COLORS.cream }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+        <div style={{
+          background: `linear-gradient(130deg, ${COLORS.forest} 0%, #3D5640 100%)`,
+          borderRadius: 24,
+          padding: "3.5rem 4rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "2.5rem",
+          position: "relative",
+          overflow: "hidden",
+          boxShadow: "0 20px 50px -20px rgba(28,40,30,0.5)",
+        }}>
+          {/* subtle brine-jar texture */}
+          <div style={{
+            position: "absolute", inset: 0,
+            backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)",
+            backgroundSize: "18px 18px",
+            pointerEvents: "none",
+          }} />
+
+          <div style={{ position: "relative", zIndex: 1, maxWidth: 540, flex: "1 1 360px" }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: "0.5rem",
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.14)",
+              borderRadius: 999,
+              padding: "0.35rem 0.9rem",
+              fontSize: "0.7rem",
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
+              color: COLORS.gold,
+              fontWeight: 700,
+              marginBottom: "1.1rem",
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.gold, display: "inline-block" }} />
+              First batch, on us
+            </div>
+
+            <h2 style={{ fontFamily: FONT_DISPLAY, fontSize: "2.3rem", lineHeight: 1.1, color: COLORS.white, marginBottom: "0.6rem", fontWeight: 900 }}>
+              10% off your first jar order
+            </h2>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.95rem", marginBottom: "1.75rem", lineHeight: 1.5 }}>
+              Small-batch, slow-fermented, shipped fresh from the brine. New customers save automatically with the code below.
+            </p>
+
+            {/* ticket-stub coupon */}
+            <div style={{
+              display: "flex",
+              alignItems: "stretch",
+              marginBottom: "1.75rem",
+              filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.25))",
+            }}>
+              <div style={{
+                background: COLORS.cream,
+                borderRadius: "10px 0 0 10px",
+                padding: "0.9rem 1.4rem",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}>
+                <span style={{ fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "2px", color: "rgba(28,40,30,0.5)", fontWeight: 700 }}>Code</span>
+                <span style={{ fontSize: "1.5rem", fontWeight: 900, color: COLORS.forest, letterSpacing: "3px" }}>WELCOME10</span>
+              </div>
+              <div style={{
+                position: "relative",
+                width: 0,
+                borderTop: "26px solid transparent",
+                borderBottom: "26px solid transparent",
+                borderLeft: `14px solid ${COLORS.gold}`,
+              }} />
+              <div style={{
+                background: COLORS.gold,
+                borderRadius: "0 10px 10px 0",
+                padding: "0.9rem 1.2rem",
+                display: "flex",
+                alignItems: "center",
+                fontSize: "0.78rem",
+                fontWeight: 800,
+                color: COLORS.forest,
+              }}>
+                COPY
+              </div>
+            </div>
+
+            <Link href="/products" style={{
+              background: "transparent",
+              border: `2px solid ${COLORS.gold}`,
+              color: COLORS.gold,
+              padding: "0.8rem 1.9rem",
+              borderRadius: 12,
+              fontWeight: 700,
+              textDecoration: "none",
+              display: "inline-block",
+              transition: "background 0.15s ease, color 0.15s ease",
+            }}>Shop the batch →</Link>
+          </div>
+
+          {/* real product photo on the right */}
+          <div style={{
+            position: "relative", zIndex: 1,
+            flex: "0 1 320px",
+            width: "100%",
+            maxWidth: 320,
+            aspectRatio: "4 / 3",
+            borderRadius: 18,
+            overflow: "hidden",
+            boxShadow: "0 24px 48px -16px rgba(0,0,0,0.45)",
+          }}>
+            <Image
+              src="/image/discount.png"
+              alt="Achaaryaar jars — your first order, 10% off"
+              fill
+              style={{ objectFit: "cover" }}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 // ─── CATEGORY GRID ────────────────────────────────────────────────────────────
 function CategoryGrid() {
   const cats = [
@@ -234,7 +533,7 @@ function CategoryGrid() {
           gap: "1.5rem",
         }}>
           {cats.map(c => (
-            <Link key={c.name} href={`/shop?category=${c.slug}`} style={{
+            <Link key={c.name} href={`/products?category=${c.slug}`} style={{
               background: COLORS.white,
               borderRadius: 18,
               border: `1px solid ${COLORS.sand}`,
@@ -315,7 +614,7 @@ function FeaturedProducts() {
           gap: "1.5rem",
         }}>
           {products.map(p => (
-            <Link key={p.id} href="/shop" style={{
+            <Link key={p.id} href="/products" style={{
               background: COLORS.white,
               borderRadius: 18,
               border: `1px solid ${COLORS.sand}`,
@@ -424,69 +723,7 @@ function WhyChooseUsBanner() {
   );
 }
 
-// ─── OFFER BANNER ─────────────────────────────────────────────────────────────
-function OfferBanner() {
-  return (
-    <section style={{ padding: "0 2rem 5rem", background: COLORS.cream }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-        <div style={{
-          background: `linear-gradient(130deg, ${COLORS.forest} 0%, #3D5640 100%)`,
-          borderRadius: 24,
-          padding: "3.5rem 4rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "2rem",
-          position: "relative",
-          overflow: "hidden",
-        }}>
-          <div style={{
-            position: "absolute", right: "-4%", top: "-40%",
-            width: 400, height: 400,
-            borderRadius: "50%",
-            background: "rgba(201,146,58,0.08)",
-            pointerEvents: "none",
-          }} />
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <h2 style={{ fontFamily: FONT_DISPLAY, fontSize: "2.2rem", color: COLORS.white, marginBottom: "0.4rem", fontWeight: 900 }}>
-              Get 10% Off Your First Order
-            </h2>
-            <p style={{ color: "rgba(255,255,255,0.62)", fontSize: "0.95rem", marginBottom: "1.5rem" }}>
-              Join thousands of happy customers — use the code below at checkout.
-            </p>
-            <div style={{
-              background: "rgba(201,146,58,0.15)",
-              border: "1px dashed rgba(201,146,58,0.5)",
-              borderRadius: 12,
-              padding: "1rem 1.5rem",
-              display: "inline-block",
-              marginBottom: "1.5rem",
-            }}>
-              <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "0.25rem" }}>
-                Coupon Code
-              </div>
-              <div style={{ fontSize: "2rem", fontWeight: 900, color: COLORS.gold, letterSpacing: "4px" }}>
-                WELCOME10
-              </div>
-            </div>
-            <br />
-            <Link href="/products" style={{
-              background: COLORS.gold,
-              color: COLORS.forest,
-              padding: "0.85rem 2rem",
-              borderRadius: 12,
-              fontWeight: 700,
-              textDecoration: "none",
-              display: "inline-block",
-            }}>Shop Now →</Link>
-          </div>
-          <div style={{ fontSize: "9rem", opacity: 0.08, position: "relative", zIndex: 1 }}>🥒</div>
-        </div>
-      </div>
-    </section>
-  );
-}
+
 
 // ─── PROCESS ──────────────────────────────────────────────────────────────────
 function ProcessSection() {
@@ -767,12 +1004,13 @@ function SectionHeader({ eyebrow, title, sub }: { eyebrow?: string; title: strin
 export default function HomePage() {
   return (
     <div style={{ fontFamily: FONT_BODY, background: COLORS.cream, minHeight: "100vh" }}>
+      <WelcomePopup />
       <TrustStrip />
       <Hero />
+      <OfferBanner />
       <CategoryGrid />
       <FeaturedProducts />
       <WhyChooseUsBanner />
-      <OfferBanner />
       <ProcessSection />
       <StorySection />
       <FAQSection />
