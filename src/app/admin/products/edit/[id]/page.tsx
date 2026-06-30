@@ -7,11 +7,12 @@ export default function EditProductPage() {
     const params = useParams();
     const router = useRouter();
 
+const [imageFile, setImageFile] = useState<File | null>(null);
     const [formData, setFormData] = useState<any>({
         name: "",
         image: "",
         description: "",
-        variants: [],
+        weights: [],
     });
 
     useEffect(() => {
@@ -28,9 +29,9 @@ export default function EditProductPage() {
                     name: data.product.name || "",
                     image: data.product.image || "",
                     description: data.product.description || "",
-                    variants:
-                        data.product.variants?.length > 0
-                            ? data.product.variants
+                    weights:
+                        data.product.weights?.length > 0
+                            ? data.product.weights
                             : [
                                 { quantity: "150g", price: "", stock: "" },
                                 { quantity: "250g", price: "", stock: "" },
@@ -46,7 +47,23 @@ export default function EditProductPage() {
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
 
+
         try {
+            let imageUrl = formData.image;
+
+            if (imageFile) {
+                const data = new FormData();
+                data.append("file", imageFile);
+
+                const uploadRes = await fetch("/api/upload", {
+                    method: "POST",
+                    body: data,
+                });
+
+                const uploadData = await uploadRes.json();
+
+                imageUrl = uploadData.image;
+            }
             const res = await fetch(`/api/products/${params.id}`, {
                 method: "PATCH",
                 headers: {
@@ -54,7 +71,8 @@ export default function EditProductPage() {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    variants: formData.variants.map((v: any) => ({
+                    image: imageUrl,
+                    weights: formData.weights.map((v: any) => ({
                         quantity: v.quantity,
                         price: Number(v.price),
                         stock: Number(v.stock),
@@ -113,7 +131,7 @@ export default function EditProductPage() {
             className="w-full border rounded-xl p-3 text-gray-900"
             required
           /> */}
-                    {formData.variants.map((variant: any, index: number) => (
+                    {formData.weights.map((variant: any, index: number) => (
                         <div key={index} className="border p-4 rounded-xl">
 
                             <h3 className="font-bold mb-2">
@@ -125,12 +143,12 @@ export default function EditProductPage() {
                                 placeholder="Price"
                                 value={variant.price}
                                 onChange={(e) => {
-                                    const updated = [...formData.variants];
+                                    const updated = [...formData.weights];
                                     updated[index].price = e.target.value;
 
                                     setFormData({
                                         ...formData,
-                                        variants: updated,
+                                        weights: updated,
                                     });
                                 }}
                                 className="w-full border rounded-xl p-3 mb-3 text-gray-900"
@@ -141,19 +159,19 @@ export default function EditProductPage() {
                                 placeholder="Stock"
                                 value={variant.stock}
                                 onChange={(e) => {
-                                    const updated = [...formData.variants];
+                                    const updated = [...formData.weights];
                                     updated[index].stock = e.target.value;
 
                                     setFormData({
                                         ...formData,
-                                        variants: updated,
+                                        weights: updated,
                                     });
                                 }}
                                 className="w-full border rounded-xl p-3 text-gray-900"
                             />
                         </div>
                     ))}
-                    <input
+                    {/* <input
                         type="text"
                         placeholder="Image URL"
                         value={formData.image}
@@ -165,6 +183,16 @@ export default function EditProductPage() {
                         }
                         className="w-full border rounded-xl p-3 text-gray-900"
                         required
+                    /> */}
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                            if (e.target.files?.[0]) {
+                                setImageFile(e.target.files[0]);
+                            }
+                        }}
+                        className="w-full border rounded-xl p-3 text-gray-900"
                     />
 
                     <textarea

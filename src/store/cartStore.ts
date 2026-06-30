@@ -5,7 +5,7 @@ import { create } from "zustand";
 type CartItem = {
   _id: string;
   name: string;
-  price: string;
+  price: number;
   quantity: number;
   selectedVariant: string;
 };
@@ -13,7 +13,10 @@ type CartItem = {
 type CartStore = {
   items: CartItem[];
 
-  addItem: (item: Omit<CartItem, "quantity">) => void;
+  addItem: (
+    item: Omit<CartItem, "quantity">,
+    quantity?: number
+  ) => void;
 
   removeItem: (
     name: string,
@@ -34,7 +37,7 @@ type CartStore = {
 export const useCartStore = create<CartStore>((set) => ({
   items: [],
 
-  addItem: (item) =>
+  addItem: (item, quantity = 1) =>
     set((state) => {
       const existing = state.items.find(
         (cartItem) =>
@@ -49,7 +52,7 @@ export const useCartStore = create<CartStore>((set) => ({
             cartItem.selectedVariant === item.selectedVariant
               ? {
                   ...cartItem,
-                  quantity: cartItem.quantity + 1,
+                  quantity: cartItem.quantity + quantity,
                 }
               : cartItem
           ),
@@ -61,7 +64,7 @@ export const useCartStore = create<CartStore>((set) => ({
           ...state.items,
           {
             ...item,
-            quantity: 1,
+            quantity,
           },
         ],
       };

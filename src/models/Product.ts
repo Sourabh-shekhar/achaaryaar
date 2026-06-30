@@ -1,31 +1,68 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, models, model } from "mongoose";
 
-const ProductSchema = new mongoose.Schema(
+const ProductSchema = new Schema(
   {
     name: {
       type: String,
       required: true,
     },
 
-    image: String,
-
-    description: String,
+    description: {
+      type: String,
+      required: true,
+    },
 
     category: {
       type: String,
-      default: "Pickle",
+      required: true,
     },
 
-    variants: [
+    image: {
+      type: String,
+      required: true,
+    },
+
+    weights: [
       {
-        quantity: String, // 150g, 250g, 500g
-        price: Number,
-        stock: Number,
+        size: {
+          type: String,
+          enum: ["150g", "250g", "500g"],
+          required: true,
+        },
+
+        price: {
+          type: Number,
+          required: true,
+        },
+
+        stock: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
+
+    featured: {
+      type: Boolean,
+      default: false,
+    },
+
+    rating: {
+      type: Number,
+      default: 0,
+    },
+
+    reviewsCount: {
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-export default mongoose.models.Product ||
-  mongoose.model("Product", ProductSchema);
+const Product =
+  models.Product || model("Product", ProductSchema);
+
+export default Product;

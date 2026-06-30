@@ -47,7 +47,7 @@ export default function Footer() {
                         </a>
 
                         <a
-                            href="https://wa.me/919525463643"
+                            href="https://wa.me/917561972501"
                             target="_blank"
                             className="text-green-600 hover:scale-110 transition"
                         >
@@ -96,7 +96,7 @@ export default function Footer() {
                     </h3>
 
                     <div className="space-y-3 text-gray-600">
-                        <p>📞 +91 9525463643</p>
+                        <p>📞 +91 7561972501</p>
                         <p>✉ support@achaaryaar.com</p>
                         <p>📍 Bihar, India</p>
                     </div>

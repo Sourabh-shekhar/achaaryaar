@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 export default function AdminProductsPage() {
     const router = useRouter();
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({
         name: "",
         image: "",
@@ -143,18 +145,29 @@ export default function AdminProductsPage() {
 
 
 
+                    {/* <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                    /> */}
                     <input
-                        type="text"
-                        placeholder="Image URL"
-                        value={formData.image}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                image: e.target.value,
-                            })
-                        }
-                        className="w-full border rounded-xl p-3 text-gray-900 bg-white"
-                        required
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                            if (e.target.files?.[0]) {
+                                setImageFile(e.target.files[0]);
+                            }
+                        }}
+                        className="w-full border rounded-xl p-3 text-gray-900"
+                    /><input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                            if (e.target.files?.[0]) {
+                                setImageFile(e.target.files[0]);
+                            }
+                        }}
+                        className="w-full border rounded-xl p-3 text-gray-900"
                     />
 
                     <textarea
@@ -259,21 +272,29 @@ export default function AdminProductsPage() {
                             </h3>
 
                             <div className="mt-2">
-                                {product.variants?.map((variant: any, index: number) => (
+                                {product.weights?.map((weight: any, index: number) => (
                                     <div key={index} className="border-b py-1">
                                         <p className="font-semibold">
-                                            {variant.quantity}
+                                            {weight.size}
                                         </p>
 
                                         <p className="text-orange-600">
-                                            ₹{variant.price}
+                                            ₹{weight.price}
                                         </p>
 
                                         <p className="text-gray-700">
-                                            Stock: {variant.stock}
+                                            Stock: {weight.stock}
                                         </p>
                                     </div>
                                 ))}
+                            </div>
+                            <div className="flex gap-3 mt-4">
+                                <Link
+                                    href={`/admin/products/edit/${product._id}`}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-xl"
+                                >
+                                    Edit
+                                </Link>
                             </div>
                             <button
                                 onClick={() => deleteProduct(product._id)}

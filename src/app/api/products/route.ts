@@ -24,20 +24,29 @@ export async function GET() {
     );
   }
 }
-
 export async function POST(req: Request) {
   try {
     await connectDB();
 
     const body = await req.json();
 
-    const product = await Product.create(body);
+    const product = await Product.create({
+      name: body.name,
+      description: body.description,
+      category: body.category,
+      image: body.image,
+      featured: body.featured || false,
+      weights: body.weights,
+    });
 
     return NextResponse.json({
       success: true,
       product,
     });
+
   } catch (error) {
+    console.log(error);
+
     return NextResponse.json(
       {
         success: false,

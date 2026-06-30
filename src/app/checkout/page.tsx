@@ -4,6 +4,8 @@ import { useCartStore } from "@/store/cartStore";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
+
 export default function CheckoutPage() {
     const router = useRouter();
 
@@ -17,11 +19,12 @@ export default function CheckoutPage() {
         email: "",
     });
     const items = useCartStore((state) => state.items);
-    console.log("Cart Items:", items);
+
     const subtotal = items.reduce((total, item) => {
-        const price = parseInt(
-            item.price.match(/\d+/)?.[0] || "0"
-        );
+        const price =
+            typeof item.price === "number"
+                ? item.price
+                : parseInt(String(item.price).match(/\d+/)?.[0] || "0", 10);
 
         return total + price * item.quantity;
     }, 0);
@@ -37,6 +40,11 @@ export default function CheckoutPage() {
 
         if (!/^[0-9]{10}$/.test(formData.phone)) {
             alert("Please enter a valid 10-digit phone number");
+            return;
+        }
+
+        if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+            alert("Please enter a valid email address");
             return;
         }
 
@@ -58,15 +66,7 @@ export default function CheckoutPage() {
             alert("Your cart is empty");
             return;
         }
-
         try {
-            console.log("Sending Order Data:", {
-                ...formData,
-                items,
-                subtotal,
-                shipping,
-                total,
-            });
             const response = await fetch("/api/orders", {
                 method: "POST",
                 headers: {
@@ -94,27 +94,41 @@ export default function CheckoutPage() {
         }
     };
 
+    const inputClasses =
+        "w-full border border-[#E8DDD1] bg-white rounded-xl px-4 py-3 text-[#2D2A26] font-medium placeholder:text-[#9C9388] focus:outline-none focus:ring-2 focus:ring-[#C18A42] focus:border-[#C18A42] transition";
+
+    const labelClasses = "block text-[#4F6B52] font-semibold mb-2 text-sm tracking-wide";
+
     return (
-        <div className="min-h-screen bg-gray-100 py-12 px-6">
+        <div className="min-h-screen bg-[#FBF7F1] py-12 px-6">
             <div className="max-w-6xl mx-auto">
 
-                <h1 className="text-5xl font-extrabold text-gray-900 mb-8">
+                <h1
+                    className="text-5xl font-extrabold text-[#2D2A26] mb-2"
+                    style={{ fontFamily: FONT_DISPLAY }}
+                >
                     Checkout
                 </h1>
+                <p className="text-[#7A6F65] mb-8">
+                    Review your order and complete your purchase.
+                </p>
 
                 <div className="grid lg:grid-cols-3 gap-8">
 
                     {/* Shipping Details */}
-                    <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
+                    <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl border border-[#E8DDD1] p-8">
 
-                        <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                        <h2
+                            className="text-3xl font-bold text-[#2D2A26] mb-6"
+                            style={{ fontFamily: FONT_DISPLAY }}
+                        >
                             Shipping Details
                         </h2>
 
-                        <form className="space-y-5">
+                        <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
 
                             <div>
-                                <label className="block text-gray-700 font-semibold mb-2">
+                                <label className={labelClasses}>
                                     Full Name
                                 </label>
 
@@ -128,51 +142,58 @@ export default function CheckoutPage() {
                                             fullName: e.target.value,
                                         })
                                     }
-                                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    className={inputClasses}
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-gray-700 font-semibold mb-2">
-                                    Phone Number
-                                </label>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className={labelClasses}>
+                                        Phone Number
+                                    </label>
 
-                                <input
-                                    type="tel"
-                                    placeholder="Enter your phone number"
-                                    value={formData.phone}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            phone: e.target.value,
-                                        })
-                                    }
-                                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="font-bold">Email</label>
+                                    <input
+                                        type="tel"
+                                        placeholder="10-digit mobile number"
+                                        value={formData.phone}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                phone: e.target.value,
+                                            })
+                                        }
+                                        className={inputClasses}
+                                    />
+                                </div>
 
-                                <input
-                                    type="email"
-                                    value={formData.email}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            email: e.target.value,
-                                        })
-                                    }
-                                    className="w-full border p-4 rounded-xl"
-                                />
+                                <div>
+                                    <label className={labelClasses}>
+                                        Email
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        placeholder="you@example.com"
+                                        value={formData.email}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                email: e.target.value,
+                                            })
+                                        }
+                                        className={inputClasses}
+                                    />
+                                </div>
                             </div>
+
                             <div>
-                                <label className="block text-gray-700 font-semibold mb-2">
+                                <label className={labelClasses}>
                                     Address
                                 </label>
 
                                 <textarea
                                     rows={4}
-                                    placeholder="Enter your address"
+                                    placeholder="House no, street, locality"
                                     value={formData.address}
                                     onChange={(e) =>
                                         setFormData({
@@ -180,15 +201,14 @@ export default function CheckoutPage() {
                                             address: e.target.value,
                                         })
                                     }
-                                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    className={inputClasses}
                                 />
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-4">
 
                                 <div>
-
-                                    <label className="block text-gray-700 font-semibold mb-2">
+                                    <label className={labelClasses}>
                                         City
                                     </label>
 
@@ -202,18 +222,18 @@ export default function CheckoutPage() {
                                                 city: e.target.value,
                                             })
                                         }
-                                        className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                        className={inputClasses}
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-gray-700 font-semibold mb-2">
+                                    <label className={labelClasses}>
                                         Pincode
                                     </label>
 
                                     <input
                                         type="text"
-                                        placeholder="Enter pincode"
+                                        placeholder="6-digit pincode"
                                         value={formData.pincode}
                                         onChange={(e) =>
                                             setFormData({
@@ -221,18 +241,27 @@ export default function CheckoutPage() {
                                                 pincode: e.target.value,
                                             })
                                         }
-                                        className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                        className={inputClasses}
                                     />
                                 </div>
                             </div>
+
                             <div className="mt-8">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                                <h3
+                                    className="text-2xl font-bold text-[#2D2A26] mb-4"
+                                    style={{ fontFamily: FONT_DISPLAY }}
+                                >
                                     Payment Method
                                 </h3>
 
                                 <div className="space-y-3">
 
-                                    <label className="flex items-center gap-3 border border-gray-300 rounded-xl p-4 cursor-pointer">
+                                    <label
+                                        className={`flex items-center gap-3 border rounded-xl p-4 cursor-pointer transition ${formData.paymentMethod === "cod"
+                                            ? "border-[#C18A42] bg-[#FBF3E7]"
+                                            : "border-[#E8DDD1] bg-white"
+                                            }`}
+                                    >
                                         <input
                                             type="radio"
                                             name="payment"
@@ -244,13 +273,19 @@ export default function CheckoutPage() {
                                                     paymentMethod: e.target.value,
                                                 })
                                             }
+                                            className="accent-[#C18A42]"
                                         />
-                                        <span className="font-medium text-gray-900">
+                                        <span className="font-medium text-[#2D2A26]">
                                             Cash on Delivery (COD)
                                         </span>
                                     </label>
 
-                                    <label className="flex items-center gap-3 border border-gray-300 rounded-xl p-4 cursor-pointer">
+                                    <label
+                                        className={`flex items-center gap-3 border rounded-xl p-4 cursor-pointer transition ${formData.paymentMethod === "razorpay"
+                                            ? "border-[#C18A42] bg-[#FBF3E7]"
+                                            : "border-[#E8DDD1] bg-white"
+                                            }`}
+                                    >
                                         <input
                                             type="radio"
                                             name="payment"
@@ -262,8 +297,9 @@ export default function CheckoutPage() {
                                                     paymentMethod: e.target.value,
                                                 })
                                             }
+                                            className="accent-[#C18A42]"
                                         />
-                                        <span className="font-medium text-gray-900">
+                                        <span className="font-medium text-[#2D2A26]">
                                             Pay Online (UPI, Card, Net Banking)
                                         </span>
                                     </label>
@@ -275,53 +311,86 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* Order Summary */}
-                    <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 h-fit">
+                    <div className="bg-white rounded-3xl shadow-xl border border-[#E8DDD1] p-8 h-fit sticky top-8">
 
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                        <h2
+                            className="text-2xl font-bold text-[#2D2A26] mb-6"
+                            style={{ fontFamily: FONT_DISPLAY }}
+                        >
                             Order Summary
                         </h2>
 
-                        <div className="space-y-4">
+                        {items.length === 0 ? (
+                            <p className="text-[#7A6F65] text-sm mb-4">
+                                Your cart is empty.{" "}
+                                <Link
+                                    href="/shop"
+                                    className="text-[#C18A42] font-semibold underline"
+                                >
+                                    Browse pickles →
+                                </Link>
+                            </p>
+                        ) : (
+                            <>
+                                <div className="space-y-3 mb-4 max-h-64 overflow-y-auto pr-1">
+                                    {items.map((item) => (
+                                        <div
+                                            key={`${item._id}-${item.selectedVariant}`}
+                                            className="flex justify-between text-sm">
+                                        
+                                            <span className="text-[#2D2A26]">
+                                                {item.name}
+                                                <span className="text-[#9C9388]">
+                                                    {" "}({item.selectedVariant}) × {item.quantity}
+                                                </span>
+                                            </span>
 
-                            <div className="flex justify-between">
-                                <span className="text-gray-600">
-                                    Subtotal
-                                </span>
+                                            <span className="font-medium text-[#2D2A26]">
+                                                ₹{item.price}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
 
-                                <span className="font-semibold text-gray-900">
-                                    ₹{subtotal}
-                                </span>
-                            </div>
+                                <div className="space-y-4 border-t border-[#E8DDD1] pt-4">
+                                    <div className="flex justify-between">
+                                        <span className="text-[#7A6F65]">Subtotal</span>
+                                        <span className="font-semibold text-[#2D2A26]">
+                                            ₹{subtotal}
+                                        </span>
+                                    </div>
 
-                            <div className="flex justify-between">
-                                <span className="text-gray-600">
-                                    Shipping
-                                </span>
+                                    <div className="flex justify-between">
+                                        <span className="text-[#7A6F65]">Shipping</span>
+                                        <span className="font-semibold text-[#2D2A26]">
+                                            ₹{shipping}
+                                        </span>
+                                    </div>
 
-                                <span className="font-semibold text-gray-900">
-                                    ₹{shipping}
-                                </span>
-                            </div>
+                                    <hr className="border-[#E8DDD1]" />
 
-                            <hr />
+                                    <div className="flex justify-between text-xl font-bold">
+                                        <span className="text-[#2D2A26]">Total</span>
+                                        <span className="text-[#C18A42]">
+                                            ₹{total}
+                                        </span>
+                                    </div>
 
-                            <div className="flex justify-between text-xl font-bold">
-                                <span className="text-gray-900">Total</span>
-                                <span className="text-orange-600">
-                                    ₹{total}
-                                </span>
-                            </div>
+                                    <button
+                                        type="button"
+                                        onClick={handlePlaceOrder}
+                                        disabled={items.length === 0}
+                                        className="w-full bg-[#C18A42] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#A8742F] transition mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        Place Order
+                                    </button>
 
-                            <button
-                                type="button"
-
-                                onClick={handlePlaceOrder}
-                                className="w-full bg-orange-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-orange-700 transition mt-4"
-                            >
-                                Place Order
-                            </button>
-
-                        </div>
+                                    <p className="text-center text-xs text-[#9C9388] mt-2">
+                                        🔒 Secure checkout · Handcrafted with care in Bihar
+                                    </p>
+                                </div>
+                            </>
+                        )}
 
                     </div>
 
