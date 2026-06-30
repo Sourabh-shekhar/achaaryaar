@@ -1,73 +1,3 @@
-// import ProductCard from "@/components/ProductCard";
-
-// async function getProducts() {
-//   const res = await fetch("http://localhost:3000/api/products", {
-//     cache: "no-store",
-//   });
-
-//   if (!res.ok) {
-//     throw new Error("Failed to fetch products");
-//   }
-
-//   const data = await res.json();
-//   return data.products || [];
-// }
-
-// export default async function ProductsPage({
-//   searchParams,
-// }: {
-//   searchParams: Promise<{ search?: string }>;
-// }) {
-
-//   const products = await getProducts();
-
-//   const params = await searchParams;
-//   const search = params.search?.toLowerCase() || "";
-
-//   const filteredProducts = products.filter((product: any) =>
-//     product.name.toLowerCase().includes(search)
-//   );
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 py-16">
-//       <div className="max-w-7xl mx-auto px-6">
-
-//         <h1 className="text-5xl font-bold text-center text-gray-900 mb-12">
-//           Grandma's Specials ⭐
-//         </h1>
-
-//         {search && (
-//           <p className="text-center text-gray-600 mb-8">
-//             Search Results for:
-//             <span className="font-bold text-orange-600">
-//               {" "}{search}
-//             </span>
-//           </p>
-//         )}
-
-//         {filteredProducts.length === 0 ? (
-//           <div className="text-center text-2xl text-gray-600">
-//             No products found 😔
-//           </div>
-//         ) : (
-//           <div className="grid md:grid-cols-3 gap-8">
-//             {filteredProducts.map((product: any) => (
-//               <ProductCard
-//                 key={product._id}
-//                 _id={product._id}
-//                 name={product.name}
-//                 description={product.description}
-//                 image={product.image}
-//                   weights={product.weights}
-
-//               />
-//             ))}
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
 import ProductCard from "@/components/ProductCard";
 
 const COLORS = {
@@ -81,8 +11,13 @@ const COLORS = {
   muted: "#7A6F65",
 };
 
+const baseUrl =
+  process.env.NODE_ENV === "production"
+    ? "https://achaaryaar-git-main-sourabh-shekhars-projects.vercel.app"
+    : "http://localhost:3000";
+
 async function getProducts() {
-  const res = await fetch("http://localhost:3000/api/products", {
+  const res = await fetch(`${baseUrl}/api/products`, {
     cache: "no-store",
   });
 
