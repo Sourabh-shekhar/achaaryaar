@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar";
 import Providers from "./providers";
 import AuthProvider from "@/components/SessionProvider";
 
+
+
 const geistSans = Geist({
   subsets: ["latin"],
 });
@@ -17,7 +19,6 @@ export const metadata: Metadata = {
   title: "Achaaryaar | Authentic Homemade Bihar Pickles",
   description:
     "Buy authentic homemade Bihar pickles online. Traditional recipes, premium ingredients, and homemade taste delivered across India.",
-
   keywords: [
     "Bihar Pickle",
     "Homemade Pickle",
@@ -43,6 +44,8 @@ export const metadata: Metadata = {
 
   icons: {
     icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
 };
 

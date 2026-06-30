@@ -394,20 +394,30 @@ function FeaturedProducts() {
 // ─── WHY CHOOSE US BANNER (full poster image) ────────────────────────────────
 function WhyChooseUsBanner() {
   return (
-    <section style={{ background: COLORS.cream, padding: "0 2rem 5rem" }}>
-      <div style={{
-        maxWidth: 1000, margin: "0 auto",
-        borderRadius: 24,
-        overflow: "hidden",
-        boxShadow: "0 24px 48px rgba(28,61,46,0.16)",
-        border: `1px solid ${COLORS.sand}`,
-      }}>
+    <section
+      style={{
+        background: COLORS.cream,
+        padding: "0 0 5rem",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          borderRadius: 0,
+          overflow: "hidden",
+          boxShadow: "0 24px 48px rgba(28,61,46,0.16)",
+        }}
+      >
         <Image
           src="/image/holding.jpg"
           alt="Achaar Yaar — pure tradition, authentic taste, homemade pickles made fresh in small batches with no preservatives"
-          width={1024}
-          height={1536}
-          style={{ width: "100%", height: "auto", display: "block" }}
+          width={1920}
+          height={1080}
+          style={{
+            width: "100%",
+            height: "auto",
+            display: "block",
+          }}
         />
       </div>
     </section>
