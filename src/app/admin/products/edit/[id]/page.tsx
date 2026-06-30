@@ -21,7 +21,12 @@ const [imageFile, setImageFile] = useState<File | null>(null);
 
     const fetchProduct = async () => {
         try {
-            const res = await fetch(`/api/products/${params.id}`);
+            const res = await fetch(
+  `${baseUrl}/api/products/${params.id}`,
+  {
+    cache: "no-store",
+  }
+);
             const data = await res.json();
 
             if (data.success) {
@@ -55,7 +60,7 @@ const [imageFile, setImageFile] = useState<File | null>(null);
                 const data = new FormData();
                 data.append("file", imageFile);
 
-                const uploadRes = await fetch("/api/upload", {
+                const uploadRes = await fetch(`${baseUrl}/api/upload`, {
                     method: "POST",
                     body: data,
                 });
@@ -64,21 +69,25 @@ const [imageFile, setImageFile] = useState<File | null>(null);
 
                 imageUrl = uploadData.image;
             }
-            const res = await fetch(`/api/products/${params.id}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    image: imageUrl,
-                    weights: formData.weights.map((v: any) => ({
-                        quantity: v.quantity,
-                        price: Number(v.price),
-                        stock: Number(v.stock),
-                    })),
-                }),
-            });
+          const res = await fetch(
+  `${baseUrl}/api/products/${params.id}`,
+  {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      ...formData,
+      image: imageUrl,
+      weights: formData.weights.map((v: any) => ({
+        quantity: v.quantity,
+        price: Number(v.price),
+        stock: Number(v.stock),
+      })),
+    }),
+  }
+);
+               
 
             const data = await res.json();
 

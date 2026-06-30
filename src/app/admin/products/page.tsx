@@ -40,7 +40,9 @@ export default function AdminProductsPage() {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch("/api/products");
+          const res = await fetch(`${baseUrl}/api/products`, {
+  cache: "no-store",
+});
             const data = await res.json();
 
             if (data.success) {
@@ -58,7 +60,7 @@ export default function AdminProductsPage() {
         if (!confirmDelete) return;
 
         try {
-            const res = await fetch(`/api/products/${id}`, {
+           const res = await fetch(`${baseUrl}/api/products/${id}`, {
                 method: "DELETE",
             });
 
@@ -77,7 +79,7 @@ export default function AdminProductsPage() {
         e.preventDefault();
 
         try {
-            const res = await fetch("/api/products", {
+            const res = await fetch(`${baseUrl}/api/products`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
