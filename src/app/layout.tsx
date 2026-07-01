@@ -5,7 +5,8 @@ import Navbar from "@/components/Navbar";
 import Providers from "./providers";
 import AuthProvider from "@/components/SessionProvider";
 import { Playfair_Display } from "next/font/google";
-
+import { Info } from "lucide-react";
+import InfoTicker from "@/components/InfoTicker";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -64,6 +65,7 @@ export default function RootLayout({
         <AuthProvider>
 
           <Navbar />
+          <InfoTicker />
 
           <main className="flex-grow">
             {children}
