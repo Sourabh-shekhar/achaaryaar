@@ -3,8 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+
+const MOBILE_NAV_ITEMS = [
+  { label: "Home", href: "/" },
+  { label: "Shop", href: "/products" },
+  { label: "About Us", href: "/about" },
+  { label: "Contact", href: "/contact" },
+];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +19,7 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
 
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
 
   const items = useCartStore((state) => state.items);
@@ -24,6 +32,14 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Lock body scroll while the mobile side menu is open
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const handleSearch = (
     e: React.KeyboardEvent<HTMLInputElement>
@@ -156,6 +172,8 @@ export default function Navbar() {
         {/* Mobile Hamburger */}
         <button
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isOpen}
           className="md:hidden text-4xl text-black font-bold p-2"
         >
           {isOpen ? "✕" : "☰"}
@@ -177,7 +195,6 @@ export default function Navbar() {
         className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white shadow-2xl z-[60] transform transition-transform duration-300 ease-in-out md:hidden ${isOpen ? "translate-x-0" : "translate-x-full"
           }`}
       >
-        {/* <div className="p-6"> */}
         <div className="p-6 text-gray-900">
           <div className="mb-8">
             <img
@@ -190,50 +207,41 @@ export default function Navbar() {
           <div className="flex justify-end">
             <button
               onClick={() => setIsOpen(false)}
+              aria-label="Close menu"
               className="text-4xl text-black"
             >
               ✕
             </button>
           </div>
 
-          <div className="flex flex-col gap-6 mt-8">
+          <div className="flex flex-col gap-2 mt-8">
+
+            {MOBILE_NAV_ITEMS.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`uppercase tracking-wide text-lg font-semibold px-4 py-3 rounded-xl transition-colors duration-150 active:bg-orange-100
+                    ${isActive
+                      ? "bg-orange-50 text-orange-600"
+                      : "bg-white text-gray-900 hover:bg-gray-100 hover:text-orange-600"
+                    }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
 
             <Link
-              href="/"
+              href="/cart"
               onClick={() => setIsOpen(false)}
-              className="text-xl font-semibold text-gray-900 hover:text-orange-600 transition"
-            >
-              Home
-            </Link>
-
-            <Link
-              href="/"
-              onClick={() => setIsOpen(false)}
-              className="text-xl font-semibold text-gray-900 hover:text-orange-600 transition"
-            >
-              Shop
-            </Link>
-
-            <Link
-              href="/"
-              onClick={() => setIsOpen(false)}
-              className="text-xl font-semibold text-gray-900 hover:text-orange-600 transition"
-            >
-              About Us
-            </Link>
-
-            <Link
-              href="/"
-              onClick={() => setIsOpen(false)}
-              className="text-xl font-semibold text-gray-900 hover:text-orange-600 transition"
-            >
-              Contact
-            </Link>
-
-            <Link
-              href="/"
-              onClick={() => setIsOpen(false)}
-              className="text-xl font-semibold text-gray-900 hover:text-orange-600 transition"
+              className={`uppercase tracking-wide text-lg font-semibold px-4 py-3 rounded-xl transition-colors duration-150 active:bg-orange-100
+                ${pathname === "/cart"
+                  ? "bg-orange-50 text-orange-600"
+                  : "bg-white text-gray-900 hover:bg-gray-100 hover:text-orange-600"
+                }`}
             >
               Cart ({mounted ? totalItems : 0})
             </Link>
@@ -257,6 +265,7 @@ export default function Navbar() {
             <div className="mt-10 flex flex-col gap-4">
               <Link
                 href="/login"
+                onClick={() => setIsOpen(false)}
                 className="text-center border border-gray-300 py-3 rounded-xl text-gray-900 font-semibold"
               >
                 Login
@@ -264,6 +273,7 @@ export default function Navbar() {
 
               <Link
                 href="/signup"
+                onClick={() => setIsOpen(false)}
                 className="text-center bg-orange-600 text-white py-3 rounded-xl"
               >
                 Sign Up
