@@ -512,24 +512,24 @@ function OfferBanner() {
           }}>
             <div style={{ position: "relative", zIndex: 1, maxWidth: 500, flex: "1 1 320px" }}>
               <div style={{
-                display: "inline-flex", alignItems: "center", gap: "0.5rem",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.18)",
+                display: "inline-flex", alignItems: "center", gap: "0.4rem",
+                background: `linear-gradient(135deg, ${COLORS.goldLight} 0%, ${COLORS.gold} 100%)`,
+                border: "1px solid rgba(255,255,255,0.3)",
                 borderRadius: 999,
-                padding: "0.35rem 0.9rem",
+                padding: "0.4rem 1rem",
                 fontSize: "0.7rem",
                 letterSpacing: "1.5px",
                 textTransform: "uppercase",
-                color: COLORS.gold,
-                fontWeight: 700,
+                color: COLORS.forest,
+                fontWeight: 800,
                 marginBottom: "1rem",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.2)",
               }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.gold, display: "inline-block" }} aria-hidden="true" />
-                First batch, on us
+                🎁 New Customers · First Batch On Us
               </div>
 
               <h2 className="offer-heading" style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(1.3rem, 3.6vw, 2rem)", lineHeight: 1.15, color: COLORS.white, marginBottom: "0.5rem", fontWeight: 900 }}>
-                10% off On First Order
+                10% Off Your First Order
               </h2>
               <p className="offer-sub" style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.87rem", marginBottom: "1.4rem", lineHeight: 1.5 }}>
                 Small-batch, slow-fermented, shipped fresh from the brine. New customers save automatically with the code below.
@@ -796,14 +796,15 @@ function FeaturedProducts() {
 // row of quality & service guarantees — preservative-free, secure payments, etc.
 function AssuranceSection() {
   const badges = [
-    { icon: <FiFeather size={22} />, title: "Preservative Free", desc: "Naturally cured the traditional way — nothing artificial, ever." },
-    { icon: <FiLock size={22} />, title: "Secure Payments", desc: "Every transaction is encrypted and processed through trusted gateways." },
-    { icon: <FiAward size={22} />, title: "Quality Assured", desc: "Small batches, checked by hand before they ever leave our kitchen." },
-    { icon: <FiShield size={22} />, title: "Safe, Sealed Delivery", desc: "Tamper-proof jars, packed to survive the journey to your door." },
+    { icon: <FiFeather size={20} />, title: "Preservative Free", desc: "Naturally cured the traditional way — nothing artificial, ever." },
+    { icon: <FiLock size={20} />, title: "Secure Payments", desc: "Every transaction is encrypted and processed through trusted gateways." },
+    { icon: <FiAward size={20} />, title: "Quality Assured", desc: "Small batches, checked by hand before they ever leave our kitchen." },
+    { icon: <FiShield size={20} />, title: "Safe, Sealed Delivery", desc: "Tamper-proof jars, packed to survive the journey to your door." },
   ];
   return (
-    <section className="section-pad" style={{ background: COLORS.cream, padding: "0 clamp(1.25rem, 5vw, 2rem) clamp(3rem, 7vw, 5rem)" }}>
+    <section className="section-pad" style={{ background: COLORS.cream, padding: "clamp(1rem, 3vw, 1.5rem) clamp(1.25rem, 5vw, 2rem) clamp(3rem, 7vw, 5rem)" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+        <SectionHeader eyebrow="Why Choose Us" title="Our Promise to You" sub="The same standards, every single jar." />
         <div className="assurance-grid" style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
@@ -811,27 +812,30 @@ function AssuranceSection() {
         }}>
           {badges.map(b => (
             <Reveal key={b.title}>
-              <div style={{
+              <div className="assurance-card" style={{
                 background: COLORS.white,
                 border: `1px solid ${COLORS.sand}`,
+                borderTop: `3px solid ${COLORS.gold}`,
                 borderRadius: RADIUS.lg,
-                padding: "1.5rem 1.35rem",
+                padding: "1.75rem 1.5rem",
                 height: "100%",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
               }}>
                 <div style={{
-                  width: 46, height: 46,
+                  width: 50, height: 50,
                   borderRadius: "50%",
-                  background: COLORS.creamDark,
-                  color: COLORS.forest,
+                  background: `linear-gradient(135deg, ${COLORS.forest} 0%, #3D5640 100%)`,
+                  color: COLORS.gold,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  marginBottom: "1rem",
+                  marginBottom: "1.1rem",
+                  boxShadow: "0 6px 16px rgba(79,107,82,0.3)",
                 }} aria-hidden="true">
                   {b.icon}
                 </div>
-                <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, color: COLORS.ink, fontSize: "0.98rem", marginBottom: "0.35rem" }}>
+                <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, color: COLORS.ink, fontSize: "1rem", marginBottom: "0.4rem" }}>
                   {b.title}
                 </div>
-                <div style={{ color: COLORS.muted, fontSize: "0.82rem", lineHeight: 1.55 }}>
+                <div style={{ color: COLORS.muted, fontSize: "0.83rem", lineHeight: 1.6 }}>
                   {b.desc}
                 </div>
               </div>
@@ -840,6 +844,11 @@ function AssuranceSection() {
         </div>
       </div>
       <style>{`
+        .assurance-card:hover {
+          transform: translateY(-6px);
+          box-shadow: ${SHADOW.md};
+          border-color: ${COLORS.gold};
+        }
         @media (max-width: 900px) {
           .assurance-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
@@ -1249,84 +1258,100 @@ export default function HomePage() {
 
         /* ── Buttons ────────────────────────────────────────────────── */
         .btn-primary {
-          background: ${COLORS.goldLight};
-          color: #22301f;
-          padding: 0.85rem 2rem;
-          border-radius: ${RADIUS.md}px;
-          font-weight: 800;
-          font-size: 0.95rem;
+          background: linear-gradient(135deg, ${COLORS.goldLight} 0%, ${COLORS.gold} 100%);
+          color: ${COLORS.forest};
+          padding: 0.95rem 2.25rem;
+          border-radius: 100px;
+          font-weight: 700;
+          font-size: 0.9rem;
+          letter-spacing: 0.3px;
           text-decoration: none;
-          box-shadow: 0 6px 24px rgba(217,168,95,0.55);
-          border: 1px solid rgba(255,255,255,0.25);
-          display: inline-block;
-          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          box-shadow: 0 8px 22px rgba(193,138,66,0.4);
+          border: 1px solid rgba(255,255,255,0.3);
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
         }
         .btn-primary:hover, .btn-primary:focus-visible {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(217,168,95,0.65);
+          transform: translateY(-3px);
+          box-shadow: 0 14px 30px rgba(193,138,66,0.5);
         }
 
         .btn-ghost-light {
           background: transparent;
           color: #fff;
-          padding: 0.85rem 2rem;
-          border-radius: ${RADIUS.md}px;
+          padding: 0.9rem 2.1rem;
+          border-radius: 100px;
           font-weight: 600;
-          font-size: 0.95rem;
+          font-size: 0.9rem;
+          letter-spacing: 0.3px;
           text-decoration: none;
-          border: 1px solid rgba(255,255,255,0.4);
+          border: 1.5px solid rgba(255,255,255,0.45);
           display: inline-block;
-          transition: background 0.15s ease, border-color 0.15s ease;
+          transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
         }
         .btn-ghost-light:hover, .btn-ghost-light:focus-visible {
-          background: rgba(255,255,255,0.1);
-          border-color: rgba(255,255,255,0.7);
+          background: rgba(255,255,255,0.12);
+          border-color: rgba(255,255,255,0.8);
+          transform: translateY(-3px);
         }
 
         .btn-outline-gold {
           background: transparent;
-          border: 2px solid ${COLORS.gold};
+          border: 1.5px solid ${COLORS.gold};
           color: ${COLORS.gold};
-          padding: 0.8rem 1.9rem;
-          border-radius: ${RADIUS.md}px;
+          padding: 0.85rem 2rem;
+          border-radius: 100px;
           font-weight: 700;
+          font-size: 0.9rem;
+          letter-spacing: 0.3px;
           text-decoration: none;
           display: inline-block;
-          transition: background 0.15s ease, color 0.15s ease;
+          transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
         }
         .btn-outline-gold:hover, .btn-outline-gold:focus-visible {
           background: ${COLORS.gold};
           color: ${COLORS.forest};
+          transform: translateY(-3px);
         }
 
         .btn-secondary-gold {
-          background: ${COLORS.gold};
+          background: linear-gradient(135deg, ${COLORS.goldLight} 0%, ${COLORS.gold} 100%);
           color: ${COLORS.forest};
-          padding: 0.85rem 2rem;
-          border-radius: ${RADIUS.md}px;
+          padding: 0.9rem 2.1rem;
+          border-radius: 100px;
           font-weight: 700;
+          font-size: 0.9rem;
+          letter-spacing: 0.3px;
           text-decoration: none;
-          display: inline-block;
-          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          border: 1px solid rgba(255,255,255,0.3);
+          box-shadow: 0 8px 22px rgba(0,0,0,0.2);
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
         }
         .btn-secondary-gold:hover, .btn-secondary-gold:focus-visible {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(193,138,66,0.4);
+          transform: translateY(-3px);
+          box-shadow: 0 14px 30px rgba(0,0,0,0.28);
         }
 
         .btn-gold-solid {
-          background: ${COLORS.gold};
+          background: linear-gradient(135deg, ${COLORS.goldLight} 0%, ${COLORS.gold} 100%);
           color: ${COLORS.forest};
-          border: none;
-          padding: 0.8rem 1.75rem;
-          border-radius: ${RADIUS.md}px;
+          border: 1px solid rgba(255,255,255,0.3);
+          padding: 0.9rem 2rem;
+          border-radius: 100px;
           font-weight: 700;
-          font-size: 0.875rem;
-          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          font-size: 0.88rem;
+          letter-spacing: 0.3px;
+          box-shadow: 0 8px 22px rgba(193,138,66,0.35);
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
         }
         .btn-gold-solid:hover:not(:disabled), .btn-gold-solid:focus-visible {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(193,138,66,0.4);
+          transform: translateY(-3px);
+          box-shadow: 0 14px 30px rgba(193,138,66,0.45);
         }
 
         .coupon-copy-btn { transition: background 0.15s ease, transform 0.1s ease; }
