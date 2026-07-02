@@ -11,7 +11,7 @@ export default function InvoicePage() {
 
 useEffect(() => {
     if (id) {
-        fetchProduct();
+        fetchOrder();
     }
 }, [id]);
 
