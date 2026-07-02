@@ -1,10 +1,11 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FiCheckCircle, FiCopy, FiPackage } from "react-icons/fi";
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") || "";
 
@@ -12,6 +13,7 @@ export default function OrderSuccessPage() {
     if (!orderId) return;
     await navigator.clipboard.writeText(orderId);
   }
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#FBF7F1] px-6 py-12">
@@ -68,5 +70,12 @@ export default function OrderSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderSuccessContent />
+    </Suspense>
   );
 }
