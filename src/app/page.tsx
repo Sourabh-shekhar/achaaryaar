@@ -275,7 +275,7 @@ function WelcomePopup() {
           </span>
           <span style={{ fontSize: "0.78rem", color: COLORS.muted }}>
             {" "}
-            for 10% off your first order
+            for 10% Off On First Order
           </span>
         </div>
 
@@ -529,7 +529,7 @@ function OfferBanner() {
               </div>
 
               <h2 className="offer-heading" style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(1.3rem, 3.6vw, 2rem)", lineHeight: 1.15, color: COLORS.white, marginBottom: "0.5rem", fontWeight: 900 }}>
-                10% Off Your First Order
+                10% Off On First Order
               </h2>
               <p className="offer-sub" style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.87rem", marginBottom: "1.4rem", lineHeight: 1.5 }}>
                 Small-batch, slow-fermented, shipped fresh from the brine. New customers save automatically with the code below.
