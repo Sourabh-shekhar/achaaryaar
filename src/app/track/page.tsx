@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import {
   FiCheckCircle,
   FiClock,
@@ -59,7 +60,7 @@ function formatDate(value?: string) {
   }).format(new Date(value));
 }
 
-export default function TrackOrderPage() {
+function TrackOrderContent() {
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState(searchParams.get("orderId") || "");
   const [contact, setContact] = useState("");
@@ -307,5 +308,12 @@ export default function TrackOrderPage() {
         </section>
       </div>
     </div>
+  );
+}
+export default function TrackOrderPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TrackOrderContent />
+    </Suspense>
   );
 }
