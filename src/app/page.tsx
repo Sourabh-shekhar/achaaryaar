@@ -4,7 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { SiInstagram, SiFacebook, SiYoutube } from "react-icons/si";
-import { FiTruck, FiFeather, FiHome, FiRefreshCw, FiPhone, FiMail, FiMapPin, FiCheck, FiCopy } from "react-icons/fi";
+import { FiTruck, FiFeather, FiHome, FiRefreshCw, FiPhone, FiMail, FiMapPin, FiCheck, FiCopy, FiShield, FiLock, FiAward } from "react-icons/fi";
 import WhatsAppButton from "@/components/WhatsAppButton";
 // ─── DESIGN TOKENS ────────────────────────────────────────────────────────────
 const COLORS = {
@@ -37,14 +37,14 @@ const FONT_BODY = "system-ui, -apple-system, sans-serif";
 // Social + contact links — update these with your real handles/details
 const SOCIAL_LINKS = {
   instagram: "https://instagram.com/achaaryaar",
-  facebook: "https://facebook.com/achaaryaar",
-  youtube: "https://youtube.com/@achaaryaar",
+  facebook: "https://www.facebook.com/share/1JYUx8xQc4/",
+  youtube: "https://youtube.com/",
 };
 
 const CONTACT = {
   phone: "+91 75619 72501",
   email: "support@achaaryaar.com",
-  location: " Siwan, Patna, Bihar, India",
+  location: "Siwan, Bihar, Patna",
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -456,6 +456,8 @@ function Hero() {
 }
 
 // ─── OFFER BANNER ─────────────────────────────────────────────────────────────
+// Contained card-style banner (matches the Hero's rounded-card treatment)
+// instead of a full-bleed, edge-to-edge section.
 function OfferBanner() {
   const [copied, setCopied] = useState(false);
 
@@ -472,132 +474,140 @@ function OfferBanner() {
 
   return (
     <section
-      className="offer-section"
+      className="section-pad"
       style={{
-        background: `linear-gradient(130deg, ${COLORS.forest} 0%, #3D5640 100%)`,
-        width: "100%",
-        padding: "clamp(2.5rem, 6vw, 4rem) 0",
-        position: "relative",
-        overflow: "hidden",
-        boxShadow: "0 20px 50px -20px rgba(28,40,30,0.5)",
+        background: COLORS.cream,
+        padding: "clamp(2rem, 5vw, 3rem) clamp(1.25rem, 5vw, 2rem) 0",
       }}
     >
-      {/* subtle brine-jar texture — spans the full-bleed width */}
-      <div style={{
-        position: "absolute", inset: 0,
-        backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)",
-        backgroundSize: "18px 18px",
-        pointerEvents: "none",
-      }} aria-hidden="true" />
-
-      <div className="offer-banner-inner" style={{
-        maxWidth: 1320,
-        margin: "0 auto",
-        padding: "0 clamp(1.25rem, 5vw, 2rem)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        flexWrap: "wrap",
-        gap: "2.5rem",
-        position: "relative",
-        zIndex: 1,
-      }}>
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 540, flex: "1 1 360px" }}>
+      <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+        <div
+          className="offer-card"
+          style={{
+            background: `linear-gradient(130deg, ${COLORS.forest} 0%, #3D5640 100%)`,
+            borderRadius: RADIUS.xxl,
+            overflow: "hidden",
+            position: "relative",
+            boxShadow: SHADOW.lg,
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          {/* subtle brine-jar texture */}
           <div style={{
-            display: "inline-flex", alignItems: "center", gap: "0.5rem",
-            background: "rgba(255,255,255,0.1)",
-            border: "1px solid rgba(255,255,255,0.18)",
-            borderRadius: 999,
-            padding: "0.35rem 0.9rem",
-            fontSize: "0.7rem",
-            letterSpacing: "1.5px",
-            textTransform: "uppercase",
-            color: COLORS.gold,
-            fontWeight: 700,
-            marginBottom: "1.1rem",
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.gold, display: "inline-block" }} aria-hidden="true" />
-            First batch, on us
-          </div>
+            position: "absolute", inset: 0,
+            backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)",
+            backgroundSize: "18px 18px",
+            pointerEvents: "none",
+          }} aria-hidden="true" />
 
-          <h2 className="offer-heading" style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(1.4rem, 4.2vw, 2.3rem)", lineHeight: 1.15, color: COLORS.white, marginBottom: "0.6rem", fontWeight: 900 }}>
-            10% off On First Order
-          </h2>
-          <p className="offer-sub" style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.9rem", marginBottom: "1.75rem", lineHeight: 1.5 }}>
-            Small-batch, slow-fermented, shipped fresh from the brine. New customers save automatically with the code below.
-          </p>
-
-          {/* ticket-stub coupon */}
-          <div className="coupon-stub" style={{
+          <div className="offer-banner-inner" style={{
+            padding: "clamp(1.75rem, 4vw, 2.75rem) clamp(1.5rem, 4vw, 2.75rem)",
             display: "flex",
-            alignItems: "stretch",
-            marginBottom: "1.75rem",
-            filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.25))",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "2rem",
+            position: "relative",
+            zIndex: 1,
           }}>
-            <div style={{
-              background: COLORS.cream,
-              borderRadius: "10px 0 0 10px",
-              padding: "0.9rem 1.4rem",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}>
-              <span style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "2px", color: "rgba(28,40,30,0.6)", fontWeight: 700 }}>Code</span>
-              <span className="coupon-code" style={{ fontSize: "1.25rem", fontWeight: 900, color: COLORS.forest, letterSpacing: "2px" }}>WELCOME10</span>
-            </div>
-            <div style={{
-              position: "relative",
-              width: 0,
-              borderTop: "26px solid transparent",
-              borderBottom: "26px solid transparent",
-              borderLeft: `14px solid ${COLORS.gold}`,
-            }} aria-hidden="true" />
-            <button
-              type="button"
-              onClick={copyCode}
-              className="coupon-copy-btn"
-              aria-label="Copy discount code WELCOME10"
-              style={{
-                background: copied ? COLORS.forestLight : COLORS.gold,
-                borderRadius: "0 10px 10px 0",
-                padding: "0.9rem 1.2rem",
+            <div style={{ position: "relative", zIndex: 1, maxWidth: 500, flex: "1 1 320px" }}>
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: "0.5rem",
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.18)",
+                borderRadius: 999,
+                padding: "0.35rem 0.9rem",
+                fontSize: "0.7rem",
+                letterSpacing: "1.5px",
+                textTransform: "uppercase",
+                color: COLORS.gold,
+                fontWeight: 700,
+                marginBottom: "1rem",
+              }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.gold, display: "inline-block" }} aria-hidden="true" />
+                First batch, on us
+              </div>
+
+              <h2 className="offer-heading" style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(1.3rem, 3.6vw, 2rem)", lineHeight: 1.15, color: COLORS.white, marginBottom: "0.5rem", fontWeight: 900 }}>
+                10% off On First Order
+              </h2>
+              <p className="offer-sub" style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.87rem", marginBottom: "1.4rem", lineHeight: 1.5 }}>
+                Small-batch, slow-fermented, shipped fresh from the brine. New customers save automatically with the code below.
+              </p>
+
+              {/* ticket-stub coupon */}
+              <div className="coupon-stub" style={{
                 display: "flex",
-                alignItems: "center",
-                gap: "0.4rem",
-                fontSize: "0.75rem",
-                fontWeight: 800,
-                color: COLORS.forest,
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
-              {copied ? "Copied" : "Copy"}
-            </button>
+                alignItems: "stretch",
+                marginBottom: "1.4rem",
+                filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.25))",
+              }}>
+                <div style={{
+                  background: COLORS.cream,
+                  borderRadius: "10px 0 0 10px",
+                  padding: "0.8rem 1.25rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                }}>
+                  <span style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "2px", color: "rgba(28,40,30,0.6)", fontWeight: 700 }}>Code</span>
+                  <span className="coupon-code" style={{ fontSize: "1.1rem", fontWeight: 900, color: COLORS.forest, letterSpacing: "2px" }}>WELCOME10</span>
+                </div>
+                <div style={{
+                  position: "relative",
+                  width: 0,
+                  borderTop: "23px solid transparent",
+                  borderBottom: "23px solid transparent",
+                  borderLeft: `14px solid ${COLORS.gold}`,
+                }} aria-hidden="true" />
+                <button
+                  type="button"
+                  onClick={copyCode}
+                  className="coupon-copy-btn"
+                  aria-label="Copy discount code WELCOME10"
+                  style={{
+                    background: copied ? COLORS.forestLight : COLORS.gold,
+                    borderRadius: "0 10px 10px 0",
+                    padding: "0.8rem 1.1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    color: COLORS.forest,
+                    border: "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </div>
+
+              <Link href="/products" className="btn-outline-gold">Shop the batch →</Link>
+            </div>
+
+            {/* real product photo on the right */}
+            <div className="offer-photo" style={{
+              position: "relative", zIndex: 1,
+              flex: "0 1 240px",
+              width: "100%",
+              maxWidth: 240,
+              aspectRatio: "1 / 1",
+              borderRadius: RADIUS.lg,
+              overflow: "hidden",
+              boxShadow: "0 16px 32px -12px rgba(0,0,0,0.45)",
+              margin: "0 auto",
+            }}>
+              <Image
+                src="/image/discount.png"
+                alt="Achaaryaar jars — your first order, 10% off"
+                fill
+                sizes="(max-width: 768px) 60vw, 240px"
+                style={{ objectFit: "cover", objectPosition: "center" }}
+              />
+            </div>
           </div>
-
-          <Link href="/products" className="btn-outline-gold">Shop the batch →</Link>
-        </div>
-
-        {/* real product photo on the right */}
-        <div className="offer-photo" style={{
-          position: "relative", zIndex: 1,
-          flex: "0 1 340px",
-          width: "100%",
-          maxWidth: 340,
-          aspectRatio: "1 / 1",
-          borderRadius: RADIUS.xl,
-          overflow: "hidden",
-          boxShadow: "0 24px 48px -16px rgba(0,0,0,0.45)",
-          margin: "0 auto",
-        }}>
-          <Image
-            src="/image/discount.png"
-            alt="Achaaryaar jars — your first order, 10% off"
-            fill
-            sizes="(max-width: 768px) 80vw, 340px"
-            style={{ objectFit: "cover", objectPosition: "center" }}
-          />
         </div>
       </div>
 
@@ -605,16 +615,15 @@ function OfferBanner() {
         .offer-banner-inner { text-align: left; }
         @media (max-width: 768px) {
           .offer-banner-inner { justify-content: center !important; text-align: center !important; }
-          .offer-photo { max-width: 280px !important; }
+          .offer-photo { max-width: 200px !important; }
         }
         @media (max-width: 480px) {
-          .offer-heading { font-size: 1.5rem !important; }
-          .offer-sub { font-size: 0.82rem !important; }
-          .coupon-code { font-size: 1.05rem !important; letterSpacing: 1px !important; }
-          .offer-photo { max-width: 220px !important; }
+          .offer-heading { font-size: 1.35rem !important; }
+          .offer-sub { font-size: 0.8rem !important; }
+          .coupon-code { font-size: 1rem !important; letterSpacing: 1px !important; }
+          .offer-photo { max-width: 170px !important; }
         }
         @media (max-width: 380px) {
-          .offer-heading { font-size: 1.3rem !important; }
           .coupon-stub { flex-direction: column !important; filter: none !important; }
           .coupon-stub > div:first-child { border-radius: 10px 10px 0 0 !important; align-items: center !important; text-align: center !important; }
           .coupon-stub > div:nth-child(2) { display: none !important; }
@@ -628,11 +637,10 @@ function OfferBanner() {
 // ─── CATEGORY GRID ────────────────────────────────────────────────────────────
 function CategoryGrid() {
   const cats = [
-    //{ slug: "mango", photo: "/image/mango-category.jpg", posX: "30%", posY: "35%", badge: "Best Seller", name: "Mango Pickles", desc: "Traditional mango pickles with authentic Bihar taste.", accent: "#FFF4E0" },
     {
       slug: "mango",
       photo: "/image/mango-category.jpg",
-      posX: "50%", 
+      posX: "50%",
       posY: "50%",
       badge: "Best Seller",
       name: "Mango Pickles",
@@ -783,38 +791,62 @@ function FeaturedProducts() {
   );
 }
 
-// ─── WHY CHOOSE US BANNER (full poster image) ────────────────────────────────
-function WhyChooseUsBanner() {
+// ─── ASSURANCE / TRUST BADGES ─────────────────────────────────────────────────
+// Replaces the previous full-width poster banner with a compact, professional
+// row of quality & service guarantees — preservative-free, secure payments, etc.
+function AssuranceSection() {
+  const badges = [
+    { icon: <FiFeather size={22} />, title: "Preservative Free", desc: "Naturally cured the traditional way — nothing artificial, ever." },
+    { icon: <FiLock size={22} />, title: "Secure Payments", desc: "Every transaction is encrypted and processed through trusted gateways." },
+    { icon: <FiAward size={22} />, title: "Quality Assured", desc: "Small batches, checked by hand before they ever leave our kitchen." },
+    { icon: <FiShield size={22} />, title: "Safe, Sealed Delivery", desc: "Tamper-proof jars, packed to survive the journey to your door." },
+  ];
   return (
-    <section
-      className="section-pad-bottom"
-      style={{
-        background: COLORS.cream,
-        padding: "0 0 clamp(3rem, 7vw, 5rem)",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          borderRadius: 0,
-          overflow: "hidden",
-          boxShadow: SHADOW.lg,
-        }}
-      >
-        <Image
-          src="/image/holding.jpg"
-          alt="Achaar Yaar — pure tradition, authentic taste, homemade pickles made fresh in small batches with no preservatives"
-          width={1920}
-          height={1080}
-          sizes="100vw"
-          loading="lazy"
-          style={{
-            width: "100%",
-            height: "auto",
-            display: "block",
-          }}
-        />
+    <section className="section-pad" style={{ background: COLORS.cream, padding: "0 clamp(1.25rem, 5vw, 2rem) clamp(3rem, 7vw, 5rem)" }}>
+      <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+        <div className="assurance-grid" style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "1.25rem",
+        }}>
+          {badges.map(b => (
+            <Reveal key={b.title}>
+              <div style={{
+                background: COLORS.white,
+                border: `1px solid ${COLORS.sand}`,
+                borderRadius: RADIUS.lg,
+                padding: "1.5rem 1.35rem",
+                height: "100%",
+              }}>
+                <div style={{
+                  width: 46, height: 46,
+                  borderRadius: "50%",
+                  background: COLORS.creamDark,
+                  color: COLORS.forest,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  marginBottom: "1rem",
+                }} aria-hidden="true">
+                  {b.icon}
+                </div>
+                <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, color: COLORS.ink, fontSize: "0.98rem", marginBottom: "0.35rem" }}>
+                  {b.title}
+                </div>
+                <div style={{ color: COLORS.muted, fontSize: "0.82rem", lineHeight: 1.55 }}>
+                  {b.desc}
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
+      <style>{`
+        @media (max-width: 900px) {
+          .assurance-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 480px) {
+          .assurance-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </section>
   );
 }
@@ -1063,7 +1095,7 @@ function Footer() {
   const year = new Date().getFullYear();
   const cols = [
     { title: "Shop", links: [{ label: "Mango Pickles", href: "/products?category=mango" }, { label: "Spicy Pickles", href: "/products?category=spicy" }, { label: "Garlic Special", href: "/products?category=garlic" }, { label: "Lemon Pickles", href: "/products?category=lemon" }] },
-    { title: "Company", links: [{ label: "Our Story", href: "/about" }, { label: "Blog", href: "/blog" }, { label: "Contact", href: "/contact" }, { label: "FAQs", href: "/#faq" }] },
+    { title: "Company", links: [{ label: "Our Story", href: "/about" }, { label: "Blog", href: "/blog" }, { label: "Contact", href: "/contact" }, { label: "Careers", href: "/careers" }, { label: "FAQs", href: "/#faq" }] },
     { title: "Support", links: [{ label: "Shipping Policy", href: "/shipping-policy" }, { label: "Returns", href: "/returns" }, { label: "Privacy Policy", href: "/privacy-policy" }, { label: "Terms", href: "/terms" }] },
   ];
   return (
@@ -1174,7 +1206,7 @@ export default function HomePage() {
         <OfferBanner />
         <CategoryGrid />
         <FeaturedProducts />
-        <WhyChooseUsBanner />
+        <AssuranceSection />
         <ProcessSection />
         <StorySection />
         <FAQSection />

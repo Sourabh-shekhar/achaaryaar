@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
             if (!product) continue;
 
-            const variant = product.variants?.find(
+            const variant = product.weights?.find(
                 (v: any) => v.quantity === item.selectedVariant
             );
 

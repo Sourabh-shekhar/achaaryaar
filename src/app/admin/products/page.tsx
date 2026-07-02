@@ -13,7 +13,7 @@ export default function AdminProductsPage() {
         description: "",
         category: "Pickle",
 
-        variants: [
+        weights: [
             {
                 quantity: "150g",
                 price: "",
@@ -40,9 +40,9 @@ export default function AdminProductsPage() {
 
     const fetchProducts = async () => {
         try {
-          const res = await fetch(`${baseUrl}/api/products`, {
-  cache: "no-store",
-});
+            const res = await fetch(`${baseUrl}/api/products`, {
+                cache: "no-store",
+            });
             const data = await res.json();
 
             if (data.success) {
@@ -60,7 +60,7 @@ export default function AdminProductsPage() {
         if (!confirmDelete) return;
 
         try {
-           const res = await fetch(`${baseUrl}/api/products/${id}`, {
+            const res = await fetch(`${baseUrl}/api/products/${id}`, {
                 method: "DELETE",
             });
 
@@ -86,7 +86,7 @@ export default function AdminProductsPage() {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    variants: formData.variants.map((v) => ({
+                    weights: formData.weights.map((v) => ({
                         quantity: v.quantity,
                         price: Number(v.price),
                         stock: Number(v.stock),
@@ -103,7 +103,7 @@ export default function AdminProductsPage() {
                     image: "",
                     description: "",
                     category: "Pickle",
-                    variants: [
+                    weights: [
                         { quantity: "150g", price: "", stock: "" },
                         { quantity: "250g", price: "", stock: "" },
                         { quantity: "500g", price: "", stock: "" },
@@ -145,24 +145,7 @@ export default function AdminProductsPage() {
                         className="w-full border rounded-xl p-3 text-gray-900"
                         required
                     />
-
-
-
-                    {/* <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                    /> */}
                     <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                            if (e.target.files?.[0]) {
-                                setImageFile(e.target.files[0]);
-                            }
-                        }}
-                        className="w-full border rounded-xl p-3 text-gray-900"
-                    /><input
                         type="file"
                         accept="image/*"
                         onChange={(e) => {
@@ -192,28 +175,28 @@ export default function AdminProductsPage() {
                             Product Variants
                         </h3>
 
-                        {formData.variants.map((variant, index) => (
+                        {formData.weights.map((weight, index) => (
 
                             <div
                                 key={index}
                                 className="border p-4 rounded-xl bg-white"
                             >
                                 <h4 className="font-semibold mb-2 text-gray-900">
-                                    {variant.quantity}
+                                    {weight.quantity}
                                 </h4>
 
                                 <input
                                     type="number"
                                     placeholder="Price"
-                                    value={variant.price}
+                                    value={weight.price}
                                     onChange={(e) => {
-                                        const updated = [...formData.variants];
+                                        const updated = [...formData.weights];
 
                                         updated[index].price = e.target.value;
 
                                         setFormData({
                                             ...formData,
-                                            variants: updated,
+                                            weights: updated,
                                         });
                                     }}
                                     className="w-full border rounded-xl p-3 mb-3 text-gray-900 bg-white"
@@ -222,15 +205,15 @@ export default function AdminProductsPage() {
                                 <input
                                     type="number"
                                     placeholder="Stock"
-                                    value={variant.stock}
+                                    value={weight.stock}
                                     onChange={(e) => {
-                                        const updated = [...formData.variants];
+                                        const updated = [...formData.weights];
 
                                         updated[index].stock = e.target.value;
 
                                         setFormData({
                                             ...formData,
-                                            variants: updated,
+                                            weights: updated,
                                         });
                                     }}
                                     className="w-full border rounded-xl p-3 text-gray-900"
@@ -275,18 +258,18 @@ export default function AdminProductsPage() {
                             </h3>
 
                             <div className="mt-2">
-                                {product.weights?.map((weight: any, index: number) => (
+                                {product.weights?.map((variant: any, index: number) => (
                                     <div key={index} className="border-b py-1">
                                         <p className="font-semibold">
-                                            {weight.size}
+                                            {variant.quantity}
                                         </p>
 
                                         <p className="text-orange-600">
-                                            ₹{weight.price}
+                                            ₹{variant.price}
                                         </p>
 
                                         <p className="text-gray-700">
-                                            Stock: {weight.stock}
+                                            Stock: {variant.stock}
                                         </p>
                                     </div>
                                 ))}
@@ -313,13 +296,13 @@ export default function AdminProductsPage() {
                             >
                                 Edit Product
                             </button>
-                            {product.variants?.every(
+                            {product.weights?.every(
                                 (v: any) => v.stock === 0
                             ) ? (
                                 <p className="text-red-600 font-bold mt-2">
                                     ❌ Out of Stock
                                 </p>
-                            ) : product.variants?.some(
+                            ) : product.weights?.some(
                                 (v: any) => v.stock <= 10
                             ) ? (
                                 <p className="text-yellow-600 font-bold mt-2">

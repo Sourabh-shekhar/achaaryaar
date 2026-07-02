@@ -3,11 +3,15 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { baseUrl } from "@/lib/baseUrl";
+
 export default function EditProductPage() {
-    const params = useParams();
+    const params = useParams<{ id: string }>();
     const router = useRouter();
 
-const [imageFile, setImageFile] = useState<File | null>(null);
+    const id = params?.id;
+
+    const [imageFile, setImageFile] = useState<File | null>(null);
+
     const [formData, setFormData] = useState<any>({
         name: "",
         image: "",
@@ -16,17 +20,18 @@ const [imageFile, setImageFile] = useState<File | null>(null);
     });
 
     useEffect(() => {
-        fetchProduct();
-    }, []);
+        if (id) {
+            fetchProduct();
+        }
+    }, [id]);
 
     const fetchProduct = async () => {
+        if (!id) return;
         try {
-            const res = await fetch(
-  `${baseUrl}/api/products/${params.id}`,
-  {
-    cache: "no-store",
-  }
-);
+            const res = await fetch(`${baseUrl}/api/products/${id}`, {
+                cache: "no-store",
+            });
+
             const data = await res.json();
 
             if (data.success) {
@@ -69,25 +74,25 @@ const [imageFile, setImageFile] = useState<File | null>(null);
 
                 imageUrl = uploadData.image;
             }
-          const res = await fetch(
-  `${baseUrl}/api/products/${params.id}`,
-  {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      ...formData,
-      image: imageUrl,
-      weights: formData.weights.map((v: any) => ({
-        quantity: v.quantity,
-        price: Number(v.price),
-        stock: Number(v.stock),
-      })),
-    }),
-  }
-);
-               
+            const res = await fetch(
+                `${baseUrl}/api/products/${id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        ...formData,
+                        image: imageUrl,
+                        weights: formData.weights.map((v: any) => ({
+                            quantity: v.quantity,
+                            price: Number(v.price),
+                            stock: Number(v.stock),
+                        })),
+                    }),
+                }
+            );
+
 
             const data = await res.json();
 

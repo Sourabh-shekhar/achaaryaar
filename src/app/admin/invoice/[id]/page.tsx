@@ -5,12 +5,15 @@ import { useParams } from "next/navigation";
 import { baseUrl } from "@/lib/baseUrl";
 
 export default function InvoicePage() {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
+  const id = params?.id;
   const [order, setOrder] = useState<any>(null);
 
-  useEffect(() => {
-    fetchOrder();
-  }, []);
+useEffect(() => {
+    if (id) {
+        fetchProduct();
+    }
+}, [id]);
 
   const fetchOrder = async () => {
     const res = await fetch(`${baseUrl}/api/orders`, {
