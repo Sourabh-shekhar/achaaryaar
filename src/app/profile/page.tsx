@@ -137,7 +137,7 @@ export default function ProfilePage() {
             Login to view your profile
           </h1>
           <p className="mt-3 leading-7 text-[#5C5249]">
-            Your profile includes saved details, order history, and product
+            Your profile includes saved details, Order History, and product
             tracking updates.
           </p>
           <Link
@@ -159,7 +159,7 @@ export default function ProfilePage() {
             My account
           </p>
           <h1 className="mt-2 text-4xl font-black text-[#2D2A26] md:text-5xl">
-            Profile & order history
+            Profile & Order History
           </h1>
         </div>
 

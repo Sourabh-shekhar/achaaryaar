@@ -513,169 +513,168 @@ export default function ProductDetailsClient({
             </div>
           )}
           {/* Description Tab */}
-{/* Description Tab */}
-{activeTab === "description" && (
-  <div className="bg-[#FFFDF8] rounded-3xl p-10">
+          {activeTab === "description" && (
+            <div className="bg-[#FFFDF8] rounded-3xl p-10">
 
-    {/* Heading */}
-    <h2
-      className="text-4xl md:text-5xl font-bold text-[#2D2A26] text-center"
-      style={{ fontFamily: "'Playfair Display', serif" }}
-    >
-      About {product.name}
-    </h2>
+              {/* Heading */}
+              <h2
+                className="text-4xl md:text-5xl font-bold text-[#2D2A26] text-center"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                About {product.name}
+              </h2>
 
-    {/* Decorative Divider */}
-    <div className="flex items-center justify-center my-8">
-      <div className="h-[1px] w-1/3 bg-[#D6C5AE]"></div>
+              {/* Decorative Divider */}
+              <div className="flex items-center justify-center my-8">
+                <div className="h-[1px] w-1/3 bg-[#D6C5AE]"></div>
 
-      <span className="mx-4 text-3xl text-[#C18A42]">
-        ❦
-      </span>
+                <span className="mx-4 text-3xl text-[#C18A42]">
+                  ❦
+                </span>
 
-      <div className="h-[1px] w-1/3 bg-[#D6C5AE]"></div>
-    </div>
+                <div className="h-[1px] w-1/3 bg-[#D6C5AE]"></div>
+              </div>
 
-    {/* Description */}
-    <div className="max-w-5xl mx-auto">
+              {/* Description */}
+              <div className="max-w-5xl mx-auto">
 
-      <p className="text-[#3B342D] text-xl leading-[3rem] mb-8 font-medium">
-        {product.description}
-      </p>
+                <p className="text-[#3B342D] text-xl leading-[3rem] mb-8 font-medium">
+                  {product.description}
+                </p>
 
-      <div className="space-y-6 text-xl leading-10 text-[#3B342D]">
+                <div className="space-y-6 text-xl leading-10 text-[#3B342D]">
 
-        <div>
-          <span
-            className="font-bold text-[#2F5533]"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Ingredients :
-          </span>{" "}
-          Fresh Raw Mango, Mustard Oil, Salt, Mustard Seeds,
-          Fennel Seeds, Fenugreek Seeds, Turmeric,
-          Red Chilli Powder, Asafoetida (Hing)
-          and Traditional Indian Spices.
+                  <div>
+                    <span
+                      className="font-bold text-[#2F5533]"
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
+                      Ingredients :
+                    </span>{" "}
+                    Fresh Raw Mango, Mustard Oil, Salt, Mustard Seeds,
+                    Fennel Seeds, Fenugreek Seeds, Turmeric,
+                    Red Chilli Powder, Asafoetida (Hing)
+                    and Traditional Indian Spices.
+                  </div>
+
+                  <div>
+                    <span
+                      className="font-bold text-[#2F5533]"
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
+                      Taste / Flavour :
+                    </span>{" "}
+                    Tangy, Spicy, Aromatic & Authentic Homemade Taste.
+                  </div>
+
+                  <div>
+                    <span
+                      className="font-bold text-[#2F5533]"
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
+                      Category :
+                    </span>{" "}
+                    Pickles & Chutneys
+                  </div>
+
+                  <div>
+                    <span
+                      className="font-bold text-[#2F5533]"
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
+                      Shelf Life :
+                    </span>{" "}
+                    18 - 24 Months
+                  </div>
+
+                  <div>
+                    <span
+                      className="font-bold text-[#2F5533]"
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
+                      Delivery Time :
+                    </span>{" "}
+                    6 - 8 Days Across India
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Manufacturer Tab */}
+          {activeTab === "manufacturer" && (
+            <div className="bg-white rounded-3xl border border-[#E8DDD1] p-10 shadow-md">
+
+              <h2
+                className="text-4xl font-bold text-[#2D2A26] mb-10"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                Manufacturer Information
+              </h2>
+
+              <div className="grid md:grid-cols-2 gap-8">
+
+                {/* Manufacturer */}
+                <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
+                  <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
+                    Manufacturer
+                  </p>
+
+                  <p className="text-2xl font-bold text-[#2D2A26]">
+                    AchaarYaar Foods
+                  </p>
+                </div>
+
+                {/* Packed By */}
+                <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
+                  <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
+                    Packed By
+                  </p>
+
+                  <p className="text-2xl font-bold text-[#2D2A26]">
+                    AchaarYaar Foods
+                  </p>
+                </div>
+
+                {/* Address */}
+                <div className="md:col-span-2 bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
+                  <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
+                    Address
+                  </p>
+
+                  <p className="text-lg font-semibold text-[#2D2A26] leading-8">
+                    Kanti Kunj, Tarwara More <br />
+                    Siwan, Bihar - 841226
+                  </p>
+                </div>
+
+                {/* Customer Care */}
+                <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
+                  <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
+                    Customer Care
+                  </p>
+
+                  <p className="text-lg font-semibold text-[#2D2A26]">
+                    support@achaaryaar.com
+                  </p>
+                </div>
+
+                {/* Country */}
+                <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
+                  <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
+                    Country of Origin
+                  </p>
+
+                  <p className="text-lg font-semibold text-[#2D2A26]">
+                    India
+                  </p>
+                </div>
+
+              </div>
+            </div>
+          )}
         </div>
-
-        <div>
-          <span
-            className="font-bold text-[#2F5533]"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Taste / Flavour :
-          </span>{" "}
-          Tangy, Spicy, Aromatic & Authentic Homemade Taste.
-        </div>
-
-        <div>
-          <span
-            className="font-bold text-[#2F5533]"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Category :
-          </span>{" "}
-          Pickles & Chutneys
-        </div>
-
-        <div>
-          <span
-            className="font-bold text-[#2F5533]"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Shelf Life :
-          </span>{" "}
-          18 - 24 Months
-        </div>
-
-        <div>
-          <span
-            className="font-bold text-[#2F5533]"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
-            Delivery Time :
-          </span>{" "}
-          6 - 8 Days Across India
-        </div>
-
-      </div>
-    </div>
-  </div>
-)}
-
-{/* Manufacturer Tab */}
-{activeTab === "manufacturer" && (
-  <div className="bg-white rounded-3xl border border-[#E8DDD1] p-10 shadow-md">
-
-    <h2
-      className="text-4xl font-bold text-[#2D2A26] mb-10"
-      style={{ fontFamily: "'Playfair Display', serif" }}
-    >
-      Manufacturer Information
-    </h2>
-
-    <div className="grid md:grid-cols-2 gap-8">
-
-      {/* Manufacturer */}
-      <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
-        <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
-          Manufacturer
-        </p>
-
-        <p className="text-2xl font-bold text-[#2D2A26]">
-          AchaarYaar Foods
-        </p>
-      </div>
-
-      {/* Packed By */}
-      <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
-        <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
-          Packed By
-        </p>
-
-        <p className="text-2xl font-bold text-[#2D2A26]">
-          AchaarYaar Foods
-        </p>
-      </div>
-
-      {/* Address */}
-      <div className="md:col-span-2 bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
-        <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
-          Address
-        </p>
-
-        <p className="text-lg font-semibold text-[#2D2A26] leading-8">
-          Kanti Kunj, Tarwara More <br />
-          Siwan, Bihar - 841226
-        </p>
-      </div>
-
-      {/* Customer Care */}
-      <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
-        <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
-          Customer Care
-        </p>
-
-        <p className="text-lg font-semibold text-[#2D2A26]">
-          support@achaaryaar.com
-        </p>
-      </div>
-
-      {/* Country */}
-      <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
-        <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
-          Country of Origin
-        </p>
-
-        <p className="text-lg font-semibold text-[#2D2A26]">
-          India
-        </p>
-      </div>
-
-    </div>
-  </div>
-)}
-</div>
       </section>
 
       {/* Related Products */}
@@ -715,32 +714,39 @@ export default function ProductDetailsClient({
           </div>
         </section>
       )}
-      {/* Mobile Sticky Cart Bar */}
 
+      {/* Mobile Sticky Cart Bar — Flipkart-style: price + Add to Cart + Buy Now */}
       {!outOfStock && selectedWeight && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-[#E8DDD1] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] p-4">
-
-          <div className="grid grid-cols-2 gap-3">
-
-            <div>
-              <p className="text-xs text-[#7A6F65]">
+        <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-[#E8DDD1] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3">
+          <div className="flex items-center gap-3">
+            <div className="shrink-0">
+              <p className="text-[11px] text-[#7A6F65] leading-tight">
                 {selectedWeight.size}
               </p>
-
-              <p className="text-2xl font-bold text-[#2D2A26]">
+              <p className="text-xl font-extrabold text-[#2D2A26] leading-tight">
                 ₹{selectedWeight.price}
               </p>
             </div>
 
-            <button
-              onClick={handleAddToCart}
-              className="flex-1 bg-[#C18A42] hover:bg-[#A8742F] text-white py-3 rounded-xl font-bold transition"
-            >
-              Add to Cart
-            </button>
+            <div className="flex-1 grid grid-cols-2 gap-2.5">
+              <button
+                onClick={handleAddToCart}
+                className={`flex items-center justify-center py-3 rounded-xl font-bold text-sm transition ${added
+                  ? "bg-[#4F6B52] text-white"
+                  : "bg-[#C18A42] hover:bg-[#A8742F] text-white"
+                  }`}
+              >
+                {added ? "Added ✓" : "Add to Cart"}
+              </button>
 
+              <button
+                onClick={handleBuyNow}
+                className="flex items-center justify-center py-3 rounded-xl font-bold text-sm bg-[#3D5640] hover:bg-[#2F4533] text-white transition"
+              >
+                Buy Now
+              </button>
+            </div>
           </div>
-
         </div>
       )}
     </div>
