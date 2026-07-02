@@ -28,7 +28,7 @@ export default function BlogPage() {
           From the Kitchen
         </div>
         <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(2rem, 5vw, 3rem)", color: COLORS.white, fontWeight: 900 }}>
-          The Achaaryaar Blog
+          The Achaaraar Blog
         </h1>
       </section>
 

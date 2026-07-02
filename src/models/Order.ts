@@ -12,8 +12,19 @@ const OrderSchema = new mongoose.Schema(
     city: String,
     pincode: String,
     paymentMethod: String,
+    paymentStatus: {
+      type: String,
+      default: "Pending",
+    },
+    paymentId: String,
+    gatewayOrderId: String,
     items: Array,
+    subtotal: Number,
+    shipping: Number,
     total: Number,
+    courierName: String,
+    trackingNumber: String,
+    estimatedDelivery: String,
 
     status: {
       type: String,

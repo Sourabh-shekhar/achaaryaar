@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
-import { baseUrl } from "@/lib/baseUrl";
 import { sendOrderConfirmation } from "@/lib/sendEmail";
 // Create Order
 export async function POST(req: Request) {
@@ -15,7 +14,11 @@ export async function POST(req: Request) {
         for (const item of body.items) {
             console.log("Item _id:", item._id);
         }
-        const order = await Order.create(body);
+        const order = await Order.create({
+            ...body,
+            paymentStatus:
+                body.paymentMethod === "cod" ? "Pending COD" : body.paymentStatus || "Pending",
+        });
         await sendOrderConfirmation(
             body.email,
             body.fullName,
@@ -28,11 +31,11 @@ export async function POST(req: Request) {
             if (!product) continue;
 
             const variant = product.weights?.find(
-                (v: any) => v.quantity === item.selectedVariant
+                (v: { size: string }) => v.size === item.selectedVariant
             );
 
             if (variant) {
-                variant.stock -= item.quantity;
+                variant.stock = Math.max(0, variant.stock - item.quantity);
             }
 
             await product.save();

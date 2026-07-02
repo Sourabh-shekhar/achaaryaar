@@ -55,7 +55,7 @@ export default function AboutPage() {
           </h1>
 
           <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto leading-8 text-[#F8ECDD]">
-            Achaaryaar brings together the warmth of regional pickle traditions,
+            AchaarYaar brings together the warmth of regional pickle traditions,
             thoughtful craftsmanship, and the comfort of authentic flavour in every jar.
           </p>
         </div>
@@ -68,7 +68,7 @@ export default function AboutPage() {
             <div className="relative rounded-[32px] shadow-[0_18px_45px_rgba(0,0,0,0.10)] w-full h-[600px] overflow-hidden">
               <Image
                 src="/image/story.jpg"
-                alt="Achaaryaar story"
+                alt="AchaarYaar story"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
@@ -80,7 +80,7 @@ export default function AboutPage() {
             <div className="mb-8">
               <Image
                 src="/image/logo.png"
-                alt="Achaaryaar Logo"
+                alt="AchaarYaar Logo"
                 width={400}
                 height={120}
                 className="w-[280px] md:w-[340px]"
@@ -96,7 +96,7 @@ export default function AboutPage() {
             </h2>
 
             <p className="text-[#675E56] text-lg md:text-xl leading-9 mb-7">
-              Achaaryaar began with a simple intention - to carry forward the
+              AchaarYaar began with a simple intention - to carry forward the
               bold, comforting, and deeply familiar flavours that define traditional
               homemade pickles. Inspired by family recipes and the food memories
               they hold, we set out to create a brand that feels both rooted and relevant.
@@ -110,7 +110,7 @@ export default function AboutPage() {
             </p>
 
             <p className="text-[#675E56] text-lg md:text-xl leading-9">
-              Today, Achaaryaar serves customers across India while staying committed
+              Today, AchaarYaar serves customers across India while staying committed
               to authenticity, care, and the enduring joy of handmade food.
             </p>
           </Reveal>
@@ -200,7 +200,7 @@ export default function AboutPage() {
               </h2>
 
               <p className="mt-6 text-lg md:text-xl text-[#6B625A] max-w-3xl mx-auto leading-9">
-                Achaaryaar is guided by values that keep our food thoughtful,
+                AchaarYaar is guided by values that keep our food thoughtful,
                 trustworthy, and true to its roots.
               </p>
             </div>
@@ -260,7 +260,7 @@ export default function AboutPage() {
             </h2>
 
             <p className="mt-6 text-lg md:text-xl text-[#675E56] leading-9 max-w-4xl mx-auto">
-              Achaaryaar is our effort to keep traditional pickle-making relevant in
+              AchaarYaar is our effort to keep traditional pickle-making relevant in
               modern homes. We believe regional food knowledge, handmade methods,
               and the emotional value of familiar flavours deserve to be preserved
               with pride and passed forward with care.
@@ -277,13 +277,13 @@ export default function AboutPage() {
               </h2>
 
               <p className="text-[#675E56] text-lg leading-8 italic">
-                "We started Achaaryaar with the belief that traditional flavours
+                "We started AchaarYaar with the belief that traditional flavours
                 should not be lost in modern convenience. Every jar we make is our
                 way of carrying memory, care, and authenticity forward."
               </p>
 
               <p className="mt-6 font-semibold text-[#6B1F1F]">
-                — Founder, Achaaryaar
+                — Founder, AchaarYaar
               </p>
             </div>
           </Reveal>
@@ -301,7 +301,7 @@ export default function AboutPage() {
             </h2>
 
             <p className="mt-6 text-lg md:text-xl text-[#6B625A] max-w-4xl mx-auto leading-9">
-              We want every jar of Achaaryaar to feel dependable, flavourful,
+              We want every jar of Achaaraar to feel dependable, flavourful,
               and worthy of the trust placed in us.
             </p>
 

@@ -30,7 +30,7 @@ export default function WhyChooseUs() {
       <div className="max-w-7xl mx-auto px-6">
 
         <h2 className="text-4xl font-bold text-center text-gray-900 mb-4">
-          Why Choose Achaaryaar?
+          Why Choose AchaarYaar?
         </h2>
 
         <p className="text-center text-gray-600 mb-12">

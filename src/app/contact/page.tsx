@@ -31,7 +31,7 @@ export default function ContactPage() {
  
       if (data.success) {
         alert(
-          "Thank you for contacting Achaaryaar. We'll get back to you soon."
+          "Thank you for contacting Achaaraar. We'll get back to you soon."
         );
  
         setFormData({

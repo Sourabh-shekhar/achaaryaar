@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useCartStore } from "@/store/cartStore";
 import Link from "next/link";
+import { FiShoppingBag, FiStar } from "react-icons/fi";
+import { useCartStore } from "@/store/cartStore";
 
 type ProductProps = {
   _id: string;
@@ -33,100 +34,118 @@ export default function ProductCard({
     null;
 
   const addItem = useCartStore((state) => state.addItem);
+  const isLowStock =
+    selectedData?.stock !== undefined &&
+    selectedData.stock <= 5 &&
+    selectedData.stock > 0;
 
   return (
-    <Link href={`/products/${_id}`}>
-      <div className="relative bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-2 transition duration-300 border border-gray-100">
-        <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+    <Link href={`/products/${_id}`} className="group block h-full">
+      <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8DDD1] bg-white shadow-[0_12px_30px_rgba(28,61,46,0.08)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_22px_46px_rgba(28,61,46,0.16)]">
+        <div className="absolute left-4 top-4 z-10 rounded-full bg-[#4F6B52] px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
           Bestseller
         </div>
 
-
-        <div className="overflow-hidden">
+        <div className="relative overflow-hidden bg-[#FBF7F1]">
           <img
             src={image}
             alt={name}
-            className="h-64 w-full object-cover hover:scale-110 transition duration-500"
+            className="h-64 w-full object-cover transition duration-500 group-hover:scale-105"
           />
-
         </div>
-        <div className="p-6">
 
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">
-            {name}
-          </h3>
-
-          <div className="text-yellow-500 mb-3">
-            ⭐⭐⭐⭐⭐
-            <span className="text-gray-600 text-sm ml-2">
-              Loved by Customers
+        <div className="flex flex-1 flex-col p-6">
+          <div className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-[#C18A42]">
+            {[0, 1, 2, 3, 4].map((star) => (
+              <FiStar key={star} className="fill-current" size={14} />
+            ))}
+            <span className="ml-1 text-xs font-medium text-[#6F6258]">
+              Customer favourite
             </span>
           </div>
 
-          <p className="text-gray-700 mb-4 leading-relaxed">
+          <h3 className="mb-2 text-2xl font-extrabold leading-tight text-[#2D2A26]">
+            {name}
+          </h3>
+
+          <p className="mb-5 line-clamp-3 leading-relaxed text-[#5C5249]">
             {description}
           </p>
 
-          <p className="text-orange-600 font-bold text-2xl mb-4">
-            ₹{selectedData?.price || "N/A"}
-          </p>
+          <div className="mt-auto">
+            <div className="mb-4 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#7A9678]">
+                  Starts at
+                </p>
+                <p className="text-3xl font-black text-[#6B1F1F]">
+                  Rs. {selectedData?.price || "N/A"}
+                </p>
+              </div>
 
-          {selectedData?.stock !== undefined &&
-            selectedData.stock <= 5 &&
-            selectedData.stock > 0 && (
-              <p className="text-red-600 font-semibold mb-4">
-                Only {selectedData.stock} left!
-              </p>
-            )}
+              {selectedData?.stock === 0 ? (
+                <span className="rounded-full bg-[#6B1F1F]/10 px-3 py-1 text-xs font-bold text-[#6B1F1F]">
+                  Out of stock
+                </span>
+              ) : isLowStock ? (
+                <span className="rounded-full bg-[#C18A42]/15 px-3 py-1 text-xs font-bold text-[#8A5E20]">
+                  Only {selectedData.stock} left
+                </span>
+              ) : (
+                <span className="rounded-full bg-[#4F6B52]/10 px-3 py-1 text-xs font-bold text-[#4F6B52]">
+                  Fresh stock
+                </span>
+              )}
+            </div>
 
-          {selectedData?.stock === 0 && (
-            <p className="text-red-700 font-bold mb-4">
-              Out of Stock
-            </p>
-          )}
-          <select
-            value={selectedVariant}
-            onChange={(e) =>
-              setSelectedVariant(e.target.value)
-            }
-            className="w-full border border-gray-300 rounded-xl p-3 mb-4 text-gray-900 font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-          >
-            {weights?.map((weight, index) => (
-              <option
-                key={`${weight.size}-${index}`}
-                value={weight.size}
-              >
-                {weight.size}
-              </option>
-            ))}
-          </select>
-          <button
-            disabled={!selectedData || selectedData.stock === 0}
-            onClick={(e) => {
-              e.preventDefault(); // prevents Link from opening when clicking Add to Cart
+            <select
+              value={selectedVariant}
+              onChange={(e) => setSelectedVariant(e.target.value)}
+              onClick={(e) => e.preventDefault()}
+              className="mb-4 w-full rounded-xl border border-[#E8DDD1] bg-[#FBF7F1] p-3 font-semibold text-[#2D2A26] outline-none transition focus:border-[#4F6B52] focus:ring-2 focus:ring-[#4F6B52]/20"
+            >
+              {weights?.map((weight, index) => (
+                <option
+                  key={`${weight.size}-${index}`}
+                  value={weight.size}
+                >
+                  {weight.size}
+                </option>
+              ))}
+            </select>
 
-              if (!selectedData) return;
+            <button
+              disabled={!selectedData || selectedData.stock === 0}
+              onClick={(e) => {
+                e.preventDefault();
 
-              setCount(count + 1);
+                if (!selectedData) return;
 
-              addItem({
-                _id,
-                name,
-                price: selectedData.price,
-                selectedVariant,
-              });
-            }}
-            className={`w-full py-4 rounded-2xl font-bold text-lg text-white transition duration-300 ${!selectedData || selectedData.stock === 0
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-orange-600 hover:bg-orange-700"
+                setCount(count + 1);
+
+                addItem({
+                  _id,
+                  name,
+                  price: selectedData.price,
+                  selectedVariant,
+                });
+              }}
+              className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-extrabold transition duration-300 ${
+                !selectedData || selectedData.stock === 0
+                  ? "cursor-not-allowed bg-gray-300 text-gray-600"
+                  : "bg-[#C18A42] text-[#2D2A26] hover:bg-[#D9A85F]"
               }`}
-          >
-            {!selectedData || selectedData.stock === 0
-              ? "Out of Stock"
-              : `Add to Cart (${count})`}
-          </button>
+            >
+              <FiShoppingBag size={18} />
+              {!selectedData || selectedData.stock === 0
+                ? "Out of Stock"
+                : count > 0
+                  ? `Added (${count})`
+                  : "Add to Cart"}
+            </button>
+          </div>
         </div>
-      </div>
+      </article>
     </Link>
   );
 }

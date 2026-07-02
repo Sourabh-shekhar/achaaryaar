@@ -277,7 +277,7 @@ export default function Hero() {
           <div className="relative overflow-hidden rounded-[36px] bg-white p-4 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
             <img
               src="/image/hero-pickle.png"
-              alt="Achaaryaar pickles"
+              alt="AchaarYaar pickles"
               className="w-full rounded-[28px] object-cover"
             />
 

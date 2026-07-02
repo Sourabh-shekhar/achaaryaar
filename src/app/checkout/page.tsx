@@ -6,9 +6,43 @@ import { useRouter } from "next/navigation";
 import { baseUrl } from "@/lib/baseUrl";
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 
+type RazorpayPaymentResponse = {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+};
+
+type RazorpayCheckoutOptions = {
+    key: string;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    order_id: string;
+    prefill: {
+        name: string;
+        email: string;
+        contact: string;
+    };
+    theme: {
+        color: string;
+    };
+    handler: (response: RazorpayPaymentResponse) => void;
+    modal: {
+        ondismiss: () => void;
+    };
+};
+
+declare global {
+    interface Window {
+        Razorpay?: new (options: RazorpayCheckoutOptions) => { open: () => void };
+    }
+}
+
 export default function CheckoutPage() {
     const router = useRouter();
 
+    const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [formData, setFormData] = useState({
         fullName: "",
         phone: "",
@@ -66,31 +100,113 @@ export default function CheckoutPage() {
             alert("Your cart is empty");
             return;
         }
+
+        setIsPlacingOrder(true);
+
         try {
+            if (formData.paymentMethod === "razorpay") {
+                const scriptLoaded = await loadRazorpayScript();
+
+                if (!scriptLoaded || !window.Razorpay) {
+                    setIsPlacingOrder(false);
+                    alert("Unable to load Razorpay. Please try again.");
+                    return;
+                }
+
+                const paymentOrderResponse = await fetch("/api/payments/razorpay/order", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        amount: total,
+                    }),
+                });
+
+                const paymentOrderData = await paymentOrderResponse.json();
+
+                if (!paymentOrderData.success) {
+                    setIsPlacingOrder(false);
+                    alert(paymentOrderData.message || "Payment could not be started");
+                    return;
+                }
+
+                const razorpay = new window.Razorpay({
+                    key: paymentOrderData.keyId,
+                    amount: paymentOrderData.order.amount,
+                    currency: paymentOrderData.order.currency,
+                    name: "AchaarYaar",
+                    description: "Pickle order payment",
+                    order_id: paymentOrderData.order.id,
+                    prefill: {
+                        name: formData.fullName,
+                        email: formData.email,
+                        contact: formData.phone,
+                    },
+                    theme: {
+                        color: "#C18A42",
+                    },
+                    handler: async (paymentResponse) => {
+                        try {
+                            const verifyResponse = await fetch(
+                                "/api/payments/razorpay/verify",
+                                {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                        ...paymentResponse,
+                                        orderPayload,
+                                    }),
+                                }
+                            );
+
+                            const verifyData = await verifyResponse.json();
+
+                            if (verifyData.success) {
+                                router.push(`/order-success?orderId=${verifyData.order._id}`);
+                            } else {
+                                alert(verifyData.message || "Payment verification failed");
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            alert("Payment verification failed");
+                        } finally {
+                            setIsPlacingOrder(false);
+                        }
+                    },
+                    modal: {
+                        ondismiss: () => setIsPlacingOrder(false),
+                    },
+                });
+
+                razorpay.open();
+                return;
+            }
+
             const response = await fetch("/api/orders", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    ...formData,
-                    items,
-                    subtotal,
-                    shipping,
-                    total,
-                }),
+                body: JSON.stringify(orderPayload),
             });
 
             const data = await response.json();
 
             if (data.success) {
-                router.push("/order-success");
+                router.push(`/order-success?orderId=${data.order._id}`);
             } else {
                 alert("Order failed");
             }
         } catch (error) {
             console.error(error);
             alert("Something went wrong");
+        } finally {
+            if (formData.paymentMethod !== "razorpay") {
+                setIsPlacingOrder(false);
+            }
         }
     };
 
@@ -98,6 +214,28 @@ export default function CheckoutPage() {
         "w-full border border-[#E8DDD1] bg-white rounded-xl px-4 py-3 text-[#2D2A26] font-medium placeholder:text-[#9C9388] focus:outline-none focus:ring-2 focus:ring-[#C18A42] focus:border-[#C18A42] transition";
 
     const labelClasses = "block text-[#4F6B52] font-semibold mb-2 text-sm tracking-wide";
+
+    const orderPayload = {
+        ...formData,
+        items,
+        subtotal,
+        shipping,
+        total,
+    };
+
+    const loadRazorpayScript = () =>
+        new Promise<boolean>((resolve) => {
+            if (window.Razorpay) {
+                resolve(true);
+                return;
+            }
+
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
 
     return (
         <div className="min-h-screen bg-[#FBF7F1] py-12 px-6">

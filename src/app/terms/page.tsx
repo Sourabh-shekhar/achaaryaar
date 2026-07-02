@@ -8,13 +8,13 @@ export default function TermsPage() {
         <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(1.8rem, 4.5vw, 2.6rem)", color: COLORS.white, fontWeight: 900 }}>Terms &amp; Conditions</h1>
       </section>
       <section style={{ maxWidth: 780, margin: "0 auto", padding: "clamp(2.5rem, 6vw, 4rem) clamp(1.25rem, 5vw, 2rem)", color: COLORS.muted, fontSize: "0.95rem", lineHeight: 1.85 }}>
-        <p style={{ marginBottom: "1.25rem" }}>By ordering from Achaaryaar, you agree to the following terms.</p>
+        <p style={{ marginBottom: "1.25rem" }}>By ordering from AchaarYaar, you agree to the following terms.</p>
         <h2 style={{ fontFamily: FONT_DISPLAY, color: COLORS.ink, fontSize: "1.1rem", margin: "1.75rem 0 0.75rem" }}>Orders</h2>
         <p style={{ marginBottom: "1.25rem" }}>All orders are subject to availability. Prices are listed in Indian Rupees and may change without prior notice.</p>
         <h2 style={{ fontFamily: FONT_DISPLAY, color: COLORS.ink, fontSize: "1.1rem", margin: "1.75rem 0 0.75rem" }}>Product information</h2>
         <p style={{ marginBottom: "1.25rem" }}>We describe our products as accurately as possible. Minor variations in colour, texture, and spice level are natural in handmade batches.</p>
         <h2 style={{ fontFamily: FONT_DISPLAY, color: COLORS.ink, fontSize: "1.1rem", margin: "1.75rem 0 0.75rem" }}>Liability</h2>
-        <p>Achaaryaar is not liable for allergic reactions. Please check ingredient lists carefully before consuming.</p>
+        <p>AchaarYaar is not liable for allergic reactions. Please check ingredient lists carefully before consuming.</p>
       </section>
     </div>
   );

@@ -1,19 +1,42 @@
+import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import { baseUrl } from "@/lib/baseUrl";
+
 const COLORS = {
-  forest: "#1C3D2E",
-  forestMid: "#2A5540",
-  gold: "#C9923A",
+  forest: "#4F6B52",
+  forestDark: "#2E3F30",
+  gold: "#C18A42",
+  goldLight: "#D9A85F",
   cream: "#FBF7F1",
-  creamDark: "#F3EDE3",
   sand: "#E8DDD1",
   ink: "#2D2A26",
-  muted: "#7A6F65",
+  muted: "#5C5249",
+  red: "#6B1F1F",
 };
 
+type Product = {
+  _id: string;
+  name: string;
+  description: string;
+  category?: string;
+  image: string;
+  featured?: boolean;
+  weights: {
+    size: string;
+    price: number;
+    stock: number;
+  }[];
+};
 
+const CATEGORY_LINKS = [
+  { label: "All", value: "" },
+  { label: "Mango", value: "mango" },
+  { label: "Lemon", value: "lemon" },
+  { label: "Garlic", value: "garlic" },
+  { label: "Spicy", value: "spicy" },
+];
 
-async function getProducts() {
+async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${baseUrl}/api/products`, {
     cache: "no-store",
   });
@@ -26,103 +49,148 @@ async function getProducts() {
   return data.products || [];
 }
 
+function getLowestPrice(product: Product) {
+  return Math.min(...product.weights.map((weight) => weight.price));
+}
+
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string }>;
+  searchParams: Promise<{ search?: string; category?: string }>;
 }) {
   const products = await getProducts();
-
   const params = await searchParams;
-  const search = params.search?.toLowerCase() || "";
+  const search = params.search?.toLowerCase().trim() || "";
+  const category = params.category?.toLowerCase().trim() || "";
 
-  const filteredProducts = products.filter((product: any) =>
-    product.name.toLowerCase().includes(search)
-  );
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch =
+      !search ||
+      product.name.toLowerCase().includes(search) ||
+      product.description.toLowerCase().includes(search);
+
+    const matchesCategory =
+      !category || product.category?.toLowerCase().includes(category);
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const featuredCount = products.filter((product) => product.featured).length;
+  const inStockCount = products.filter((product) =>
+    product.weights.some((weight) => weight.stock > 0)
+  ).length;
+  const startingPrice =
+    products.length > 0
+      ? Math.min(...products.map((product) => getLowestPrice(product)))
+      : null;
 
   return (
     <div style={{ minHeight: "100vh", background: COLORS.cream }}>
-      {/* Header banner */}
-      <div
+      <section
         style={{
-          background: `linear-gradient(135deg, ${COLORS.forest} 0%, #0E2419 100%)`,
-          padding: "4rem 2rem 5rem",
+          background: `linear-gradient(135deg, ${COLORS.forestDark} 0%, ${COLORS.forest} 100%)`,
+          padding: "clamp(3rem, 8vw, 5rem) 1.25rem clamp(5rem, 10vw, 7rem)",
           textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
         <div
+          aria-hidden="true"
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            background: "rgba(201,146,58,0.15)",
-            border: "1px solid rgba(201,146,58,0.35)",
-            color: COLORS.gold,
-            padding: "0.35rem 1rem",
-            borderRadius: 100,
-            fontSize: "0.72rem",
-            fontWeight: 700,
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-            marginBottom: "1.25rem",
+            position: "absolute",
+            inset: 0,
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0)",
+            backgroundSize: "22px 22px",
           }}
-        >
-          🫙 Our Full Range
+        />
+
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              background: "rgba(193,138,66,0.16)",
+              border: "1px solid rgba(217,168,95,0.38)",
+              color: COLORS.goldLight,
+              padding: "0.45rem 1rem",
+              borderRadius: 999,
+              fontSize: "0.72rem",
+              fontWeight: 800,
+              letterSpacing: "2px",
+              textTransform: "uppercase",
+              marginBottom: "1.2rem",
+            }}
+          >
+            Small-batch Bihar pickles
+          </div>
+
+          <h1
+            style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: "clamp(2.25rem, 6vw, 4rem)",
+              lineHeight: 1.08,
+              fontWeight: 900,
+              color: "#fff",
+              margin: "0 auto 1rem",
+              maxWidth: 760,
+            }}
+          >
+            Pickle jars for everyday meals, gifting, and cravings.
+          </h1>
+
+          <p
+            style={{
+              color: "rgba(255,255,255,0.78)",
+              fontSize: "1rem",
+              lineHeight: 1.7,
+              maxWidth: 620,
+              margin: "0 auto",
+            }}
+          >
+            Explore handcrafted mango, lemon, garlic, chilli, and seasonal
+            achaar made with balanced spices and traditional recipes.
+          </p>
         </div>
+      </section>
 
-        <h1
-          style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: "clamp(2.2rem, 5vw, 3.4rem)",
-            fontWeight: 900,
-            color: "#fff",
-            marginBottom: "0.75rem",
-          }}
-        >
-          Grandma&apos;s Specials ⭐
-        </h1>
-        <p
-          style={{
-            color: "rgba(255,255,255,0.65)",
-            fontSize: "1rem",
-            maxWidth: 480,
-            margin: "0 auto",
-          }}
-        >
-          Every jar handcrafted in small batches, just like home.
-        </p>
-      </div>
-
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 2rem" }}>
-        {/* Search bar pulled up to overlap the banner */}
-        <div
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 1.25rem" }}>
+        <section
           style={{
             background: "#fff",
             border: `1px solid ${COLORS.sand}`,
             borderRadius: 18,
-            boxShadow: "0 16px 40px rgba(28,61,46,0.12)",
-            padding: "1.25rem 1.5rem",
-            marginTop: "-3rem",
-            marginBottom: "3rem",
+            boxShadow: "0 16px 42px rgba(28,61,46,0.12)",
+            padding: "1.25rem",
+            marginTop: "-3.5rem",
+            marginBottom: "2rem",
             position: "relative",
             zIndex: 2,
           }}
         >
-          <form action="/products" method="GET" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+          <form
+            action="/products"
+            method="GET"
+            style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}
+          >
+            {category && <input type="hidden" name="category" value={category} />}
             <input
               type="text"
               name="search"
               defaultValue={params.search || ""}
-              placeholder="Search pickles by name..."
+              placeholder="Search mango, lemon, garlic..."
               style={{
                 flex: 1,
-                minWidth: 200,
-                padding: "0.75rem 1.1rem",
+                minWidth: 220,
+                padding: "0.85rem 1rem",
                 borderRadius: 12,
                 border: `1px solid ${COLORS.sand}`,
-                fontSize: "0.9rem",
+                fontSize: "0.95rem",
                 outline: "none",
                 color: COLORS.ink,
+                background: COLORS.cream,
               }}
             />
             <button
@@ -131,50 +199,170 @@ export default async function ProductsPage({
                 background: COLORS.forest,
                 color: "#fff",
                 border: "none",
-                padding: "0.75rem 1.75rem",
+                padding: "0.85rem 1.6rem",
                 borderRadius: 12,
-                fontWeight: 700,
-                fontSize: "0.875rem",
+                fontWeight: 800,
+                fontSize: "0.9rem",
                 cursor: "pointer",
               }}
             >
               Search
             </button>
           </form>
-        </div>
 
-        {search && (
-          <p style={{ textAlign: "center", color: COLORS.muted, marginBottom: "2rem", fontSize: "0.95rem" }}>
-            Search results for{" "}
-            <span style={{ fontWeight: 700, color: COLORS.gold }}>&ldquo;{search}&rdquo;</span>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "0.65rem",
+              marginTop: "1rem",
+            }}
+          >
+            {CATEGORY_LINKS.map((item) => {
+              const isActive = item.value === category;
+              const href = item.value
+                ? `/products?category=${item.value}${search ? `&search=${search}` : ""}`
+                : `/products${search ? `?search=${search}` : ""}`;
+
+              return (
+                <Link
+                  key={item.label}
+                  href={href}
+                  style={{
+                    border: `1px solid ${isActive ? COLORS.forest : COLORS.sand}`,
+                    background: isActive ? COLORS.forest : COLORS.cream,
+                    color: isActive ? "#fff" : COLORS.ink,
+                    borderRadius: 999,
+                    padding: "0.55rem 0.9rem",
+                    fontSize: "0.82rem",
+                    fontWeight: 800,
+                    textDecoration: "none",
+                  }}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "1rem",
+            marginBottom: "2.5rem",
+          }}
+        >
+          {[
+            { value: `${products.length}+`, label: "pickle varieties" },
+            { value: `${inStockCount}`, label: "currently in stock" },
+            { value: `${featuredCount}`, label: "featured favourites" },
+            {
+              value: startingPrice ? `Rs. ${startingPrice}` : "Soon",
+              label: "starting price",
+            },
+          ].map((item) => (
+            <div
+              key={item.label}
+              style={{
+                background: "#fff",
+                border: `1px solid ${COLORS.sand}`,
+                borderRadius: 16,
+                padding: "1rem",
+              }}
+            >
+              <p
+                style={{
+                  color: COLORS.red,
+                  fontSize: "1.45rem",
+                  fontWeight: 900,
+                  marginBottom: "0.2rem",
+                }}
+              >
+                {item.value}
+              </p>
+              <p
+                style={{
+                  color: COLORS.muted,
+                  fontSize: "0.78rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "1.4px",
+                  fontWeight: 800,
+                }}
+              >
+                {item.label}
+              </p>
+            </div>
+          ))}
+        </section>
+
+        {(search || category) && (
+          <p
+            style={{
+              color: COLORS.muted,
+              marginBottom: "1.5rem",
+              fontSize: "0.95rem",
+            }}
+          >
+            Showing {filteredProducts.length} result
+            {filteredProducts.length === 1 ? "" : "s"}
+            {category ? ` in ${category}` : ""}
+            {search ? ` for "${search}"` : ""}.
           </p>
         )}
 
-        {/* Grid */}
         {filteredProducts.length === 0 ? (
           <div
             style={{
+              background: "#fff",
+              border: `1px solid ${COLORS.sand}`,
+              borderRadius: 18,
               textAlign: "center",
               padding: "4rem 2rem",
               color: COLORS.muted,
-              fontSize: "1.1rem",
+              fontSize: "1rem",
+              marginBottom: "5rem",
             }}
           >
-            No products found 😔
-            <div style={{ fontSize: "0.85rem", marginTop: "0.5rem" }}>
-              Try a different search term.
-            </div>
+            <h2
+              style={{
+                color: COLORS.ink,
+                fontSize: "1.5rem",
+                fontWeight: 900,
+                marginBottom: "0.5rem",
+              }}
+            >
+              No jars matched that search
+            </h2>
+            <p style={{ marginBottom: "1.5rem" }}>
+              Try another flavour or browse the full pickle collection.
+            </p>
+            <Link
+              href="/products"
+              style={{
+                display: "inline-flex",
+                background: COLORS.gold,
+                color: COLORS.ink,
+                borderRadius: 999,
+                padding: "0.8rem 1.3rem",
+                fontWeight: 900,
+                textDecoration: "none",
+              }}
+            >
+              View all products
+            </Link>
           </div>
         ) : (
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))",
               gap: "1.75rem",
               paddingBottom: "5rem",
             }}
           >
-            {filteredProducts.map((product: any) => (
+            {filteredProducts.map((product) => (
               <ProductCard
                 key={product._id}
                 _id={product._id}

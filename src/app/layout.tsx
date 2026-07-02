@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import Providers from "./providers";
 import AuthProvider from "@/components/SessionProvider";
 import { Playfair_Display } from "next/font/google";
-import { Info } from "lucide-react";
 import InfoTicker from "@/components/InfoTicker";
+import Footer from "@/components/Footer";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -21,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Achaaryaar | Authentic Homemade Bihar Pickles",
+  title: "AchaarYaar | Authentic Homemade Bihar Pickles",
   description:
     "Buy authentic homemade Bihar pickles online. Traditional recipes, premium ingredients, and homemade taste delivered across India.",
   keywords: [
@@ -29,20 +28,20 @@ export const metadata: Metadata = {
     "Homemade Pickle",
     "Mango Pickle",
     "Achar Online",
-    "Achaaryaar",
+    "AchaarYaar",
     "Indian Pickles",
     "Garlic Pickle",
     "Homemade Achar",
   ],
 
-  authors: [{ name: "Achaaryaar" }],
+  authors: [{ name: "AchaarYaar" }],
 
   openGraph: {
-    title: "Achaaryaar | Authentic Homemade Bihar Pickles",
+    title: "AchaarYaar | Authentic Homemade Bihar Pickles",
     description:
       "Experience the authentic taste of homemade Bihar pickles.",
     url: "https://www.achaaryaar.com",
-    siteName: "Achaaryaar",
+    siteName: "AchaarYaar",
     locale: "en_IN",
     type: "website",
   },
@@ -70,6 +69,8 @@ export default function RootLayout({
           <main className="flex-grow">
             {children}
           </main>
+
+          <Footer />
 
         </AuthProvider>
 

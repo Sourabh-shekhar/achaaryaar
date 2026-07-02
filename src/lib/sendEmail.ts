@@ -15,9 +15,9 @@ export async function sendOrderConfirmation(
   });
 
 await transporter.sendMail({
-  from: `"Achaaryaar" <${process.env.EMAIL_USER}>`,
+  from: `"AchaarYaar" <${process.env.EMAIL_USER}>`,
   to: email,
-  subject: "Order Confirmation - Achaaryaar",
+  subject: "Order Confirmation - AchaarYaar",
 
   html: `
     <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
@@ -26,12 +26,12 @@ await transporter.sendMail({
 
         <img
           src="https://achaaryaar-git-main-sourabh-shekhars-projects.vercel.app/image/logo.png"
-          alt="Achaaryaar Logo"
+          alt="AchaarYaar Logo"
           width="180"
         />
 
         <h1 style="color:#ea580c; margin-top:10px;">
-          Achaaryaar
+          AchaarYaar
         </h1>
 
         <p style="color:#666;">
@@ -60,7 +60,7 @@ await transporter.sendMail({
 
       <p>
         Regards,<br/>
-        <strong>Team Achaaryaar</strong>
+        <strong>Team Achaaraar</strong>
       </p>
 
     </div>

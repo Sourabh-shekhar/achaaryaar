@@ -115,7 +115,7 @@ export default function LoginPage() {
         <div className="hidden lg:flex flex-col justify-between bg-[#6B1F1F] text-white p-12">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-[#F1D7B8]">
-              Achaaryaar
+              AchaarYaar
             </p>
 
             <h1 className="mt-6 text-5xl font-bold leading-tight">
@@ -215,7 +215,7 @@ export default function LoginPage() {
             </div>
 
             <p className="mt-8 text-sm leading-6 text-[#7B7269]">
-              Achaaryaar celebrates authentic pickle traditions with thoughtful
+              Achaaraar celebrates authentic pickle traditions with thoughtful
               craftsmanship and honest flavour in every jar.
             </p>
           </div>

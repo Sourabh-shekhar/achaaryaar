@@ -244,7 +244,7 @@ function WelcomePopup() {
             lineHeight: 1.2,
           }}
         >
-          Welcome to Achaaryaar
+          Welcome to AchaarYaar
         </h3>
 
         <p
@@ -601,7 +601,7 @@ function OfferBanner() {
             }}>
               <Image
                 src="/image/discount.png"
-                alt="Achaaryaar jars — your first order, 10% off"
+                alt="AchaarYaar jars — your first order, 10% off"
                 fill
                 sizes="(max-width: 768px) 60vw, 240px"
                 style={{ objectFit: "cover", objectPosition: "center" }}
@@ -937,7 +937,7 @@ function StorySection() {
           </h2>
           <div style={{ width: 56, height: 3, background: COLORS.gold, borderRadius: 2, marginBottom: "1.5rem" }} aria-hidden="true" />
           <p style={{ color: "rgba(255,255,255,0.82)", lineHeight: 1.8, marginBottom: "1rem", fontSize: "0.95rem" }}>
-            Achaaryaar was born from a simple dream — to preserve and share the authentic homemade flavours of Bihar with families across India.
+            AchaarYaar was born from a simple dream — to preserve and share the authentic homemade flavours of Bihar with families across India.
           </p>
           <p style={{ color: "rgba(255,255,255,0.82)", lineHeight: 1.8, fontSize: "0.95rem" }}>
             Inspired by our grandmothers and their treasured recipes, each jar is handcrafted with patience, passion, and deep respect for tradition.
@@ -962,7 +962,7 @@ function FAQSection() {
   const [open, setOpen] = useState<number | null>(null);
   const baseId = useId();
   const faqs = [
-    { q: "How are Achaaryaar pickles prepared?", a: "All our pickles are handcrafted in small batches using traditional family recipes, premium ingredients, and authentic spices — no shortcuts." },
+    { q: "How are AchaarYaar pickles prepared?", a: "All our pickles are handcrafted in small batches using traditional family recipes, premium ingredients, and authentic spices — no shortcuts." },
     { q: "Do your pickles contain preservatives?", a: "No. Our pickles are naturally preserved using traditional methods without harmful artificial preservatives." },
     { q: "Do you deliver across India?", a: "Yes. We deliver safely across India through trusted courier partners, with careful packaging to ensure jars arrive in perfect condition." },
     { q: "What is the shelf life of your pickles?", a: "Generally 18–24 months in a cool, dry place. Once opened, refrigerate and consume within 3 months." },
@@ -1100,7 +1100,8 @@ function Newsletter() {
 }
 
 // ─── FOOTER ───────────────────────────────────────────────────────────────────
-function Footer() {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function LegacyFooter() {
   const year = new Date().getFullYear();
   const cols = [
     { title: "Shop", links: [{ label: "Mango Pickles", href: "/products?category=mango" }, { label: "Spicy Pickles", href: "/products?category=spicy" }, { label: "Garlic Special", href: "/products?category=garlic" }, { label: "Lemon Pickles", href: "/products?category=lemon" }] },
@@ -1120,7 +1121,7 @@ function Footer() {
             <div style={{
               fontFamily: FONT_DISPLAY, color: COLORS.white, fontSize: "1.2rem", marginBottom: "0.5rem", fontWeight: 700,
             }}>
-              Achaarya<span style={{ color: COLORS.gold }}>ar</span>
+              AchaarYa<span style={{ color: COLORS.gold }}>ar</span>
             </div>
             <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.82rem", lineHeight: 1.7, maxWidth: 280, marginBottom: "1.25rem" }}>
               Handcrafted pickles from the heart of Bihar. Traditional recipes, pure ingredients, delivered to your door.
@@ -1169,7 +1170,7 @@ function Footer() {
           color: "rgba(255,255,255,0.5)",
           fontSize: "0.75rem",
         }}>
-          © {year} Achaaryaar. All rights reserved. Made with ❤️ in Bihar.
+          © {year} AchaarYaar. All rights reserved. Made with ❤️ in Bihar.
         </div>
       </div>
     </footer>
@@ -1222,8 +1223,6 @@ export default function HomePage() {
         <Newsletter />
         <WhatsAppButton />
       </main>
-
-      <Footer />
 
       <style>{`
         * { box-sizing: border-box; }

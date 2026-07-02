@@ -307,6 +307,7 @@ const SAND = "#E8DDD1";
 const MOBILE_NAV_ITEMS = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/products" },
+  { label: "Track", href: "/track" },
   { label: "About Us", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
@@ -361,7 +362,7 @@ export default function Navbar() {
           <Link href="/" className="shrink-0">
             <img
               src="/image/logo.png"
-              alt="Achaaryaar"
+              alt="AchaarYaar"
               className="h-14 w-auto"
             />
           </Link>
@@ -512,7 +513,7 @@ export default function Navbar() {
             <div className="flex items-center justify-between mb-8">
               <img
                 src="/image/logo.png"
-                alt="Achaaryaar"
+                alt="AchaarYaar"
                 className="h-12 w-auto"
               />
               <button

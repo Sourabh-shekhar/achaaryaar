@@ -88,7 +88,7 @@ export default function CareersPage() {
           <div style={{ width: 64, height: 64, borderRadius: "50%", background: COLORS.forest, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem", fontSize: "1.6rem" }} aria-hidden="true">✓</div>
           <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: "1.6rem", color: COLORS.ink, marginBottom: "0.75rem" }}>Application received</h1>
           <p style={{ color: COLORS.muted, fontSize: "0.92rem", lineHeight: 1.7 }}>
-            Thank you for your interest in joining Achaaryaar. Our team will review your resume and reach out if there&apos;s a match.
+            Thank you for your interest in joining AchaarYaar. Our team will review your resume and reach out if there&apos;s a match.
           </p>
         </div>
       </div>
@@ -106,7 +106,7 @@ export default function CareersPage() {
           Join Our Team
         </div>
         <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(2rem, 5vw, 3rem)", color: COLORS.white, fontWeight: 900, maxWidth: 640, margin: "0 auto 0.75rem" }}>
-          Careers at Achaaryaar
+          Careers at Achaaraar
         </h1>
         <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.95rem", maxWidth: 480, margin: "0 auto" }}>
           Help us bring three generations of Bihar&apos;s pickle-making tradition to families across India.

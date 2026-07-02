@@ -462,7 +462,7 @@ export default function ProductDetailsClient({
 
                 <div>
                   <p className="text-sm text-[#7A6F65]">Brand</p>
-                  <p className="font-bold text-[#2D2A26]">Achaaryaar</p>
+                  <p className="font-bold text-[#2D2A26]">AchaarYaar</p>
                 </div>
 
                 <div>
@@ -623,7 +623,7 @@ export default function ProductDetailsClient({
         </p>
 
         <p className="text-2xl font-bold text-[#2D2A26]">
-          Achaaryaar Foods
+          AchaarYaar Foods
         </p>
       </div>
 
@@ -634,7 +634,7 @@ export default function ProductDetailsClient({
         </p>
 
         <p className="text-2xl font-bold text-[#2D2A26]">
-          Achaaryaar Foods
+          AchaarYaar Foods
         </p>
       </div>
 
