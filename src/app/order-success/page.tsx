@@ -54,11 +54,11 @@ function OrderSuccessContent() {
 
         <div className="mt-8 space-y-4">
           <Link
-            href={orderId ? `/track?orderId=${orderId}` : "/track"}
+            href="/profile"
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#C18A42] py-4 font-extrabold text-[#2D2A26] transition hover:bg-[#D9A85F]"
           >
             <FiPackage size={18} />
-            Track Order
+            View Order History
           </Link>
 
           <Link

@@ -307,7 +307,7 @@ const SAND = "#E8DDD1";
 const MOBILE_NAV_ITEMS = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/products" },
-  { label: "Track", href: "/track" },
+  { label: "Profile", href: "/profile" },
   { label: "About Us", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
@@ -432,6 +432,13 @@ export default function Navbar() {
                     <p className="text-center font-bold mb-4" style={{ color: FOREST }}>
                       {session.user?.name}
                     </p>
+                    <Link
+                      href="/profile"
+                      className="block text-center py-2 rounded-lg text-sm font-semibold mb-2"
+                      style={{ border: `1px solid ${SAND}`, color: INK }}
+                    >
+                      Profile & Orders
+                    </Link>
                     <button
                       onClick={() => signOut()}
                       className="w-full py-2 rounded-lg text-sm font-semibold text-white"
@@ -566,6 +573,14 @@ export default function Navbar() {
                 <p className="font-bold" style={{ color: FOREST }}>
                   {session.user?.name}
                 </p>
+                <Link
+                  href="/profile"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full mt-4 py-3 rounded-xl text-center text-sm font-semibold"
+                  style={{ border: `1px solid ${SAND}`, color: INK }}
+                >
+                  Profile & Orders
+                </Link>
                 <button
                   onClick={() => signOut()}
                   className="w-full mt-4 py-3 rounded-xl text-sm font-semibold text-white"

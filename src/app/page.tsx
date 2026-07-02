@@ -407,7 +407,7 @@ function Hero() {
               ))}
             </div>
             <div>
-              <div style={{ color: COLORS.white, fontWeight: 700, fontSize: "0.85rem" }}>4,800+ Happy Customers</div>
+              <div style={{ color: COLORS.white, fontWeight: 700, fontSize: "0.85rem" }}>2,000+ Happy Customers</div>
               <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem" }}>Across India ⭐⭐⭐⭐⭐</div>
             </div>
           </div>
@@ -916,7 +916,7 @@ function ProcessSection() {
 // ─── STORY ────────────────────────────────────────────────────────────────────
 function StorySection() {
   const stats = [
-    { num: "4,800+", label: "Happy Customers" },
+    { num: "2K+", label: "Happy Customers" },
     { num: "20+", label: "Pickle Varieties" },
     { num: "100%", label: "Natural Ingredients" },
     { num: "3 Gen", label: "Of Recipes" },

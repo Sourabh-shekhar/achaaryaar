@@ -17,6 +17,11 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
+
+    phone: String,
+    address: String,
+    city: String,
+    pincode: String,
   },
   { timestamps: true }
 );

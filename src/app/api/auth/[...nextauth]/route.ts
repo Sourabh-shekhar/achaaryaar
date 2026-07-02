@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
@@ -10,7 +11,7 @@ import { connectDB } from "@/lib/mongodb";
 
 
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
 
     providers: [
 
@@ -106,6 +107,8 @@ const handler = NextAuth({
 
     secret: process.env.NEXTAUTH_SECRET,
 
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

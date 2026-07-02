@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { baseUrl } from "@/lib/baseUrl";
+import { useSession } from "next-auth/react";
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 
 type RazorpayPaymentResponse = {
@@ -41,6 +41,7 @@ declare global {
 
 export default function CheckoutPage() {
     const router = useRouter();
+    const { data: session, status } = useSession();
 
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [formData, setFormData] = useState({
@@ -53,6 +54,16 @@ export default function CheckoutPage() {
         email: "",
     });
     const items = useCartStore((state) => state.items);
+
+    useEffect(() => {
+        if (status !== "authenticated") return;
+
+        setFormData((current) => ({
+            ...current,
+            fullName: current.fullName || session?.user?.name || "",
+            email: current.email || session?.user?.email || "",
+        }));
+    }, [session?.user?.email, session?.user?.name, status]);
 
     const subtotal = items.reduce((total, item) => {
         const price =
@@ -237,6 +248,49 @@ export default function CheckoutPage() {
             document.body.appendChild(script);
         });
 
+    if (status === "loading") {
+        return (
+            <div className="min-h-screen bg-[#FBF7F1] px-6 py-12">
+                <div className="mx-auto max-w-3xl rounded-3xl border border-[#E8DDD1] bg-white p-8 text-center text-[#5C5249]">
+                    Checking your account...
+                </div>
+            </div>
+        );
+    }
+
+    if (status === "unauthenticated") {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-[#FBF7F1] px-6 py-12">
+                <div className="max-w-lg rounded-3xl border border-[#E8DDD1] bg-white p-8 text-center shadow-[0_18px_50px_rgba(28,61,46,0.1)]">
+                    <h1
+                        className="text-4xl font-black text-[#2D2A26]"
+                        style={{ fontFamily: FONT_DISPLAY }}
+                    >
+                        Login first to place an order
+                    </h1>
+                    <p className="mt-4 leading-7 text-[#5C5249]">
+                        Please sign in before checkout so we can save your order
+                        history and tracking updates in your profile.
+                    </p>
+                    <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                        <Link
+                            href="/login"
+                            className="rounded-xl bg-[#C18A42] px-6 py-3 font-extrabold text-[#2D2A26]"
+                        >
+                            Login
+                        </Link>
+                        <Link
+                            href="/signup"
+                            className="rounded-xl border border-[#4F6B52] px-6 py-3 font-bold text-[#4F6B52]"
+                        >
+                            Create account
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-[#FBF7F1] py-12 px-6">
             <div className="max-w-6xl mx-auto">
@@ -313,14 +367,20 @@ export default function CheckoutPage() {
                                         type="email"
                                         placeholder="you@example.com"
                                         value={formData.email}
+                                        readOnly={Boolean(session?.user?.email)}
                                         onChange={(e) =>
                                             setFormData({
                                                 ...formData,
                                                 email: e.target.value,
                                             })
                                         }
-                                        className={inputClasses}
+                                        className={`${inputClasses} ${session?.user?.email ? "bg-[#F3EDE3]" : ""}`}
                                     />
+                                    {session?.user?.email && (
+                                        <p className="mt-1 text-xs text-[#7A6F65]">
+                                            Orders will appear in this account profile.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
@@ -517,10 +577,14 @@ export default function CheckoutPage() {
                                     <button
                                         type="button"
                                         onClick={handlePlaceOrder}
-                                        disabled={items.length === 0}
+                                        disabled={items.length === 0 || isPlacingOrder}
                                         className="w-full bg-[#C18A42] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#A8742F] transition mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        Place Order
+                                        {isPlacingOrder
+                                            ? "Processing..."
+                                            : formData.paymentMethod === "razorpay"
+                                                ? "Pay Securely"
+                                                : "Place COD Order"}
                                     </button>
 
                                     <p className="text-center text-xs text-[#9C9388] mt-2">

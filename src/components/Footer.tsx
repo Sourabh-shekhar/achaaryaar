@@ -25,7 +25,7 @@ const companyLinks = [
 ];
 
 const supportLinks = [
-  { label: "Track Order", href: "/track" },
+  { label: "My Profile", href: "/profile" },
   { label: "Shipping Policy", href: "/shipping-policy" },
   { label: "Returns", href: "/returns" },
   { label: "Privacy Policy", href: "/privacy-policy" },
@@ -135,6 +135,9 @@ export default function Footer() {
         <div className="flex items-center gap-4 text-3xl text-white/70">
           <FaCcVisa />
           <FaCcMastercard />
+          <span className="rounded-md border border-white/30 px-2 py-1 text-sm font-black">
+            RuPay
+          </span>
           <SiGooglepay />
           <SiPaytm />
         </div>
