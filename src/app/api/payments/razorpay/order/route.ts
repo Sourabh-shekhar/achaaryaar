@@ -4,7 +4,7 @@ export async function POST(req: Request) {
   try {
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
+    console.log("DEBUG — KEY_ID exists:", !!keyId, "| SECRET exists:", !!keySecret);
     if (!keyId || !keySecret) {
       return NextResponse.json(
         {
