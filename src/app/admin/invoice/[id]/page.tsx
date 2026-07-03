@@ -75,7 +75,7 @@ useEffect(() => {
         <thead>
           <tr className="bg-gray-100">
             <th className="border p-3">Product</th>
-            <th className="border p-3">Quantity</th>
+            <th className="border p-3">size</th>
             <th className="border p-3">Price</th>
           </tr>
         </thead>

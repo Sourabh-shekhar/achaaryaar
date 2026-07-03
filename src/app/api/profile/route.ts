@@ -32,7 +32,17 @@ export async function GET() {
     await connectDB();
 
     const user = await User.findOne({ email }).select("-password").lean();
-    const orders = await Order.find({ email }).sort({ createdAt: -1 }).lean();
+    const phone = user?.phone ? String(user.phone).replace(/\D/g, "") : "";
+    const orderQuery = phone
+      ? {
+          $or: [
+            { email },
+            { phone },
+            { phone: user?.phone },
+          ],
+        }
+      : { email };
+    const orders = await Order.find(orderQuery).sort({ createdAt: -1 }).lean();
 
     return NextResponse.json({
       success: true,

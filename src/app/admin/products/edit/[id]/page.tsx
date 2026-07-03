@@ -149,7 +149,7 @@ export default function EditProductPage() {
                         <div key={index} className="border p-4 rounded-xl">
 
                             <h3 className="font-bold mb-2">
-                                {variant.quantity}
+                                {variant.size}
                             </h3>
 
                             <input

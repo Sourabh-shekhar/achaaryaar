@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { FiShoppingBag, FiStar } from "react-icons/fi";
+import { FiShoppingBag, FiStar, FiMinus, FiPlus, FiChevronDown, FiCheck } from "react-icons/fi";
 import { useCartStore } from "@/store/cartStore";
 
 type ProductProps = {
@@ -11,7 +11,9 @@ type ProductProps = {
   description: string;
   image: string;
   weights: {
-    size: string;
+    size?: string;
+    quantity?: string;
+    weight?: string;
     price: number;
     stock: number;
   }[];
@@ -24,20 +26,89 @@ export default function ProductCard({
   image,
   weights,
 }: ProductProps) {
+  const hasVariants = Array.isArray(weights) && weights.length > 0;
+  const getVariantLabel = (weight?: ProductProps["weights"][number]) =>
+    weight?.size || weight?.quantity || weight?.weight || "Size";
+
   const [selectedVariant, setSelectedVariant] =
-    useState(weights?.[0]?.size || "");
-  const [count, setCount] = useState(0);
+    useState(getVariantLabel(weights?.[0]));
+  const [quantity, setQuantity] = useState(1);
+  const [justAdded, setJustAdded] = useState(false);
+  const [isSizeOpen, setIsSizeOpen] = useState(false);
+  const sizeDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // Close the custom size dropdown on outside click / Escape
+  useEffect(() => {
+    if (!isSizeOpen) return;
+
+    function onClickOutside(e: MouseEvent) {
+      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(e.target as Node)) {
+        setIsSizeOpen(false);
+      }
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setIsSizeOpen(false);
+    }
+
+    document.addEventListener("mousedown", onClickOutside);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onClickOutside);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isSizeOpen]);
 
   const selectedData =
-    weights?.find((w) => w.size === selectedVariant) ??
+    weights?.find((w) => getVariantLabel(w) === selectedVariant) ??
     weights?.[0] ??
     null;
 
   const addItem = useCartStore((state) => state.addItem);
-  const isLowStock =
-    selectedData?.stock !== undefined &&
-    selectedData.stock <= 5 &&
-    selectedData.stock > 0;
+
+  const stock = selectedData?.stock;
+  const isOutOfStock = hasVariants && stock === 0;
+  const isLowStock = typeof stock === "number" && stock > 0 && stock <= 5;
+
+  // Keep the chosen quantity valid whenever the size/variant changes —
+  // e.g. going from a variant with 20 in stock to one with only 2 left.
+  useEffect(() => {
+    setQuantity(1);
+  }, [selectedVariant]);
+
+  useEffect(() => {
+    if (typeof stock === "number" && quantity > stock) {
+      setQuantity(Math.max(1, stock));
+    }
+  }, [stock, quantity]);
+
+  function decrement(e: React.MouseEvent) {
+    e.preventDefault();
+    setQuantity((q) => Math.max(1, q - 1));
+  }
+
+  function increment(e: React.MouseEvent) {
+    e.preventDefault();
+    setQuantity((q) => (typeof stock === "number" ? Math.min(stock, q + 1) : q + 1));
+  }
+
+  function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault();
+    if (!selectedData || isOutOfStock) return;
+
+    // cartStore.addItem adds one unit per call — loop so the chosen
+    // quantity is reflected accurately without changing the store's contract.
+    for (let i = 0; i < quantity; i++) {
+      addItem({
+        _id,
+        name,
+        price: selectedData.price,
+        selectedVariant,
+      });
+    }
+
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1500);
+  }
 
   return (
     <Link href={`/products/${_id}`} className="group block h-full">
@@ -79,69 +150,145 @@ export default function ProductCard({
                   Starts at
                 </p>
                 <p className="text-3xl font-black text-[#6B1F1F]">
-                  Rs. {selectedData?.price || "N/A"}
+                  {selectedData ? `Rs. ${selectedData.price}` : "Unavailable"}
                 </p>
               </div>
 
-              {selectedData?.stock === 0 ? (
+              {!hasVariants ? (
+                <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-600">
+                  Unavailable
+                </span>
+              ) : isOutOfStock ? (
                 <span className="rounded-full bg-[#6B1F1F]/10 px-3 py-1 text-xs font-bold text-[#6B1F1F]">
                   Out of stock
                 </span>
               ) : isLowStock ? (
                 <span className="rounded-full bg-[#C18A42]/15 px-3 py-1 text-xs font-bold text-[#8A5E20]">
-                  Only {selectedData.stock} left
+                  Only {stock} left
+                </span>
+              ) : typeof stock === "number" ? (
+                <span className="rounded-full bg-[#4F6B52]/10 px-3 py-1 text-xs font-bold text-[#4F6B52]">
+                  {stock} in stock
                 </span>
               ) : (
-                <span className="rounded-full bg-[#4F6B52]/10 px-3 py-1 text-xs font-bold text-[#4F6B52]">
-                  Fresh stock
+                <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-600">
+                  Availability unknown
                 </span>
               )}
             </div>
 
-            <select
-              value={selectedVariant}
-              onChange={(e) => setSelectedVariant(e.target.value)}
-              onClick={(e) => e.preventDefault()}
-              className="mb-4 w-full rounded-xl border border-[#E8DDD1] bg-[#FBF7F1] p-3 font-semibold text-[#2D2A26] outline-none transition focus:border-[#4F6B52] focus:ring-2 focus:ring-[#4F6B52]/20"
-            >
-              {weights?.map((weight, index) => (
-                <option
-                  key={`${weight.size}-${index}`}
-                  value={weight.size}
+            {hasVariants && (
+              <div className="relative mb-3" ref={sizeDropdownRef}>
+                <button
+                  type="button"
+                  aria-haspopup="listbox"
+                  aria-expanded={isSizeOpen}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsSizeOpen((open) => !open);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-xl border bg-[#FBF7F1] p-3 font-semibold text-[#2D2A26] outline-none transition focus:ring-2 focus:ring-[#4F6B52]/20 ${
+                    isSizeOpen ? "border-[#4F6B52]" : "border-[#E8DDD1]"
+                  }`}
                 >
-                  {weight.size}
-                </option>
-              ))}
-            </select>
+                  <span>{selectedVariant || getVariantLabel(selectedData)}</span>
+                  <FiChevronDown
+                    size={16}
+                    className={`text-[#4F6B52] transition-transform duration-200 ${isSizeOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {isSizeOpen && (
+                  <div
+                    role="listbox"
+                    className="absolute left-0 right-0 top-[calc(100%+6px)] z-20 max-h-56 overflow-y-auto rounded-xl border border-[#E8DDD1] bg-white shadow-[0_16px_36px_rgba(28,61,46,0.18)]"
+                  >
+                    {weights?.map((weight, index) => {
+                      const label = getVariantLabel(weight);
+                      const isSelected = label === selectedVariant;
+                      return (
+                        <button
+                          key={`${weight.size}-${index}`}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSelectedVariant(label);
+                            setIsSizeOpen(false);
+                          }}
+                          className={`flex w-full items-center justify-between px-4 py-3 text-left font-semibold transition-colors ${
+                            isSelected
+                              ? "bg-[#F3E7DA] text-[#4F6B52]"
+                              : "text-[#2D2A26] hover:bg-[#FBF7F1]"
+                          }`}
+                        >
+                          <span>
+                            {label}
+                            <span className="ml-2 text-xs font-medium text-[#8A8074]">
+                              Rs. {weight.price}
+                            </span>
+                          </span>
+                          {isSelected && <FiCheck size={16} className="text-[#4F6B52]" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Quantity stepper */}
+            {!isOutOfStock && hasVariants && (
+              <div className="mb-4 flex items-center justify-between rounded-xl border border-[#E8DDD1] bg-[#FBF7F1] p-1.5">
+                <span className="pl-2 text-xs font-bold uppercase tracking-wide text-[#7A9678]">
+                  Quantity
+                </span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={decrement}
+                    disabled={quantity <= 1}
+                    aria-label="Decrease quantity"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#2D2A26] transition disabled:cursor-not-allowed disabled:opacity-40 hover:bg-[#E8DDD1]"
+                  >
+                    <FiMinus size={14} />
+                  </button>
+                  <span className="w-8 text-center font-bold text-[#2D2A26]">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={increment}
+                    disabled={typeof stock === "number" && quantity >= stock}
+                    aria-label="Increase quantity"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#2D2A26] transition disabled:cursor-not-allowed disabled:opacity-40 hover:bg-[#E8DDD1]"
+                  >
+                    <FiPlus size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
 
             <button
-              disabled={!selectedData || selectedData.stock === 0}
-              onClick={(e) => {
-                e.preventDefault();
-
-                if (!selectedData) return;
-
-                setCount(count + 1);
-
-                addItem({
-                  _id,
-                  name,
-                  price: selectedData.price,
-                  selectedVariant,
-                });
-              }}
+              disabled={!selectedData || isOutOfStock}
+              onClick={handleAddToCart}
               className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-extrabold transition duration-300 ${
-                !selectedData || selectedData.stock === 0
+                !selectedData || isOutOfStock
                   ? "cursor-not-allowed bg-gray-300 text-gray-600"
                   : "bg-[#C18A42] text-[#2D2A26] hover:bg-[#D9A85F]"
               }`}
             >
               <FiShoppingBag size={18} />
-              {!selectedData || selectedData.stock === 0
-                ? "Out of Stock"
-                : count > 0
-                  ? `Added (${count})`
-                  : "Add to Cart"}
+              {!hasVariants
+                ? "Unavailable"
+                : isOutOfStock
+                  ? "Out of Stock"
+                  : justAdded
+                    ? "Added to Cart ✓"
+                    : "Add to Cart"}
             </button>
           </div>
         </div>

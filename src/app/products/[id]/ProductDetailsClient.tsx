@@ -7,7 +7,9 @@ import { baseUrl } from "@/lib/baseUrl";
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 
 type Weight = {
-  size: string;
+  size?: string;
+  quantity?: string;
+  weight?: string;
   price: number;
   stock: number;
 };
@@ -49,6 +51,8 @@ export default function ProductDetailsClient({
   const [notifySubmitted, setNotifySubmitted] = useState(false);
 
   const selectedWeight = product.weights?.[selectedIndex];
+  const selectedWeightLabel =
+    selectedWeight?.size || selectedWeight?.quantity || selectedWeight?.weight || "Size";
   const outOfStock = !selectedWeight || selectedWeight.stock <= 0;
 
   const handleAddToCart = () => {
@@ -59,13 +63,13 @@ export default function ProductDetailsClient({
         _id: product._id,
         name: product.name,
         price: selectedWeight.price,
-        selectedVariant: selectedWeight.size,
+        selectedVariant: selectedWeightLabel,
       },
       quantity
     );
 
     setAdded(true);
-    setToast(`${quantity} × ${product.name} (${selectedWeight.size}) added to cart`);
+    setToast(`${quantity} x ${product.name} (${selectedWeightLabel}) added to cart`);
     setTimeout(() => setAdded(false), 1800);
     setTimeout(() => setToast(null), 3000);
   };
@@ -77,7 +81,7 @@ export default function ProductDetailsClient({
         _id: product._id,
         name: product.name,
         price: selectedWeight.price,
-        selectedVariant: selectedWeight.size,
+        selectedVariant: selectedWeightLabel,
       },
       quantity
     );
@@ -229,7 +233,7 @@ export default function ProductDetailsClient({
 
                 return (
                   <button
-                    key={`${weight.size}-${index}`}
+                    key={`${weight.size || weight.quantity || weight.weight || "size"}-${index}`}
                     disabled={isOut}
                     onClick={() => handleSelectWeight(index)}
                     className={`border-2 p-4 rounded-2xl text-left transition shadow-sm ${isOut
@@ -240,7 +244,7 @@ export default function ProductDetailsClient({
                       }`}
                   >
                     <p className="font-bold text-lg text-[#2D2A26]">
-                      {weight.size}
+                      {weight.size || weight.quantity || weight.weight || "Size"}
                     </p>
                     {!isOut && (
                       <p className="text-[#C18A42] font-bold mt-1">
@@ -273,7 +277,7 @@ export default function ProductDetailsClient({
                 ₹{selectedWeight.price}
               </span>
               <span className="text-[#7A6F65]">
-                / {selectedWeight.size}
+                / {selectedWeightLabel}
               </span>
             </div>
           )}
@@ -347,7 +351,7 @@ export default function ProductDetailsClient({
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 mt-8">
+            <div className="grid grid-cols-1 gap-3 mt-8 sm:grid-cols-3">
 
               <button
                 onClick={handleAddToCart}
@@ -360,6 +364,13 @@ export default function ProductDetailsClient({
                 {added ? "Added ✓" : "Add to Cart"}
               </button>
 
+              <Link
+                href="/cart"
+                className="flex items-center justify-center rounded-2xl border-2 border-[#3D5640] bg-white py-4 text-lg font-bold text-[#3D5640] shadow-md transition hover:bg-[#F3EDE3]"
+              >
+                Go to Cart
+              </Link>
+
               <button
                 onClick={handleBuyNow}
                 disabled={outOfStock}
@@ -370,13 +381,6 @@ export default function ProductDetailsClient({
 
             </div>
           )}
-
-          <Link
-            href="/cart"
-            className="block text-center mt-4 text-[#3D5640] font-semibold hover:text-[#C18A42] transition"
-          >
-            View Cart →
-          </Link>
 
           {/* Trust badges */}
           <div className="mt-10 grid grid-cols-3 gap-4 text-center">
@@ -717,18 +721,18 @@ export default function ProductDetailsClient({
 
       {/* Mobile Sticky Cart Bar — Flipkart-style: price + Add to Cart + Buy Now */}
       {!outOfStock && selectedWeight && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-[#E8DDD1] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3">
-          <div className="flex items-center gap-3">
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#E8DDD1] bg-white/95 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-3 sm:grid-cols-[0.8fr_1fr_1fr_1fr] sm:items-center">
             <div className="shrink-0">
               <p className="text-[11px] text-[#7A6F65] leading-tight">
-                {selectedWeight.size}
+                {selectedWeightLabel}
               </p>
               <p className="text-xl font-extrabold text-[#2D2A26] leading-tight">
                 ₹{selectedWeight.price}
               </p>
             </div>
 
-            <div className="flex-1 grid grid-cols-2 gap-2.5">
+            <>
               <button
                 onClick={handleAddToCart}
                 className={`flex items-center justify-center py-3 rounded-xl font-bold text-sm transition ${added
@@ -739,13 +743,20 @@ export default function ProductDetailsClient({
                 {added ? "Added ✓" : "Add to Cart"}
               </button>
 
+              <Link
+                href="/cart"
+                className="flex items-center justify-center rounded-xl border-2 border-[#3D5640] bg-white py-3 text-sm font-bold text-[#3D5640] transition hover:bg-[#F3EDE3]"
+              >
+                Go to Cart
+              </Link>
+
               <button
                 onClick={handleBuyNow}
                 className="flex items-center justify-center py-3 rounded-xl font-bold text-sm bg-[#3D5640] hover:bg-[#2F4533] text-white transition"
               >
                 Buy Now
               </button>
-            </div>
+            </>
           </div>
         </div>
       )}
