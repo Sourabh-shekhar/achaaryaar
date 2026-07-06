@@ -6,6 +6,8 @@ import AuthProvider from "@/components/SessionProvider";
 import { Playfair_Display } from "next/font/google";
 import InfoTicker from "@/components/InfoTicker";
 import Footer from "@/components/Footer";
+import { GoogleAnalytics } from "@next/third-parties/google";
+
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -75,6 +77,7 @@ export default function RootLayout({
         </AuthProvider>
 
       </body>
+      <GoogleAnalytics gaId="G-N1SJXDN38B" />
     </html>
   );
 }
