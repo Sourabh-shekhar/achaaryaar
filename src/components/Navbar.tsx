@@ -362,7 +362,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="bihar-brand-lockup shrink-0" aria-label="AchaarYaar home">
             <span className="bihar-brand-mark" aria-hidden="true">
-              <img src="/image/logo.png" alt="" />
+              <img src="/image/logo.png" alt="" width={36} height={36} />
             </span>
             <span className="hidden sm:block">
               <span className="bihar-brand-name">
@@ -372,9 +372,13 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <div className="magadh-mobile-badge md:hidden flex-1" aria-label="Magadh and Madhubani inspired Bihar origin">
-            <span className="magadh-mobile-badge-mark" aria-hidden="true" />
-            <span className="magadh-mobile-badge-text">Magadh Art</span>
+          <div className="magadh-mobile-badge md:hidden flex-1" aria-label="Magadh painting inspired Bihar origin">
+            <span className="magadh-painting-panel" aria-hidden="true">
+              <span className="magadh-painting-sun" />
+              <span className="magadh-painting-leaf magadh-painting-leaf-left" />
+              <span className="magadh-painting-leaf magadh-painting-leaf-right" />
+              <span className="magadh-painting-river" />
+            </span>
           </div>
 
           {/* Search */}
@@ -530,7 +534,7 @@ export default function Navbar() {
             <div className="flex items-center justify-between mb-8">
               <Link href="/" className="bihar-brand-lockup" onClick={() => setIsOpen(false)}>
                 <span className="bihar-brand-mark" aria-hidden="true">
-                  <img src="/image/logo.png" alt="" />
+                  <img src="/image/logo.png" alt="" width={36} height={36} />
                 </span>
                 <span>
                   <span className="bihar-brand-name">

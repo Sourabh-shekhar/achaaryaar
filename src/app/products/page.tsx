@@ -2,6 +2,8 @@ import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import { baseUrl } from "@/lib/baseUrl";
 
+export const revalidate = 60;
+
 const COLORS = {
   forest: "#4F6B52",
   forestDark: "#2E3F30",
@@ -74,7 +76,7 @@ const COMBO_PRODUCTS: Product[] = [
 
 async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${baseUrl}/api/products`, {
-    cache: "no-store",
+    next: { revalidate },
   });
 
   if (!res.ok) {

@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { isValidObjectId } from "mongoose";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
@@ -58,6 +59,8 @@ export async function POST(req: Request) {
     }
 
     for (const item of body.items) {
+      if (!isValidObjectId(item._id)) continue;
+
       const product = await Product.findById(item._id);
 
       if (!product) continue;

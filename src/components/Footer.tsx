@@ -40,7 +40,7 @@ export default function Footer() {
         <div>
           <Link href="/" className="bihar-brand-lockup mb-5">
             <span className="bihar-brand-mark" aria-hidden="true">
-              <img src="/image/logo.png" alt="" />
+              <img src="/image/logo.png" alt="" width={36} height={36} loading="lazy" decoding="async" />
             </span>
             <span>
               <span className="bihar-brand-name bihar-brand-name-light">

@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
+import { isValidObjectId } from "mongoose";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
@@ -13,6 +14,8 @@ type CartItem = {
 
 async function reduceStock(items: CartItem[]) {
   for (const item of items) {
+    if (!isValidObjectId(item._id)) continue;
+
     const product = await Product.findById(item._id);
 
     if (!product) continue;
@@ -92,19 +95,23 @@ export async function POST(req: Request) {
       status: "Processing",
     });
 
-    await sendOrderConfirmation(
-      orderPayload.email,
-      orderPayload.fullName,
-      order._id.toString()
-    );
-    await sendAdminOrderNotification({
-      _id: order._id.toString(),
-      fullName: orderPayload.fullName,
-      email: orderPayload.email,
-      phone: orderPayload.phone,
-      total: orderPayload.total,
-      paymentMethod: "razorpay",
-    });
+    try {
+      await sendOrderConfirmation(
+        orderPayload.email,
+        orderPayload.fullName,
+        order._id.toString()
+      );
+      await sendAdminOrderNotification({
+        _id: order._id.toString(),
+        fullName: orderPayload.fullName,
+        email: orderPayload.email,
+        phone: orderPayload.phone,
+        total: orderPayload.total,
+        paymentMethod: "razorpay",
+      });
+    } catch (emailError) {
+      console.error("Payment order email failed (order still placed):", emailError);
+    }
 
     await reduceStock(orderPayload.items || []);
 

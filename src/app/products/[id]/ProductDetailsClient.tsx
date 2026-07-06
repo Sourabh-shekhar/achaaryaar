@@ -161,6 +161,10 @@ export default function ProductDetailsClient({
             <img
               src={gallery[activeImage]}
               alt={product.name}
+              width={720}
+              height={480}
+              loading="eager"
+              decoding="async"
               className="w-full h-[480px] object-cover"
             />
           </div>
@@ -179,6 +183,10 @@ export default function ProductDetailsClient({
                   <img
                     src={img}
                     alt={`${product.name} ${index + 1}`}
+                    width={80}
+                    height={80}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -674,6 +682,10 @@ export default function ProductDetailsClient({
                 <img
                   src={item.image}
                   alt={item.name}
+                  width={420}
+                  height={256}
+                  loading="lazy"
+                  decoding="async"
                   className="h-64 w-full object-cover"
                 />
 

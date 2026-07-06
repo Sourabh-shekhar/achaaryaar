@@ -102,6 +102,10 @@ export default function ProductCard({
           <img
             src={image}
             alt={name}
+            width={420}
+            height={256}
+            loading="lazy"
+            decoding="async"
             className="h-64 w-full object-cover transition duration-500 group-hover:scale-105"
           />
         </div>

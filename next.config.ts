@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["192.168.1.23"],
+  compress: true,
+  poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: ["react-icons", "lucide-react"],
+  },
   async headers() {
     return [
       {

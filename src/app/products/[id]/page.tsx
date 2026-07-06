@@ -2,12 +2,13 @@ import { notFound } from "next/navigation";
 import ProductDetailsClient from "./ProductDetailsClient";
 import { baseUrl } from "@/lib/baseUrl";
 
+export const revalidate = 60;
 
 async function getProduct(id: string) {
   const res = await fetch(
     `${baseUrl}/api/products/${id}`,
     {
-      cache: "no-store",
+      next: { revalidate },
     }
   );
 
@@ -21,7 +22,7 @@ async function getAllProducts() {
   const res = await fetch(
     `${baseUrl}/api/products`,
     {
-      cache: "no-store",
+      next: { revalidate },
     }
   );
 
