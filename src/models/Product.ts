@@ -26,7 +26,7 @@ const ProductSchema = new Schema(
       {
         size: {
           type: String,
-          enum: ["125g", "225g", "400g", "500g"],
+          enum: ["125g", "225g", "500g"],
           required: true,
         },
 

@@ -34,6 +34,42 @@ const CATEGORY_LINKS = [
   { label: "Lemon", value: "lemon" },
   { label: "Garlic", value: "garlic" },
   { label: "Spicy", value: "spicy" },
+  { label: "Combo", value: "combo" },
+];
+
+const COMBO_PRODUCTS: Product[] = [
+  {
+    _id: "combo-3-box-bihar",
+    name: "3 Item Bihar Combo Pack",
+    description:
+      "A ready combo of 3 pickle jars for daily meals: mango, lemon, and chilli style flavours packed for family use or gifting.",
+    category: "combo pack",
+    image: "/image/jars-yellow.png",
+    featured: true,
+    weights: [
+      {
+        size: "3 items",
+        price: 399,
+        stock: 50,
+      },
+    ],
+  },
+  {
+    _id: "combo-4-box-family",
+    name: "4 Item Family Combo Pack",
+    description:
+      "A fuller 4 item combo pack with classic Bihar-style pickle flavours for homes that want variety on the table every day.",
+    category: "combo pack",
+    image: "/image/holding.jpg",
+    featured: true,
+    weights: [
+      {
+        size: "4 items",
+        price: 499,
+        stock: 50,
+      },
+    ],
+  },
 ];
 
 async function getProducts(): Promise<Product[]> {
@@ -50,7 +86,11 @@ async function getProducts(): Promise<Product[]> {
 }
 
 function getLowestPrice(product: Product) {
-  return Math.min(...product.weights.map((weight) => weight.price));
+  const prices = (product.weights || [])
+    .map((weight) => Number(weight.price))
+    .filter((price) => Number.isFinite(price) && price > 0);
+
+  return prices.length > 0 ? Math.min(...prices) : null;
 }
 
 export default async function ProductsPage({
@@ -59,11 +99,12 @@ export default async function ProductsPage({
   searchParams: Promise<{ search?: string; category?: string }>;
 }) {
   const products = await getProducts();
+  const allProducts = [...COMBO_PRODUCTS, ...products];
   const params = await searchParams;
   const search = params.search?.toLowerCase().trim() || "";
   const category = params.category?.toLowerCase().trim() || "";
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = allProducts.filter((product) => {
     const matchesSearch =
       !search ||
       product.name.toLowerCase().includes(search) ||
@@ -75,13 +116,16 @@ export default async function ProductsPage({
     return matchesSearch && matchesCategory;
   });
 
-  const featuredCount = products.filter((product) => product.featured).length;
-  const inStockCount = products.filter((product) =>
-    product.weights.some((weight) => weight.stock > 0)
+  const featuredCount = allProducts.filter((product) => product.featured).length;
+  const inStockCount = allProducts.filter((product) =>
+    product.weights?.some((weight) => weight.stock > 0)
   ).length;
+  const validStartingPrices = allProducts
+    .map((product) => getLowestPrice(product))
+    .filter((price): price is number => typeof price === "number");
   const startingPrice =
-    products.length > 0
-      ? Math.min(...products.map((product) => getLowestPrice(product)))
+    validStartingPrices.length > 0
+      ? Math.min(...validStartingPrices)
       : null;
 
   return (
@@ -249,90 +293,13 @@ export default async function ProductsPage({
         <section
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "1rem",
-            marginBottom: "2.5rem",
-          }}
-        >
-          {[
-            {
-              title: "3 Box Bihar Starter Combo",
-              sub: "Choose any three pickle jars for daily meals, paratha mornings, and gifting.",
-              badge: "Use ACHAAR15",
-            },
-            {
-              title: "4 Box Family Combo",
-              sub: "A fuller family pack for mango, lemon, garlic, and chilli lovers.",
-              badge: "Best value",
-            },
-          ].map((combo) => (
-            <div
-              key={combo.title}
-              style={{
-                background: "#fff",
-                border: `1px solid ${COLORS.sand}`,
-                borderRadius: 18,
-                padding: "1.4rem",
-                boxShadow: "0 12px 30px rgba(28,61,46,0.08)",
-              }}
-            >
-              <span
-                style={{
-                  display: "inline-flex",
-                  background: "rgba(193,138,66,0.14)",
-                  color: COLORS.red,
-                  borderRadius: 999,
-                  padding: "0.35rem 0.7rem",
-                  fontSize: "0.72rem",
-                  fontWeight: 900,
-                  textTransform: "uppercase",
-                  letterSpacing: "1.2px",
-                }}
-              >
-                {combo.badge}
-              </span>
-              <h2
-                style={{
-                  color: COLORS.ink,
-                  fontSize: "1.35rem",
-                  fontWeight: 900,
-                  marginTop: "0.9rem",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {combo.title}
-              </h2>
-              <p style={{ color: COLORS.muted, lineHeight: 1.7, marginBottom: "1rem" }}>
-                {combo.sub}
-              </p>
-              <Link
-                href="/products"
-                style={{
-                  display: "inline-flex",
-                  background: COLORS.forest,
-                  color: "#fff",
-                  borderRadius: 12,
-                  padding: "0.75rem 1rem",
-                  fontWeight: 900,
-                  textDecoration: "none",
-                }}
-              >
-                Build Combo
-              </Link>
-            </div>
-          ))}
-        </section>
-
-        <section
-          style={{
-            display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
             gap: "1rem",
             marginBottom: "2.5rem",
           }}
         >
           {[
-            { value: `${products.length}+`, label: "pickle varieties" },
+            { value: `${allProducts.length}+`, label: "pickle varieties" },
             { value: `${inStockCount}`, label: "currently in stock" },
             { value: `${featuredCount}`, label: "featured favourites" },
             {
@@ -446,6 +413,7 @@ export default async function ProductsPage({
                 name={product.name}
                 description={product.description}
                 image={product.image}
+                href={product._id.startsWith("combo-") ? "/products?category=combo" : undefined}
                 weights={product.weights}
               />
             ))}

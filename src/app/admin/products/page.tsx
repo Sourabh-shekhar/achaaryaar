@@ -27,12 +27,6 @@ export default function AdminProductsPage() {
             },
 
             {
-                size: "400g",
-                price: "",
-                stock: "",
-            },
-
-            {
                 size: "500g",
                 price: "",
                 stock: "",
@@ -93,11 +87,13 @@ export default function AdminProductsPage() {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    weights: formData.weights.map((v) => ({
-                        size: v.size,
-                        price: Number(v.price),
-                        stock: Number(v.stock),
-                    })),
+                    weights: formData.weights
+                        .filter((v) => v.price !== "" && Number(v.price) > 0)
+                        .map((v) => ({
+                            size: v.size,
+                            price: Number(v.price),
+                            stock: Number(v.stock || 0),
+                        })),
                 }),
             });
             const data = await res.json();
@@ -113,7 +109,6 @@ export default function AdminProductsPage() {
                     weights: [
                         { size: "125g", price: "", stock: "" },
                         { size: "225g", price: "", stock: "" },
-                        { size: "400g", price: "", stock: "" },
                         { size: "500g", price: "", stock: "" },
                     ],
                 });

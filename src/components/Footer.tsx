@@ -140,7 +140,7 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-white/10 py-6 text-sm text-white/55 md:flex-row">
-        <p>Copyright {new Date().getFullYear()} AchaarYaar. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} AchaarYaar. All rights reserved.</p>
         <div className="flex items-center gap-4 text-3xl text-white/70">
           <FaCcVisa />
           <FaCcMastercard />

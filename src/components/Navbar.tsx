@@ -372,6 +372,11 @@ export default function Navbar() {
             </span>
           </Link>
 
+          <div className="magadh-mobile-badge md:hidden flex-1" aria-label="Magadh and Madhubani inspired Bihar origin">
+            <span className="magadh-mobile-badge-mark" aria-hidden="true" />
+            <span className="magadh-mobile-badge-text">Magadh Art</span>
+          </div>
+
           {/* Search */}
           <div className="hidden lg:flex flex-1 max-w-md relative">
             <FiSearch

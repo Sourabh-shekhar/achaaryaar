@@ -4,6 +4,22 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { baseUrl } from "@/lib/baseUrl";
 
+const PRODUCT_SIZES = ["125g", "225g", "500g"];
+
+function normalizeEditableWeights(weights: any[] = []) {
+    return PRODUCT_SIZES.map((size) => {
+        const existing = weights.find(
+            (weight) => (weight.size || weight.quantity || weight.weight) === size
+        );
+
+        return {
+            size,
+            price: existing?.price ?? "",
+            stock: existing?.stock ?? "",
+        };
+    });
+}
+
 export default function EditProductPage() {
     const params = useParams<{ id: string }>();
     const router = useRouter();
@@ -39,15 +55,7 @@ export default function EditProductPage() {
                     name: data.product.name || "",
                     image: data.product.image || "",
                     description: data.product.description || "",
-                    weights:
-                        data.product.weights?.length > 0
-                            ? data.product.weights
-                            : [
-                                { size: "125g", price: "", stock: "" },
-                                { size: "225g", price: "", stock: "" },
-                                { size: "400g", price: "", stock: "" },
-                                { size: "500g", price: "", stock: "" },
-                            ],
+                    weights: normalizeEditableWeights(data.product.weights),
                 });
             }
         } catch (error) {
@@ -85,11 +93,13 @@ export default function EditProductPage() {
                     body: JSON.stringify({
                         ...formData,
                         image: imageUrl,
-                        weights: formData.weights.map((v: any) => ({
-                            size: v.size || v.quantity,
-                            price: Number(v.price),
-                            stock: Number(v.stock),
-                        })),
+                        weights: formData.weights
+                            .filter((v: any) => v.price !== "" && Number(v.price) > 0)
+                            .map((v: any) => ({
+                                size: v.size || v.quantity,
+                                price: Number(v.price),
+                                stock: Number(v.stock || 0),
+                            })),
                     }),
                 }
             );

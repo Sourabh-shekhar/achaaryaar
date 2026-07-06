@@ -1,7 +1,34 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
-import { baseUrl } from "@/lib/baseUrl";
+
+const ALLOWED_SIZES = ["125g", "225g", "500g"];
+
+function normalizeWeights(weights: any[] = []) {
+  const seen = new Set<string>();
+
+  return weights
+    .map((weight) => {
+      const size = weight.size || weight.quantity || weight.weight;
+      const price = Number(weight.price);
+      const stock = Number(weight.stock || 0);
+
+      return {
+        size,
+        price,
+        stock: Number.isFinite(stock) ? Math.max(0, stock) : 0,
+      };
+    })
+    .filter((weight) => {
+      if (!ALLOWED_SIZES.includes(weight.size)) return false;
+      if (!Number.isFinite(weight.price) || weight.price <= 0) return false;
+      if (seen.has(weight.size)) return false;
+
+      seen.add(weight.size);
+      return true;
+    });
+}
+
 // Get Single Product
 export async function GET(
   req: Request,
@@ -12,7 +39,7 @@ export async function GET(
 
     const { id } = await context.params;
 
-    const product = await Product.findById(id);
+    const product = await Product.findById(id).lean();
 
     if (!product) {
       return NextResponse.json(
@@ -26,7 +53,10 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      product,
+      product: {
+        ...product,
+        weights: normalizeWeights((product as any).weights),
+      },
     });
   } catch (error) {
     console.error(error);
@@ -52,9 +82,24 @@ export async function PATCH(
     const { id } = await context.params;
     const body = await req.json();
 
+    const nextBody = {
+      ...body,
+      weights: normalizeWeights(body.weights),
+    };
+
+    if (nextBody.weights.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Add at least one valid variant: 125g, 225g, or 500g",
+        },
+        { status: 400 }
+      );
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      body,
+      nextBody,
       { new: true }
     );
 

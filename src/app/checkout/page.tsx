@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState } from "react";
@@ -69,7 +69,7 @@ export default function CheckoutPage() {
     const [email, setEmail] = useState("");
     const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">("cod");
 
-    // Saved addresses — Flipkart style
+    // Saved addresses - Flipkart style
     const [addresses, setAddresses] = useState<SavedAddress[]>([]);
     const [addressesLoading, setAddressesLoading] = useState(true);
     const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
             }
         } catch (error) {
             console.error(error);
-            setAddressError("Something went wrong — please try again");
+            setAddressError("Something went wrong - please try again");
         } finally {
             setIsSavingAddress(false);
         }
@@ -457,7 +457,7 @@ export default function CheckoutPage() {
                             Delivery Address
                         </h2>
 
-                        {/* Saved address cards — Flipkart style */}
+                        {/* Saved address cards - Flipkart style */}
                         {addressesLoading ? (
                             <p className="text-[#7A6F65]">Loading your addresses...</p>
                         ) : (
@@ -770,12 +770,12 @@ export default function CheckoutPage() {
                                             <span className="text-[#2D2A26]">
                                                 {item.name}
                                                 <span className="text-[#9C9388]">
-                                                    {" "}({item.selectedVariant}) × {item.quantity}
+                                                    {" "}({item.selectedVariant}) x {item.quantity}
                                                 </span>
                                             </span>
 
                                             <span className="font-medium text-[#2D2A26]">
-                                                ₹{item.price}
+                                                Rs. {item.price}
                                             </span>
                                         </div>
                                     ))}
@@ -785,14 +785,14 @@ export default function CheckoutPage() {
                                     <div className="flex justify-between">
                                         <span className="text-[#7A6F65]">Subtotal</span>
                                         <span className="font-semibold text-[#2D2A26]">
-                                            ₹{subtotal}
+                                            Rs. {subtotal}
                                         </span>
                                     </div>
 
                                     <div className="flex justify-between">
                                         <span className="text-[#7A6F65]">Shipping</span>
                                         <span className="font-semibold text-[#2D2A26]">
-                                            ₹{shipping}
+                                            Rs. {shipping}
                                         </span>
                                     </div>
 
@@ -812,7 +812,7 @@ export default function CheckoutPage() {
                                     <div className="flex justify-between text-xl font-bold">
                                         <span className="text-[#2D2A26]">Total</span>
                                         <span className="text-[#C18A42]">
-                                            ₹{total}
+                                            Rs. {total}
                                         </span>
                                     </div>
 
@@ -836,7 +836,7 @@ export default function CheckoutPage() {
                                     )}
 
                                     <p className="text-center text-xs text-[#9C9388] mt-2">
-                                        🔒 Secure checkout · Handcrafted with care in Bihar
+                                        ðŸ”’ Secure checkout Â· Handcrafted with care in Bihar
                                     </p>
                                 </div>
                             </>

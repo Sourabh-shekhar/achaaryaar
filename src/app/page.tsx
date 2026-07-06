@@ -711,8 +711,8 @@ function CategoryGrid() {
 function FeaturedProducts() {
   const products = [
     { id: 1, photo: "/image/mango-product.png", bg: "#FFF8E7", name: "Aam ka Achaar", desc: "Classic mango pickle with mustard oil and authentic spices.", price: "₹249", weight: "500g", tag: "Bestseller" },
-    { id: 2, photo: "/image/mirchi-product.png", bg: "#FFF1EE", name: "Mirchi Achaar", desc: "Fiery green chilli pickle for bold, spicy flavour lovers.", price: "₹219", weight: "400g", tag: "Hot Pick" },
-    { id: 3, photo: "/image/lemon-product.png", bg: "#FDFCE8", name: "Nimbu ka Achaar", desc: "Tangy lemon pickle — perfect with dal and rice.", price: "₹199", weight: "400g", tag: "New" },
+    { id: 2, photo: "/image/mirchi-product.png", bg: "#FFF1EE", name: "Mirchi Achaar", desc: "Fiery green chilli pickle for bold, spicy flavour lovers.", price: "₹219", weight: "500g", tag: "Hot Pick" },
+    { id: 3, photo: "/image/lemon-product.png", bg: "#FDFCE8", name: "Nimbu ka Achaar", desc: "Tangy lemon pickle — perfect with dal and rice.", price: "₹199", weight: "500g", tag: "New" },
   ];
   return (
     <section className="section-pad" style={{ background: COLORS.creamDark, padding: "clamp(3rem, 7vw, 5rem) clamp(1.25rem, 5vw, 2rem)" }}>

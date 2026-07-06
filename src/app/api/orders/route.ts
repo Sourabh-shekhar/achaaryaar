@@ -36,19 +36,26 @@ export async function POST(req: Request) {
         body.paymentMethod === "cod" ? "Pending COD" : body.paymentStatus || "Pending",
     });
 
-    await sendOrderConfirmation(
-      session.user.email,
-      body.fullName,
-      order._id.toString()
-    );
-    await sendAdminOrderNotification({
-      _id: order._id.toString(),
-      fullName: body.fullName,
-      email: session.user.email,
-      phone: body.phone,
-      total: body.total,
-      paymentMethod: body.paymentMethod,
-    });
+    // Email is "best effort" — if it fails (bad SMTP config, mail
+    // server down, etc.) the order itself must still succeed for the
+    // customer. We only log the error here, never throw.
+    try {
+      await sendOrderConfirmation(
+        session.user.email,
+        body.fullName,
+        order._id.toString()
+      );
+      await sendAdminOrderNotification({
+        _id: order._id.toString(),
+        fullName: body.fullName,
+        email: session.user.email,
+        phone: body.phone,
+        total: body.total,
+        paymentMethod: body.paymentMethod,
+      });
+    } catch (emailError) {
+      console.error("Order email failed (order still placed):", emailError);
+    }
 
     for (const item of body.items) {
       const product = await Product.findById(item._id);

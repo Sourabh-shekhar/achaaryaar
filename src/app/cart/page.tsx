@@ -200,21 +200,16 @@ export default function CartPage() {
                     />
                     <button
                       type="button"
-                      onClick={applyCoupon}
-                      className="rounded-xl bg-[#C18A42] px-5 py-3 font-bold text-white transition hover:bg-[#A8742F]"
+                      onClick={appliedCoupon ? removeCoupon : applyCoupon}
+                      className={`rounded-xl px-5 py-3 font-bold text-white transition ${
+                        appliedCoupon
+                          ? "bg-[#6B1F1F] hover:bg-[#561818]"
+                          : "bg-[#C18A42] hover:bg-[#A8742F]"
+                      }`}
                     >
-                      Apply
+                      {appliedCoupon ? "Remove" : "Apply"}
                     </button>
                   </div>
-                  {appliedCoupon && (
-                    <button
-                      type="button"
-                      onClick={removeCoupon}
-                      className="mt-2 text-sm font-bold text-[#D9A85F]"
-                    >
-                      Remove {appliedCoupon}
-                    </button>
-                  )}
                   {couponMessage && (
                     <p className="mt-2 text-sm text-white/80">{couponMessage}</p>
                   )}

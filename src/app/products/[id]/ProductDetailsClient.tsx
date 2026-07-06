@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
 import { baseUrl } from "@/lib/baseUrl";
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
@@ -34,6 +35,7 @@ export default function ProductDetailsClient({
   product: Product;
   relatedProducts: Product[];
 }) {
+  const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -56,7 +58,7 @@ export default function ProductDetailsClient({
 
   const handleAddToCart = () => {
     if (added) {
-      window.location.href = "/cart";
+      router.push("/cart");
       return;
     }
     if (!selectedWeight || outOfStock) return;
@@ -88,7 +90,7 @@ export default function ProductDetailsClient({
       1
     );
 
-    window.location.href = "/checkout";
+    router.push("/checkout");
   };
 
   const handleSelectWeight = (index: number) => {

@@ -17,9 +17,6 @@ export default function AddProductPage() {
         price225: "",
         stock225: "",
 
-        price400: "",
-        stock400: "",
-
         price500: "",
         stock500: "",
     });
@@ -85,14 +82,6 @@ export default function AddProductPage() {
             });
         }
 
-        if (form.price400) {
-            weights.push({
-                size: "400g",
-                price: Number(form.price400),
-                stock: Number(form.stock400),
-            });
-        }
-
         if (form.price500) {
             weights.push({
                 size: "500g",
@@ -134,9 +123,6 @@ export default function AddProductPage() {
 
                 price225: "",
                 stock225: "",
-
-                price400: "",
-                stock400: "",
 
                 price500: "",
                 stock500: "",
@@ -266,30 +252,6 @@ export default function AddProductPage() {
                             name="stock500"
                             placeholder="Stock"
                             value={form.stock500}
-                            onChange={handleChange}
-                            className="w-full p-3 border rounded-xl text-black"
-                        />
-                    </div>
-
-                    <div className="border p-5 rounded-xl">
-                        <h2 className="font-bold text-xl mb-4 text-black">
-                            400g Variant
-                        </h2>
-
-                        <input
-                            type="number"
-                            name="price400"
-                            placeholder="Price"
-                            value={form.price400}
-                            onChange={handleChange}
-                            className="w-full p-3 border rounded-xl mb-3 text-black"
-                        />
-
-                        <input
-                            type="number"
-                            name="stock400"
-                            placeholder="Stock"
-                            value={form.stock400}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl text-black"
                         />

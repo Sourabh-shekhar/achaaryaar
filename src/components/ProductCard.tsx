@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FiShoppingBag, FiStar, FiChevronDown, FiCheck } from "react-icons/fi";
 import { useCartStore } from "@/store/cartStore";
 
@@ -10,6 +11,7 @@ type ProductProps = {
   name: string;
   description: string;
   image: string;
+  href?: string;
   weights: {
     size?: string;
     quantity?: string;
@@ -24,8 +26,10 @@ export default function ProductCard({
   name,
   description,
   image,
+  href,
   weights,
 }: ProductProps) {
+  const router = useRouter();
   const hasVariants = Array.isArray(weights) && weights.length > 0;
   const getVariantLabel = (weight?: ProductProps["weights"][number]) =>
     weight?.size || weight?.quantity || weight?.weight || "Size";
@@ -70,8 +74,9 @@ export default function ProductCard({
 
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
+    e.stopPropagation();
     if (justAdded) {
-      window.location.href = "/cart";
+      router.push("/cart");
       return;
     }
     if (!selectedData || isOutOfStock) return;
@@ -87,7 +92,7 @@ export default function ProductCard({
   }
 
   return (
-    <Link href={`/products/${_id}`} className="group block h-full">
+    <Link href={href || `/products/${_id}`} className="group block h-full">
       <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8DDD1] bg-white shadow-[0_12px_30px_rgba(28,61,46,0.08)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_22px_46px_rgba(28,61,46,0.16)]">
         <div className="absolute left-4 top-4 z-10 rounded-full bg-[#4F6B52] px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
           Bestseller
