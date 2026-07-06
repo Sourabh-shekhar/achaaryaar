@@ -355,16 +355,21 @@ export default function Navbar() {
       className="sticky top-0 z-50 border-b"
       style={{ background: CREAM, borderColor: SAND }}
     >
+      <div className="bihar-border-strip h-1" aria-hidden="true" />
       <div className="max-w-7xl mx-auto px-6 py-3">
         <div className="flex items-center justify-between gap-6">
 
           {/* Logo */}
-          <Link href="/" className="shrink-0">
-            <img
-              src="/image/logo.png"
-              alt="AchaarYaar"
-              className="h-14 w-auto"
-            />
+          <Link href="/" className="bihar-brand-lockup shrink-0" aria-label="AchaarYaar home">
+            <span className="bihar-brand-mark" aria-hidden="true">
+              <img src="/image/logo.png" alt="" />
+            </span>
+            <span className="hidden sm:block">
+              <span className="bihar-brand-name">
+                Achaar<span style={{ color: GOLD }}>Yaar</span>
+              </span>
+              <span className="bihar-brand-origin">Bihar Origin</span>
+            </span>
           </Link>
 
           {/* Search */}
@@ -518,11 +523,17 @@ export default function Navbar() {
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-8">
-              <img
-                src="/image/logo.png"
-                alt="AchaarYaar"
-                className="h-12 w-auto"
-              />
+              <Link href="/" className="bihar-brand-lockup" onClick={() => setIsOpen(false)}>
+                <span className="bihar-brand-mark" aria-hidden="true">
+                  <img src="/image/logo.png" alt="" />
+                </span>
+                <span>
+                  <span className="bihar-brand-name">
+                    Achaar<span style={{ color: GOLD }}>Yaar</span>
+                  </span>
+                  <span className="bihar-brand-origin">Bihar Origin</span>
+                </span>
+              </Link>
               <button
                 onClick={() => setIsOpen(false)}
                 aria-label="Close menu"

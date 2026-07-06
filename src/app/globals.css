@@ -3,6 +3,11 @@
 :root {
   --background: #fbf7f1;
   --foreground: #2d2a26;
+  --bihar-forest: #3f5f45;
+  --bihar-gold: #c9923a;
+  --bihar-lac: #8d2424;
+  --bihar-indigo: #273f63;
+  --bihar-sand: #eadcc8;
 }
 
 @theme inline {
@@ -26,9 +31,10 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   background-image:
-    linear-gradient(90deg, rgba(193, 138, 66, 0.04) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(79, 107, 82, 0.035) 1px, transparent 1px);
-  background-size: 28px 28px;
+    radial-gradient(circle at 12px 12px, rgba(141, 36, 36, 0.055) 1.4px, transparent 1.5px),
+    linear-gradient(90deg, rgba(201, 146, 58, 0.045) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(63, 95, 69, 0.04) 1px, transparent 1px);
+  background-size: 36px 36px, 28px 28px, 28px 28px;
 }
 
 img {
@@ -42,4 +48,107 @@ a {
 ::selection {
   background: #c18a42;
   color: #2d2a26;
+}
+
+.bihar-brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.bihar-brand-mark {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 3.45rem;
+  height: 3.45rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 2px solid var(--bihar-gold);
+  background:
+    radial-gradient(circle at center, #fffaf0 0 39%, transparent 40%),
+    repeating-conic-gradient(
+      from 18deg,
+      rgba(141, 36, 36, 0.95) 0deg 10deg,
+      rgba(201, 146, 58, 0.95) 10deg 20deg,
+      rgba(63, 95, 69, 0.95) 20deg 30deg
+    );
+  box-shadow: 0 10px 24px rgba(45, 42, 38, 0.13);
+}
+
+.bihar-brand-mark::before,
+.bihar-brand-mark::after {
+  content: "";
+  position: absolute;
+  inset: 0.42rem;
+  border-radius: 999px;
+  border: 1px dashed rgba(141, 36, 36, 0.45);
+}
+
+.bihar-brand-mark::after {
+  inset: 0.9rem;
+  border-style: solid;
+  border-color: rgba(63, 95, 69, 0.35);
+}
+
+.bihar-brand-mark img {
+  position: relative;
+  z-index: 1;
+  width: 2.25rem;
+  height: 2.25rem;
+  object-fit: contain;
+  border-radius: 999px;
+  background: #fffaf0;
+  padding: 0.12rem;
+}
+
+.bihar-brand-name {
+  display: block;
+  color: var(--foreground);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.18rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.bihar-brand-name-light {
+  color: #fffaf0;
+}
+
+.bihar-brand-origin-light {
+  color: var(--bihar-gold);
+}
+
+.bihar-brand-origin {
+  display: block;
+  margin-top: 0.18rem;
+  color: var(--bihar-lac);
+  font-size: 0.63rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bihar-border-strip {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--bihar-lac) 0 18px,
+    var(--bihar-gold) 18px 36px,
+    var(--bihar-forest) 36px 54px,
+    var(--bihar-indigo) 54px 72px
+  );
+}
+
+@media (max-width: 480px) {
+  .bihar-brand-name {
+    font-size: 1rem;
+  }
+
+  .bihar-brand-origin {
+    font-size: 0.56rem;
+    letter-spacing: 0.13em;
+  }
 }

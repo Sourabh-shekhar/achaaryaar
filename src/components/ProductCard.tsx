@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { FiShoppingBag, FiStar, FiMinus, FiPlus, FiChevronDown, FiCheck } from "react-icons/fi";
+import { FiShoppingBag, FiStar, FiChevronDown, FiCheck } from "react-icons/fi";
 import { useCartStore } from "@/store/cartStore";
 
 type ProductProps = {
@@ -32,7 +32,6 @@ export default function ProductCard({
 
   const [selectedVariant, setSelectedVariant] =
     useState(getVariantLabel(weights?.[0]));
-  const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
   const [isSizeOpen, setIsSizeOpen] = useState(false);
   const sizeDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -69,45 +68,22 @@ export default function ProductCard({
   const isOutOfStock = hasVariants && stock === 0;
   const isLowStock = typeof stock === "number" && stock > 0 && stock <= 5;
 
-  // Keep the chosen quantity valid whenever the size/variant changes —
-  // e.g. going from a variant with 20 in stock to one with only 2 left.
-  useEffect(() => {
-    setQuantity(1);
-  }, [selectedVariant]);
-
-  useEffect(() => {
-    if (typeof stock === "number" && quantity > stock) {
-      setQuantity(Math.max(1, stock));
-    }
-  }, [stock, quantity]);
-
-  function decrement(e: React.MouseEvent) {
-    e.preventDefault();
-    setQuantity((q) => Math.max(1, q - 1));
-  }
-
-  function increment(e: React.MouseEvent) {
-    e.preventDefault();
-    setQuantity((q) => (typeof stock === "number" ? Math.min(stock, q + 1) : q + 1));
-  }
-
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
+    if (justAdded) {
+      window.location.href = "/cart";
+      return;
+    }
     if (!selectedData || isOutOfStock) return;
 
-    // cartStore.addItem adds one unit per call — loop so the chosen
-    // quantity is reflected accurately without changing the store's contract.
-    for (let i = 0; i < quantity; i++) {
-      addItem({
-        _id,
-        name,
-        price: selectedData.price,
-        selectedVariant,
-      });
-    }
+    addItem({
+      _id,
+      name,
+      price: selectedData.price,
+      selectedVariant,
+    });
 
     setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 1500);
   }
 
   return (
@@ -240,38 +216,6 @@ export default function ProductCard({
               </div>
             )}
 
-            {/* Quantity stepper */}
-            {!isOutOfStock && hasVariants && (
-              <div className="mb-4 flex items-center justify-between rounded-xl border border-[#E8DDD1] bg-[#FBF7F1] p-1.5">
-                <span className="pl-2 text-xs font-bold uppercase tracking-wide text-[#7A9678]">
-                  Quantity
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={decrement}
-                    disabled={quantity <= 1}
-                    aria-label="Decrease quantity"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#2D2A26] transition disabled:cursor-not-allowed disabled:opacity-40 hover:bg-[#E8DDD1]"
-                  >
-                    <FiMinus size={14} />
-                  </button>
-                  <span className="w-8 text-center font-bold text-[#2D2A26]">
-                    {quantity}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={increment}
-                    disabled={typeof stock === "number" && quantity >= stock}
-                    aria-label="Increase quantity"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#2D2A26] transition disabled:cursor-not-allowed disabled:opacity-40 hover:bg-[#E8DDD1]"
-                  >
-                    <FiPlus size={14} />
-                  </button>
-                </div>
-              </div>
-            )}
-
             <button
               disabled={!selectedData || isOutOfStock}
               onClick={handleAddToCart}
@@ -287,7 +231,7 @@ export default function ProductCard({
                 : isOutOfStock
                   ? "Out of Stock"
                   : justAdded
-                    ? "Added to Cart ✓"
+                    ? "Go to Cart"
                     : "Add to Cart"}
             </button>
           </div>

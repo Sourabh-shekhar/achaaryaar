@@ -35,13 +35,22 @@ const supportLinks = [
 export default function Footer() {
   return (
     <footer className="border-t border-[#E8DDD1] bg-[#2E3F30] px-6 pt-14 text-white">
+      <div className="bihar-border-strip -mx-6 -mt-14 mb-12 h-1.5" aria-hidden="true" />
       <div className="mx-auto grid max-w-7xl gap-10 pb-12 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
         <div>
-          <img
-            src="/image/logo.png"
-            alt="AchaarYaar"
-            className="mb-5 h-16 w-auto rounded-lg bg-white p-2"
-          />
+          <Link href="/" className="bihar-brand-lockup mb-5">
+            <span className="bihar-brand-mark" aria-hidden="true">
+              <img src="/image/logo.png" alt="" />
+            </span>
+            <span>
+              <span className="bihar-brand-name bihar-brand-name-light">
+                Achaar<span className="text-[#D9A85F]">Yaar</span>
+              </span>
+              <span className="bihar-brand-origin bihar-brand-origin-light">
+                Bihar Origin
+              </span>
+            </span>
+          </Link>
           <p className="max-w-sm text-sm leading-7 text-white/70">
             Authentic homemade Bihar pickles crafted in small batches with
             balanced spices, careful packing, and the comfort of traditional

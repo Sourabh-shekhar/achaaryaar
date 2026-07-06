@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
-import { baseUrl } from "@/lib/baseUrl";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://achaaryaar.com";
+export const revalidate = 3600;
 
 type Product = {
   _id: string;
@@ -10,10 +10,8 @@ type Product = {
 
 async function getAllProducts(): Promise<Product[]> {
   try {
-    const res = await fetch(`${baseUrl}/api/products`, {
-      // Sitemaps are regenerated on request in production;
-      // no need to cache stale product lists.
-      cache: "no-store",
+    const res = await fetch(`${SITE_URL}/api/products`, {
+      next: { revalidate },
     });
 
     if (!res.ok) return [];
@@ -21,7 +19,6 @@ async function getAllProducts(): Promise<Product[]> {
     const data = await res.json();
     return data.products || [];
   } catch (error) {
-    console.error("sitemap: failed to fetch products", error);
     return [];
   }
 }
@@ -57,11 +54,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/careers`,
       changeFrequency: "monthly",
       priority: 0.4,
-    },
-    {
-      url: `${SITE_URL}/track`,
-      changeFrequency: "monthly",
-      priority: 0.3,
     },
     {
       url: `${SITE_URL}/privacy-policy`,

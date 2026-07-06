@@ -217,7 +217,7 @@ function WelcomePopup() {
           }}
           aria-hidden="true"
         >
-          🥭
+          🙏
         </div>
 
         <div

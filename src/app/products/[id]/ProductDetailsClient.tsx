@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -38,7 +38,6 @@ export default function ProductDetailsClient({
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [added, setAdded] = useState(false);
-  const [quantity, setQuantity] = useState(1);
   const [toast, setToast] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("specifications");
   const gallery =
@@ -56,6 +55,10 @@ export default function ProductDetailsClient({
   const outOfStock = !selectedWeight || selectedWeight.stock <= 0;
 
   const handleAddToCart = () => {
+    if (added) {
+      window.location.href = "/cart";
+      return;
+    }
     if (!selectedWeight || outOfStock) return;
 
     addItem(
@@ -65,12 +68,11 @@ export default function ProductDetailsClient({
         price: selectedWeight.price,
         selectedVariant: selectedWeightLabel,
       },
-      quantity
+      1
     );
 
     setAdded(true);
-    setToast(`${quantity} x ${product.name} (${selectedWeightLabel}) added to cart`);
-    setTimeout(() => setAdded(false), 1800);
+    setToast(`${product.name} (${selectedWeightLabel}) added to cart`);
     setTimeout(() => setToast(null), 3000);
   };
   const handleBuyNow = () => {
@@ -83,7 +85,7 @@ export default function ProductDetailsClient({
         price: selectedWeight.price,
         selectedVariant: selectedWeightLabel,
       },
-      quantity
+      1
     );
 
     window.location.href = "/checkout";
@@ -91,7 +93,7 @@ export default function ProductDetailsClient({
 
   const handleSelectWeight = (index: number) => {
     setSelectedIndex(index);
-    setQuantity(1);
+    setAdded(false);
     setNotifySubmitted(false);
     setNotifyEmail("");
   };
@@ -119,7 +121,7 @@ export default function ProductDetailsClient({
       setNotifySubmitted(true);
       setToast("We'll email you when it's back in stock");
     } catch {
-      setToast("Something went wrong — please try again");
+      setToast("Something went wrong - please try again");
     }
 
     setTimeout(() => setToast(null), 3000);
@@ -248,7 +250,7 @@ export default function ProductDetailsClient({
                     </p>
                     {!isOut && (
                       <p className="text-[#C18A42] font-bold mt-1">
-                        ₹{weight.price}
+                        Rs. {weight.price}
                       </p>
                     )}
                     {isOut ? (
@@ -274,43 +276,11 @@ export default function ProductDetailsClient({
           {selectedWeight && !outOfStock && (
             <div className="mt-6 flex items-baseline gap-3">
               <span className="text-3xl font-extrabold text-[#2D2A26]">
-                ₹{selectedWeight.price}
+                Rs. {selectedWeight.price}
               </span>
               <span className="text-[#7A6F65]">
                 / {selectedWeightLabel}
               </span>
-            </div>
-          )}
-
-          {/* Quantity selector */}
-          {!outOfStock && (
-            <div className="mt-6">
-              <h3 className="font-bold text-[#2D2A26] mb-3 text-lg">
-                Quantity
-              </h3>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="bg-[#E8DDD1] text-[#2D2A26] w-10 h-10 rounded-lg font-bold hover:bg-[#DBCDBC] transition text-lg"
-                >
-                  −
-                </button>
-                <span className="text-xl font-bold min-w-[36px] text-center text-[#2D2A26]">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() =>
-                    setQuantity((q) =>
-                      selectedWeight
-                        ? Math.min(selectedWeight.stock, q + 1)
-                        : q + 1
-                    )
-                  }
-                  className="bg-[#4F6B52] text-white w-10 h-10 rounded-lg font-bold hover:bg-[#3F5A43] transition text-lg"
-                >
-                  +
-                </button>
-              </div>
             </div>
           )}
 
@@ -326,7 +296,7 @@ export default function ProductDetailsClient({
 
               {notifySubmitted ? (
                 <p className="text-[#4F6B52] font-semibold">
-                  ✓ You're on the list — we'll notify you!
+                  ✓ You're on the list - we'll notify you!
                 </p>
               ) : (
                 <form
@@ -362,7 +332,7 @@ export default function ProductDetailsClient({
                   : "bg-[#1877F2] hover:bg-[#166FE5] text-white"
                   }`}
               >
-                {added ? "Added ✓" : "Add to Cart"}
+                {added ? "Go to Cart" : "Add to Cart"}
               </button>
 
               <Link
@@ -534,7 +504,7 @@ export default function ProductDetailsClient({
                 <div className="h-[1px] w-1/3 bg-[#D6C5AE]"></div>
 
                 <span className="mx-4 text-3xl text-[#C18A42]">
-                  ❦
+                  ~
                 </span>
 
                 <div className="h-[1px] w-1/3 bg-[#D6C5AE]"></div>
@@ -711,7 +681,7 @@ export default function ProductDetailsClient({
                   </h3>
 
                   <p className="text-[#C18A42] font-bold text-lg mt-2">
-                    ₹{item.weights?.[0]?.price ?? "N/A"}
+                    Rs. {item.weights?.[0]?.price ?? "N/A"}
                   </p>
                 </div>
               </Link>
@@ -720,7 +690,7 @@ export default function ProductDetailsClient({
         </section>
       )}
 
-      {/* Mobile Sticky Cart Bar — Flipkart-style: Add to Cart | Buy at ₹price, side by side */}
+      {/* Mobile sticky cart bar: Add to Cart | Buy at price, side by side */}
       {!outOfStock && selectedWeight && (
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#E8DDD1] bg-white px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] sm:hidden">
           <div className="grid grid-cols-2 gap-3">
@@ -731,14 +701,14 @@ export default function ProductDetailsClient({
                 : "border-[#2D2A26] bg-white text-[#2D2A26] hover:bg-[#F3EDE3]"
                 }`}
             >
-              {added ? "Added ✓" : "Add to cart"}
+              {added ? "Go to Cart" : "Add to cart"}
             </button>
 
             <button
               onClick={handleBuyNow}
               className="flex items-center justify-center py-4 rounded-xl font-extrabold text-base bg-[#F5C518] hover:bg-[#E6B60F] text-[#2D2A26] transition"
             >
-              Buy at ₹{selectedWeight.price}
+              Buy at Rs. {selectedWeight.price}
             </button>
           </div>
         </div>
