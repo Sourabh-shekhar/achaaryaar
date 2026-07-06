@@ -351,7 +351,8 @@ export default function ProductDetailsClient({
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-3 mt-8 sm:grid-cols-3">
+            // Desktop-only inline buttons. Mobile uses the fixed bottom bar instead.
+            <div className="hidden sm:grid grid-cols-3 gap-3 mt-8">
 
               <button
                 onClick={handleAddToCart}
@@ -719,44 +720,26 @@ export default function ProductDetailsClient({
         </section>
       )}
 
-      {/* Mobile Sticky Cart Bar — Flipkart-style: price + Add to Cart + Buy Now */}
+      {/* Mobile Sticky Cart Bar — Flipkart-style: Add to Cart | Buy at ₹price, side by side */}
       {!outOfStock && selectedWeight && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#E8DDD1] bg-white/95 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur">
-          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-3 sm:grid-cols-[0.8fr_1fr_1fr_1fr] sm:items-center">
-            <div className="shrink-0">
-              <p className="text-[11px] text-[#7A6F65] leading-tight">
-                {selectedWeightLabel}
-              </p>
-              <p className="text-xl font-extrabold text-[#2D2A26] leading-tight">
-                ₹{selectedWeight.price}
-              </p>
-            </div>
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#E8DDD1] bg-white px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] sm:hidden">
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handleAddToCart}
+              className={`flex items-center justify-center py-4 rounded-xl font-bold text-base border-2 transition ${added
+                ? "border-[#4F6B52] bg-[#4F6B52] text-white"
+                : "border-[#2D2A26] bg-white text-[#2D2A26] hover:bg-[#F3EDE3]"
+                }`}
+            >
+              {added ? "Added ✓" : "Add to cart"}
+            </button>
 
-            <>
-              <button
-                onClick={handleAddToCart}
-                className={`flex items-center justify-center py-3 rounded-xl font-bold text-sm transition ${added
-                  ? "bg-[#4F6B52] text-white"
-                : "bg-[#1877F2] hover:bg-[#166FE5] text-white"
-                  }`}
-              >
-                {added ? "Added ✓" : "Add to Cart"}
-              </button>
-
-              <Link
-                href="/cart"
-                className="flex items-center justify-center rounded-xl border-2 border-[#3D5640] bg-white py-3 text-sm font-bold text-[#3D5640] transition hover:bg-[#F3EDE3]"
-              >
-                Go to Cart
-              </Link>
-
-              <button
-                onClick={handleBuyNow}
-                className="flex items-center justify-center py-3 rounded-xl font-bold text-sm bg-[#3D5640] hover:bg-[#2F4533] text-white transition"
-              >
-                Buy Now
-              </button>
-            </>
+            <button
+              onClick={handleBuyNow}
+              className="flex items-center justify-center py-4 rounded-xl font-extrabold text-base bg-[#F5C518] hover:bg-[#E6B60F] text-[#2D2A26] transition"
+            >
+              Buy at ₹{selectedWeight.price}
+            </button>
           </div>
         </div>
       )}

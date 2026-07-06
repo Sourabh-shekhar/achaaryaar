@@ -105,6 +105,42 @@ export const authOptions: NextAuthOptions = {
 
 
 
+    // These two callbacks carry the user's Mongo _id from the JWT
+    // into the session, so API routes know which user is logged in.
+    callbacks: {
+
+        async jwt({ token, user }) {
+
+            if (user) {
+
+                token.id = user.id;
+
+            }
+
+            return token;
+
+        },
+
+
+
+        async session({ session, token }) {
+
+            if (session.user) {
+
+                (session.user as typeof session.user & { id?: string }).id =
+
+                    token.id as string;
+
+            }
+
+            return session;
+
+        },
+
+    },
+
+
+
     secret: process.env.NEXTAUTH_SECRET,
 
 };

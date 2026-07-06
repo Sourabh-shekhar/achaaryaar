@@ -1,5 +1,40 @@
 import mongoose, { Schema, models, model } from "mongoose";
 
+const AddressSchema = new Schema(
+  {
+    fullName: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    addressLine: {
+      type: String,
+      required: true,
+    },
+    city: {
+      type: String,
+      required: true,
+    },
+    pincode: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: ["Home", "Work", "Other"],
+      default: "Home",
+    },
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
+
 const UserSchema = new Schema(
   {
     name: {
@@ -22,6 +57,12 @@ const UserSchema = new Schema(
     address: String,
     city: String,
     pincode: String,
+
+    // Multiple saved addresses, Flipkart-style — used at checkout
+    addresses: {
+      type: [AddressSchema],
+      default: [],
+    },
   },
   { timestamps: true }
 );
