@@ -249,6 +249,83 @@ export default async function ProductsPage({
         <section
           style={{
             display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "1rem",
+            marginBottom: "2.5rem",
+          }}
+        >
+          {[
+            {
+              title: "3 Box Bihar Starter Combo",
+              sub: "Choose any three pickle jars for daily meals, paratha mornings, and gifting.",
+              badge: "Use ACHAAR15",
+            },
+            {
+              title: "4 Box Family Combo",
+              sub: "A fuller family pack for mango, lemon, garlic, and chilli lovers.",
+              badge: "Best value",
+            },
+          ].map((combo) => (
+            <div
+              key={combo.title}
+              style={{
+                background: "#fff",
+                border: `1px solid ${COLORS.sand}`,
+                borderRadius: 18,
+                padding: "1.4rem",
+                boxShadow: "0 12px 30px rgba(28,61,46,0.08)",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-flex",
+                  background: "rgba(193,138,66,0.14)",
+                  color: COLORS.red,
+                  borderRadius: 999,
+                  padding: "0.35rem 0.7rem",
+                  fontSize: "0.72rem",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  letterSpacing: "1.2px",
+                }}
+              >
+                {combo.badge}
+              </span>
+              <h2
+                style={{
+                  color: COLORS.ink,
+                  fontSize: "1.35rem",
+                  fontWeight: 900,
+                  marginTop: "0.9rem",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                {combo.title}
+              </h2>
+              <p style={{ color: COLORS.muted, lineHeight: 1.7, marginBottom: "1rem" }}>
+                {combo.sub}
+              </p>
+              <Link
+                href="/products"
+                style={{
+                  display: "inline-flex",
+                  background: COLORS.forest,
+                  color: "#fff",
+                  borderRadius: 12,
+                  padding: "0.75rem 1rem",
+                  fontWeight: 900,
+                  textDecoration: "none",
+                }}
+              >
+                Build Combo
+              </Link>
+            </div>
+          ))}
+        </section>
+
+        <section
+          style={{
+            display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
             gap: "1rem",
             marginBottom: "2.5rem",

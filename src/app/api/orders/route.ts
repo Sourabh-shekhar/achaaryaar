@@ -4,7 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
-import { sendOrderConfirmation } from "@/lib/sendEmail";
+import { sendAdminOrderNotification, sendOrderConfirmation } from "@/lib/sendEmail";
 
 // Create Order
 export async function POST(req: Request) {
@@ -41,6 +41,14 @@ export async function POST(req: Request) {
       body.fullName,
       order._id.toString()
     );
+    await sendAdminOrderNotification({
+      _id: order._id.toString(),
+      fullName: body.fullName,
+      email: session.user.email,
+      phone: body.phone,
+      total: body.total,
+      paymentMethod: body.paymentMethod,
+    });
 
     for (const item of body.items) {
       const product = await Product.findById(item._id);

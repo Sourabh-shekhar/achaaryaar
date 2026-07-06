@@ -278,7 +278,7 @@ export default function ProductCard({
               className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-extrabold transition duration-300 ${
                 !selectedData || isOutOfStock
                   ? "cursor-not-allowed bg-gray-300 text-gray-600"
-                  : "bg-[#C18A42] text-[#2D2A26] hover:bg-[#D9A85F]"
+                  : "bg-[#1877F2] text-white hover:bg-[#166FE5]"
               }`}
             >
               <FiShoppingBag size={18} />

@@ -11,11 +11,14 @@ export default function AddProductPage() {
         image: "",
         featured: false,
 
-        price150: "",
-        stock150: "",
+        price125: "",
+        stock125: "",
 
-        price250: "",
-        stock250: "",
+        price225: "",
+        stock225: "",
+
+        price400: "",
+        stock400: "",
 
         price500: "",
         stock500: "",
@@ -66,19 +69,27 @@ export default function AddProductPage() {
         }
 
         const weights = [];
-        if (form.price150) {
+        if (form.price125) {
             weights.push({
-                size: "150g",
-                price: Number(form.price150),
-                stock: Number(form.stock150),
+                size: "125g",
+                price: Number(form.price125),
+                stock: Number(form.stock125),
             });
         }
 
-        if (form.price250) {
+        if (form.price225) {
             weights.push({
-                size: "250g",
-                price: Number(form.price250),
-                stock: Number(form.stock250),
+                size: "225g",
+                price: Number(form.price225),
+                stock: Number(form.stock225),
+            });
+        }
+
+        if (form.price400) {
+            weights.push({
+                size: "400g",
+                price: Number(form.price400),
+                stock: Number(form.stock400),
             });
         }
 
@@ -118,11 +129,14 @@ export default function AddProductPage() {
                 image: "",
                 featured: false,
 
-                price150: "",
-                stock150: "",
+                price125: "",
+                stock125: "",
 
-                price250: "",
-                stock250: "",
+                price225: "",
+                stock225: "",
+
+                price400: "",
+                stock400: "",
 
                 price500: "",
                 stock500: "",
@@ -187,23 +201,23 @@ export default function AddProductPage() {
 
                     <div className="border p-5 rounded-xl">
                         <h2 className="font-bold text-xl mb-4 text-black">
-                            150g Variant
+                            125g Variant
                         </h2>
 
                         <input
                             type="number"
-                            name="price150"
+                            name="price125"
                             placeholder="Price"
-                            value={form.price150}
+                            value={form.price125}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl mb-3 text-black"
                         />
 
                         <input
                             type="number"
-                            name="stock150"
+                            name="stock125"
                             placeholder="Stock"
-                            value={form.stock150}
+                            value={form.stock125}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl text-black"
                         />
@@ -211,23 +225,23 @@ export default function AddProductPage() {
 
                     <div className="border p-5 rounded-xl">
                         <h2 className="font-bold text-xl mb-4 text-black">
-                            250g Variant
+                            225g Variant
                         </h2>
 
                         <input
                             type="number"
-                            name="price250"
+                            name="price225"
                             placeholder="Price"
-                            value={form.price250}
+                            value={form.price225}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl mb-3 text-black"
                         />
 
                         <input
                             type="number"
-                            name="stock250"
+                            name="stock225"
                             placeholder="Stock"
-                            value={form.stock250}
+                            value={form.stock225}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl text-black"
                         />
@@ -252,6 +266,30 @@ export default function AddProductPage() {
                             name="stock500"
                             placeholder="Stock"
                             value={form.stock500}
+                            onChange={handleChange}
+                            className="w-full p-3 border rounded-xl text-black"
+                        />
+                    </div>
+
+                    <div className="border p-5 rounded-xl">
+                        <h2 className="font-bold text-xl mb-4 text-black">
+                            400g Variant
+                        </h2>
+
+                        <input
+                            type="number"
+                            name="price400"
+                            placeholder="Price"
+                            value={form.price400}
+                            onChange={handleChange}
+                            className="w-full p-3 border rounded-xl mb-3 text-black"
+                        />
+
+                        <input
+                            type="number"
+                            name="stock400"
+                            placeholder="Stock"
+                            value={form.stock400}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl text-black"
                         />

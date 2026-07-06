@@ -44,6 +44,7 @@ export default function CheckoutPage() {
     const { data: session, status } = useSession();
 
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+    const [appliedCoupon, setAppliedCoupon] = useState("");
     const [formData, setFormData] = useState({
         fullName: "",
         phone: "",
@@ -75,7 +76,21 @@ export default function CheckoutPage() {
     }, 0);
 
     const shipping = items.length > 0 ? 50 : 0;
-    const total = subtotal + shipping;
+    const couponMap: Record<string, number> = {
+        WELCOME10: 10,
+        BIHAR10: 10,
+        ACHAAR15: 15,
+    };
+    const discountPercent = appliedCoupon ? couponMap[appliedCoupon] || 0 : 0;
+    const discount = Math.round((subtotal * discountPercent) / 100);
+    const total = Math.max(0, subtotal - discount + shipping);
+
+    useEffect(() => {
+        const savedCoupon = localStorage.getItem("achaaryaar_coupon") || "";
+        if (couponMap[savedCoupon]) {
+            setAppliedCoupon(savedCoupon);
+        }
+    }, []);
 
     const handlePlaceOrder = async () => {
         if (!formData.fullName.trim()) {
@@ -231,6 +246,8 @@ export default function CheckoutPage() {
         items,
         subtotal,
         shipping,
+        discount,
+        couponCode: appliedCoupon,
         total,
     };
 
@@ -564,6 +581,17 @@ export default function CheckoutPage() {
                                             ₹{shipping}
                                         </span>
                                     </div>
+
+                                    {discount > 0 && (
+                                        <div className="flex justify-between">
+                                            <span className="text-[#7A6F65]">
+                                                Coupon ({appliedCoupon})
+                                            </span>
+                                            <span className="font-semibold text-[#4F6B52]">
+                                                -Rs. {discount}
+                                            </span>
+                                        </div>
+                                    )}
 
                                     <hr className="border-[#E8DDD1]" />
 

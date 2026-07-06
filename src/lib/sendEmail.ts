@@ -14,8 +14,10 @@ export async function sendOrderConfirmation(
     },
   });
 
+const fromEmail = process.env.EMAIL_FROM || "orders@achaaryaar.com";
+
 await transporter.sendMail({
-  from: `"AchaarYaar" <${process.env.EMAIL_USER}>`,
+  from: `"AchaarYaar Orders" <${fromEmail}>`,
   to: email,
   subject: "Order Confirmation - AchaarYaar",
 
@@ -60,10 +62,47 @@ await transporter.sendMail({
 
       <p>
         Regards,<br/>
-        <strong>Team Achaaraar</strong>
+        <strong>Team AchaarYaar</strong>
       </p>
 
     </div>
   `,
 });
+}
+
+export async function sendAdminOrderNotification(order: {
+  _id: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  total?: number;
+  paymentMethod?: string;
+}) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const fromEmail = process.env.EMAIL_FROM || "orders@achaaryaar.com";
+  const adminEmail = process.env.ADMIN_ORDER_EMAIL || "orders@achaaryaar.com";
+
+  await transporter.sendMail({
+    from: `"AchaarYaar Orders" <${fromEmail}>`,
+    to: adminEmail,
+    subject: `New order received - ${order._id}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
+        <h2>New order received</h2>
+        <p><strong>Order ID:</strong> ${order._id}</p>
+        <p><strong>Customer:</strong> ${order.fullName || "Customer"}</p>
+        <p><strong>Email:</strong> ${order.email || "N/A"}</p>
+        <p><strong>Phone:</strong> ${order.phone || "N/A"}</p>
+        <p><strong>Payment:</strong> ${order.paymentMethod || "N/A"}</p>
+        <p><strong>Total:</strong> Rs. ${order.total || 0}</p>
+      </div>
+    `,
+  });
 }

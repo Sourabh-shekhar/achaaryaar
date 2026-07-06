@@ -31,7 +31,7 @@ export default function ContactPage() {
  
       if (data.success) {
         alert(
-          "Thank you for contacting Achaaraar. We'll get back to you soon."
+          "Thank you for contacting AchaarYaar. We'll get back to you soon."
         );
  
         setFormData({
@@ -87,7 +87,7 @@ export default function ContactPage() {
                 <h3 className="font-semibold text-xl mb-2">
                   📧 Email
                 </h3>
-                <p>arjunpanditj474@gmail.com</p>
+                <p>orders@achaaryaar.com</p>
               </div>
  
               <div>

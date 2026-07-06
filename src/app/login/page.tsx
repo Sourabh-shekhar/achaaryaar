@@ -215,7 +215,7 @@ export default function LoginPage() {
             </div>
 
             <p className="mt-8 text-sm leading-6 text-[#7B7269]">
-              Achaaraar celebrates authentic pickle traditions with thoughtful
+              AchaarYaar celebrates authentic pickle traditions with thoughtful
               craftsmanship and honest flavour in every jar.
             </p>
           </div>

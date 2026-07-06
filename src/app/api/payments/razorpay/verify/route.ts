@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
-import { sendOrderConfirmation } from "@/lib/sendEmail";
+import { sendAdminOrderNotification, sendOrderConfirmation } from "@/lib/sendEmail";
 
 type CartItem = {
   _id: string;
@@ -97,6 +97,14 @@ export async function POST(req: Request) {
       orderPayload.fullName,
       order._id.toString()
     );
+    await sendAdminOrderNotification({
+      _id: order._id.toString(),
+      fullName: orderPayload.fullName,
+      email: orderPayload.email,
+      phone: orderPayload.phone,
+      total: orderPayload.total,
+      paymentMethod: "razorpay",
+    });
 
     await reduceStock(orderPayload.items || []);
 

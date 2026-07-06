@@ -358,7 +358,7 @@ export default function ProductDetailsClient({
                 disabled={outOfStock}
                 className={`py-4 rounded-2xl text-lg font-bold transition shadow-md ${added
                   ? "bg-[#4F6B52] text-white"
-                  : "bg-[#C18A42] hover:bg-[#A8742F] text-white"
+                  : "bg-[#1877F2] hover:bg-[#166FE5] text-white"
                   }`}
               >
                 {added ? "Added ✓" : "Add to Cart"}
@@ -555,10 +555,9 @@ export default function ProductDetailsClient({
                     >
                       Ingredients :
                     </span>{" "}
-                    Fresh Raw Mango, Mustard Oil, Salt, Mustard Seeds,
-                    Fennel Seeds, Fenugreek Seeds, Turmeric,
-                    Red Chilli Powder, Asafoetida (Hing)
-                    and Traditional Indian Spices.
+                    Main seasonal ingredient, mustard oil, salt, mustard seeds,
+                    fennel, fenugreek, turmeric, chilli, hing, and traditional
+                    Indian spices, prepared according to the recipe of this jar.
                   </div>
 
                   <div>
@@ -568,7 +567,8 @@ export default function ProductDetailsClient({
                     >
                       Taste / Flavour :
                     </span>{" "}
-                    Tangy, Spicy, Aromatic & Authentic Homemade Taste.
+                    Balanced, aromatic, homestyle, and rooted in Bihar-style
+                    achaar traditions.
                   </div>
 
                   <div>
@@ -578,7 +578,7 @@ export default function ProductDetailsClient({
                     >
                       Category :
                     </span>{" "}
-                    Pickles & Chutneys
+                    {product.category || "Pickles & Chutneys"}
                   </div>
 
                   <div>
@@ -737,7 +737,7 @@ export default function ProductDetailsClient({
                 onClick={handleAddToCart}
                 className={`flex items-center justify-center py-3 rounded-xl font-bold text-sm transition ${added
                   ? "bg-[#4F6B52] text-white"
-                  : "bg-[#C18A42] hover:bg-[#A8742F] text-white"
+                : "bg-[#1877F2] hover:bg-[#166FE5] text-white"
                   }`}
               >
                 {added ? "Added ✓" : "Add to Cart"}

@@ -1,10 +1,14 @@
 "use client";
 import { useCartStore } from "@/store/cartStore";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 
 export default function CartPage() {
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [couponMessage, setCouponMessage] = useState("");
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const increaseQuantity = useCartStore(
@@ -24,7 +28,49 @@ export default function CartPage() {
   }, 0);
 
   const shipping = items.length > 0 ? 50 : 0;
-  const total = subtotal + shipping;
+  const couponMap: Record<string, number> = {
+    WELCOME10: 10,
+    BIHAR10: 10,
+    ACHAAR15: 15,
+  };
+  const discountPercent = appliedCoupon ? couponMap[appliedCoupon] || 0 : 0;
+  const discount = Math.round((subtotal * discountPercent) / 100);
+  const total = Math.max(0, subtotal - discount + shipping);
+
+  useEffect(() => {
+    const savedCoupon = localStorage.getItem("achaaryaar_coupon") || "";
+    if (couponMap[savedCoupon]) {
+      setAppliedCoupon(savedCoupon);
+      setCouponInput(savedCoupon);
+    }
+  }, []);
+
+  function applyCoupon() {
+    const code = couponInput.trim().toUpperCase();
+
+    if (!code) {
+      setCouponMessage("Enter a coupon code.");
+      return;
+    }
+
+    if (!couponMap[code]) {
+      setCouponMessage("Coupon not valid. Try WELCOME10, BIHAR10, or ACHAAR15.");
+      setAppliedCoupon("");
+      localStorage.removeItem("achaaryaar_coupon");
+      return;
+    }
+
+    setAppliedCoupon(code);
+    localStorage.setItem("achaaryaar_coupon", code);
+    setCouponMessage(`${code} applied. You saved ${couponMap[code]}%.`);
+  }
+
+  function removeCoupon() {
+    setAppliedCoupon("");
+    setCouponInput("");
+    setCouponMessage("Coupon removed.");
+    localStorage.removeItem("achaaryaar_coupon");
+  }
 
   return (
     <div className="min-h-screen bg-[#FBF7F1] p-10">
@@ -140,6 +186,48 @@ export default function CartPage() {
                     ₹{shipping}
                   </span>
                 </div>
+
+                <div className="rounded-2xl bg-white/10 p-4">
+                  <label className="mb-2 block text-sm font-bold uppercase tracking-wide text-white/80">
+                    Coupon Code
+                  </label>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value)}
+                      placeholder="WELCOME10"
+                      className="flex-1 rounded-xl border border-white/20 bg-white px-4 py-3 font-semibold uppercase text-[#2D2A26] outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={applyCoupon}
+                      className="rounded-xl bg-[#C18A42] px-5 py-3 font-bold text-white transition hover:bg-[#A8742F]"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  {appliedCoupon && (
+                    <button
+                      type="button"
+                      onClick={removeCoupon}
+                      className="mt-2 text-sm font-bold text-[#D9A85F]"
+                    >
+                      Remove {appliedCoupon}
+                    </button>
+                  )}
+                  {couponMessage && (
+                    <p className="mt-2 text-sm text-white/80">{couponMessage}</p>
+                  )}
+                </div>
+
+                {discount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-white/80">Coupon Discount</span>
+                    <span className="font-bold text-[#D9A85F]">
+                      -Rs. {discount}
+                    </span>
+                  </div>
+                )}
 
                 <hr className="border-white/15" />
 

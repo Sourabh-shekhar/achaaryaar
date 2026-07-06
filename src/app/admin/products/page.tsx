@@ -15,19 +15,25 @@ export default function AdminProductsPage() {
 
         weights: [
             {
-                quantity: "150g",
+                size: "125g",
                 price: "",
                 stock: "",
             },
 
             {
-                quantity: "250g",
+                size: "225g",
                 price: "",
                 stock: "",
             },
 
             {
-                quantity: "500g",
+                size: "400g",
+                price: "",
+                stock: "",
+            },
+
+            {
+                size: "500g",
                 price: "",
                 stock: "",
             },
@@ -88,7 +94,7 @@ export default function AdminProductsPage() {
                 body: JSON.stringify({
                     ...formData,
                     weights: formData.weights.map((v) => ({
-                        quantity: v.quantity,
+                        size: v.size,
                         price: Number(v.price),
                         stock: Number(v.stock),
                     })),
@@ -105,9 +111,10 @@ export default function AdminProductsPage() {
                     description: "",
                     category: "Pickle",
                     weights: [
-                        { quantity: "150g", price: "", stock: "" },
-                        { quantity: "250g", price: "", stock: "" },
-                        { quantity: "500g", price: "", stock: "" },
+                        { size: "125g", price: "", stock: "" },
+                        { size: "225g", price: "", stock: "" },
+                        { size: "400g", price: "", stock: "" },
+                        { size: "500g", price: "", stock: "" },
                     ],
                 });
             } else {
@@ -183,7 +190,7 @@ export default function AdminProductsPage() {
                                 className="border p-4 rounded-xl bg-white"
                             >
                                 <h4 className="font-semibold mb-2 text-gray-900">
-                                    {weight.quantity}
+                                    {weight.size}
                                 </h4>
 
                                 <input
@@ -262,7 +269,7 @@ export default function AdminProductsPage() {
                                 {product.weights?.map((variant: any, index: number) => (
                                     <div key={index} className="border-b py-1">
                                         <p className="font-semibold">
-                                            {variant.quantity}
+                                            {variant.size || variant.quantity}
                                         </p>
 
                                         <p className="text-orange-600">

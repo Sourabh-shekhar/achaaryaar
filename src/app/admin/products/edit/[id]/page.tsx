@@ -43,9 +43,10 @@ export default function EditProductPage() {
                         data.product.weights?.length > 0
                             ? data.product.weights
                             : [
-                                { quantity: "150g", price: "", stock: "" },
-                                { quantity: "250g", price: "", stock: "" },
-                                { quantity: "500g", price: "", stock: "" },
+                                { size: "125g", price: "", stock: "" },
+                                { size: "225g", price: "", stock: "" },
+                                { size: "400g", price: "", stock: "" },
+                                { size: "500g", price: "", stock: "" },
                             ],
                 });
             }
@@ -85,7 +86,7 @@ export default function EditProductPage() {
                         ...formData,
                         image: imageUrl,
                         weights: formData.weights.map((v: any) => ({
-                            quantity: v.quantity,
+                            size: v.size || v.quantity,
                             price: Number(v.price),
                             stock: Number(v.stock),
                         })),

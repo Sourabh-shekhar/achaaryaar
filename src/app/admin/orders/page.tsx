@@ -1,6 +1,6 @@
 "use client";
 import AdminAnalytics from "@/components/AdminAnalytics";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { baseUrl } from "@/lib/baseUrl";
 
@@ -8,6 +8,9 @@ export default function AdminOrdersPage() {
     const [orders, setOrders] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
+    const [latestSeenOrderId, setLatestSeenOrderId] = useState("");
+    const [newOrderAlert, setNewOrderAlert] = useState<any | null>(null);
+    const latestSeenOrderIdRef = useRef("");
     const router = useRouter();
 
     useEffect(() => {
@@ -19,6 +22,8 @@ export default function AdminOrdersPage() {
         }
 
         fetchOrders();
+        const timer = setInterval(fetchOrders, 30000);
+        return () => clearInterval(timer);
     }, []);
 
     const fetchOrders = async () => {
@@ -27,7 +32,19 @@ export default function AdminOrdersPage() {
             const data = await res.json();
 
             if (data.success) {
-                setOrders(data.orders || []);
+                const nextOrders = data.orders || [];
+                const newest = nextOrders[0];
+
+                if (latestSeenOrderIdRef.current && newest?._id && newest._id !== latestSeenOrderIdRef.current) {
+                    setNewOrderAlert(newest);
+                }
+
+                if (newest?._id) {
+                    latestSeenOrderIdRef.current = newest._id;
+                    setLatestSeenOrderId(newest._id);
+                }
+
+                setOrders(nextOrders);
             }
         } catch (error) {
             console.error("Failed to fetch orders:", error);
@@ -86,6 +103,9 @@ export default function AdminOrdersPage() {
     const pendingOrders = orders.filter(
         (order: any) => order.status === "Pending"
     ).length;
+    const newOrders = orders.filter(
+        (order: any) => order.status === "Pending" || order.status === "Processing"
+    );
 
     const deliveredOrders = orders.filter(
         (order: any) => order.status === "Delivered"
@@ -113,6 +133,26 @@ export default function AdminOrdersPage() {
     });
     return (
         <div className="min-h-screen bg-gray-100 p-8">
+            {newOrderAlert && (
+                <div className="fixed right-6 top-6 z-50 w-[min(360px,calc(100vw-3rem))] rounded-2xl border border-green-200 bg-white p-5 shadow-2xl">
+                    <p className="text-xs font-bold uppercase tracking-wide text-green-700">
+                        New order received
+                    </p>
+                    <h2 className="mt-2 text-xl font-bold text-gray-900">
+                        {newOrderAlert.fullName || "Customer"}
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-600">
+                        Total: Rs. {newOrderAlert.total || 0}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => setNewOrderAlert(null)}
+                        className="mt-4 rounded-xl bg-green-600 px-4 py-2 font-bold text-white"
+                    >
+                        View in orders
+                    </button>
+                </div>
+            )}
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-4xl font-bold text-gray-900">
                     Admin Orders Dashboard
@@ -170,6 +210,39 @@ export default function AdminOrdersPage() {
                     </p>
                 </div>
 
+            </div>
+            <div className="mb-8 rounded-2xl border border-orange-200 bg-white p-5 shadow-lg">
+                <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-gray-900">
+                        New / Pending Orders
+                    </h2>
+                    <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-bold text-orange-700">
+                        {newOrders.length}
+                    </span>
+                </div>
+
+                {newOrders.length === 0 ? (
+                    <p className="text-sm text-gray-600">No new pending orders.</p>
+                ) : (
+                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                        {newOrders.slice(0, 6).map((order: any) => (
+                            <div
+                                key={order._id}
+                                className="rounded-xl border border-gray-200 bg-orange-50 p-4"
+                            >
+                                <p className="font-bold text-gray-900">
+                                    {order.fullName || "Customer"}
+                                </p>
+                                <p className="text-sm text-gray-700">
+                                    {order.phone || order.email || "No contact"}
+                                </p>
+                                <p className="mt-2 text-sm font-bold text-orange-700">
+                                    Rs. {order.total || 0} · {order.status}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
             <div className="flex flex-col md:flex-row gap-4 mb-6">
 

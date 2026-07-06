@@ -301,7 +301,7 @@ export default function AboutPage() {
             </h2>
 
             <p className="mt-6 text-lg md:text-xl text-[#6B625A] max-w-4xl mx-auto leading-9">
-              We want every jar of Achaaraar to feel dependable, flavourful,
+              We want every jar of AchaarYaar to feel dependable, flavourful,
               and worthy of the trust placed in us.
             </p>
 
