@@ -40,41 +40,6 @@ const CATEGORY_LINKS = [
   { label: "Combo", value: "combo" },
 ];
 
-const COMBO_PRODUCTS: Product[] = [
-  {
-    _id: "combo-3-box-bihar",
-    name: "3 Item Bihar Combo Pack",
-    description:
-      "A ready combo of 3 pickle jars for daily meals: mango, lemon, and chilli style flavours packed for family use or gifting.",
-    category: "combo pack",
-    image: "/image/jars-yellow.png",
-    featured: true,
-    weights: [
-      {
-        size: "3 items",
-        price: 399,
-        stock: 50,
-      },
-    ],
-  },
-  {
-    _id: "combo-4-box-family",
-    name: "4 Item Family Combo Pack",
-    description:
-      "A fuller 4 item combo pack with classic Bihar-style pickle flavours for homes that want variety on the table every day.",
-    category: "combo pack",
-    image: "/image/holding.jpg",
-    featured: true,
-    weights: [
-      {
-        size: "4 items",
-        price: 499,
-        stock: 50,
-      },
-    ],
-  },
-];
-
 async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${baseUrl}/api/products`, {
     next: { revalidate },
@@ -101,8 +66,7 @@ export default async function ProductsPage({
 }: {
   searchParams: Promise<{ search?: string; category?: string }>;
 }) {
-  const products = await getProducts();
-  const allProducts = [...COMBO_PRODUCTS, ...products];
+  const allProducts = await getProducts();
   const params = await searchParams;
   const search = params.search?.toLowerCase().trim() || "";
   const category = params.category?.toLowerCase().trim() || "";
@@ -401,7 +365,6 @@ export default async function ProductsPage({
                 name={product.name}
                 description={product.description}
                 image={product.image}
-                href={product._id.startsWith("combo-") ? "/products?category=combo" : undefined}
                 weights={product.weights}
               />
             ))}
@@ -411,8 +374,3 @@ export default async function ProductsPage({
     </div>
   );
 }
-
-
-
-
-

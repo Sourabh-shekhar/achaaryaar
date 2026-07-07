@@ -762,8 +762,7 @@ function FeaturedProducts({ products }: { products: any[] }) {
                   )}
                 </div>
                 <div style={{ padding: "1.25rem" }}>
-                  <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, color: COLORS.ink, fontSize: "1.1rem", marginBottom: "0.35rem" }}>{p.name}</div>
-                  <div style={{ color: COLORS.muted, fontSize: "0.82rem", lineHeight: 1.55, marginBottom: "1rem" }}>{p.description}</div>
+                  <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, color: COLORS.ink, fontSize: "1.1rem", marginBottom: "0.75rem" }}>{p.name}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div>
                       <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, color: COLORS.forest, fontSize: "1.3rem" }}>
