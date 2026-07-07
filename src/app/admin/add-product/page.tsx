@@ -46,7 +46,7 @@ export default function AddProductPage() {
 
             imageUrl = await new Promise<string>((resolve) => {
                 reader.onloadend = async () => {
-            const response = await fetch(`${baseUrl}/api/upload`, {
+            const response = await fetch(`/api/upload`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -90,7 +90,7 @@ export default function AddProductPage() {
             });
         }
 
-        const res = await fetch(`${baseUrl}/api/products`, {
+        const res = await fetch(`/api/products`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

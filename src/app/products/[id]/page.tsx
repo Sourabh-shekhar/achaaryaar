@@ -6,7 +6,7 @@ export const revalidate = 60;
 
 async function getProduct(id: string) {
   const res = await fetch(
-    `${baseUrl}/api/products/${id}`,
+    `/api/products/${id}`,
     {
       next: { revalidate },
     }
@@ -20,7 +20,7 @@ async function getProduct(id: string) {
 
 async function getAllProducts() {
   const res = await fetch(
-    `${baseUrl}/api/products`,
+    `/api/products`,
     {
       next: { revalidate },
     }

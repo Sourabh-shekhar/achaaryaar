@@ -44,7 +44,7 @@ export default function EditProductPage() {
     const fetchProduct = async () => {
         if (!id) return;
         try {
-            const res = await fetch(`${baseUrl}/api/products/${id}`, {
+            const res = await fetch(`/api/products/${id}`, {
                 cache: "no-store",
             });
 
@@ -74,7 +74,7 @@ export default function EditProductPage() {
                 const data = new FormData();
                 data.append("file", imageFile);
 
-                const uploadRes = await fetch(`${baseUrl}/api/upload`, {
+                const uploadRes = await fetch(`/api/upload`, {
                     method: "POST",
                     body: data,
                 });
@@ -84,7 +84,7 @@ export default function EditProductPage() {
                 imageUrl = uploadData.image;
             }
             const res = await fetch(
-                `${baseUrl}/api/products/${id}`,
+                `/api/products/${id}`,
                 {
                     method: "PATCH",
                     headers: {

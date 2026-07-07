@@ -75,7 +75,7 @@ const COMBO_PRODUCTS: Product[] = [
 ];
 
 async function getProducts(): Promise<Product[]> {
-  const res = await fetch(`${baseUrl}/api/products`, {
+  const res = await fetch(`/api/products`, {
     next: { revalidate },
   });
 

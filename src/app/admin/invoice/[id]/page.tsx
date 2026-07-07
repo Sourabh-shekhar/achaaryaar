@@ -16,7 +16,7 @@ useEffect(() => {
 }, [id]);
 
   const fetchOrder = async () => {
-    const res = await fetch(`${baseUrl}/api/orders`, {
+    const res = await fetch(`/api/orders`, {
       cache: "no-store",
     });
     const data = await res.json();
