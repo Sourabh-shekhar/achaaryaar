@@ -7,7 +7,7 @@ import { Playfair_Display } from "next/font/google";
 import InfoTicker from "@/components/InfoTicker";
 import Footer from "@/components/Footer";
 import { GoogleAnalytics } from "@next/third-parties/google";
-
+import SplashScreen from "@/components/SplashScreen";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -67,6 +67,7 @@ export default function RootLayout({
 
           <Navbar />
           <InfoTicker />
+          <SplashScreen />
 
           <main className="flex-grow">
             {children}
