@@ -58,23 +58,37 @@ export async function POST(req: Request) {
       console.error("Order email failed (order still placed):", emailError);
     }
 
-    for (const item of body.items) {
-      if (!isValidObjectId(item._id)) continue;
+   for (const item of body.items) {
+  if (!isValidObjectId(item._id)) {
+    console.log("Skipped invalid _id:", item._id);
+    continue;
+  }
 
-      const product = await Product.findById(item._id);
+  const product = await Product.findById(item._id);
 
-      if (!product) continue;
+  if (!product) {
+    console.log("Product not found for _id:", item._id);
+    continue;
+  }
 
-      const variant = product.weights?.find(
-        (v: { size: string }) => v.size === item.selectedVariant
-      );
+  console.log("Product weights before:", JSON.stringify(product.weights));
+  console.log("Looking for selectedVariant:", item.selectedVariant, "qty:", item.quantity);
 
-      if (variant) {
-        variant.stock = Math.max(0, variant.stock - item.quantity);
-      }
+  const variant = product.weights?.find(
+    (v: { size: string }) => v.size === item.selectedVariant
+  );
 
-      await product.save();
-    }
+  if (!variant) {
+    console.log("No matching variant found — stock NOT updated for this item.");
+    continue;
+  }
+
+  variant.stock = Math.max(0, variant.stock - item.quantity);
+  product.markModified("weights");
+
+  const saved = await product.save();
+  console.log("Product weights after save:", JSON.stringify(saved.weights));
+}
 
     return NextResponse.json({
       success: true,
