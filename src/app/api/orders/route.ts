@@ -12,9 +12,6 @@ export async function POST(req: Request) {
   try {
     await connectDB();
 
-    // Always trust the server-side session for identity, never a client-sent
-    // field — otherwise a tampered request could save an order under a
-    // different user's email.
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
@@ -26,10 +23,86 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
+    // ---- STEP 1: Validate & reserve stock BEFORE creating the order ----
+    // We do this first, atomically per item, so an out-of-stock item
+    // blocks the order instead of silently going through.
+    const decrementedItems: { _id: string; selectedVariant?: string; quantity: number; isCombo?: boolean }[] = [];
+    const outOfStockItems: string[] = [];
+
     for (const item of body.items) {
-      console.log("Item _id:", item._id);
+      if (!isValidObjectId(item._id)) {
+        console.log("Skipped invalid _id:", item._id);
+        continue;
+      }
+
+      let updatedProduct;
+
+      if (item.isCombo) {
+        // Combo products track stock on comboStock, not weights[].
+        updatedProduct = await Product.findOneAndUpdate(
+          {
+            _id: item._id,
+            isCombo: true,
+            comboStock: { $gte: item.quantity },
+          },
+          { $inc: { comboStock: -item.quantity } },
+          { new: true }
+        );
+      } else {
+        // Regular products track stock per weight variant (e.g. "225g").
+        updatedProduct = await Product.findOneAndUpdate(
+          {
+            _id: item._id,
+            weights: {
+              $elemMatch: {
+                size: item.selectedVariant,
+                stock: { $gte: item.quantity },
+              },
+            },
+          },
+          { $inc: { "weights.$[elem].stock": -item.quantity } },
+          {
+            arrayFilters: [{ "elem.size": item.selectedVariant }],
+            new: true,
+          }
+        );
+      }
+
+      if (!updatedProduct) {
+        outOfStockItems.push(item._id);
+      } else {
+        decrementedItems.push(item);
+      }
     }
 
+    // If anything was out of stock, roll back everything we already
+    // decremented in this loop, and reject the whole order.
+    if (outOfStockItems.length > 0) {
+      for (const item of decrementedItems) {
+        if (item.isCombo) {
+          await Product.updateOne(
+            { _id: item._id },
+            { $inc: { comboStock: item.quantity } }
+          );
+        } else {
+          await Product.updateOne(
+            { _id: item._id, "weights.size": item.selectedVariant },
+            { $inc: { "weights.$.stock": item.quantity } }
+          );
+        }
+      }
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Some items in your cart are no longer in stock.",
+          outOfStockItems,
+        },
+        { status: 409 }
+      );
+    }
+
+    // ---- STEP 2: Stock is confirmed and reserved — now create the order ----
     const order = await Order.create({
       ...body,
       email: session.user.email,
@@ -37,9 +110,7 @@ export async function POST(req: Request) {
         body.paymentMethod === "cod" ? "Pending COD" : body.paymentStatus || "Pending",
     });
 
-    // Email is "best effort" — if it fails (bad SMTP config, mail
-    // server down, etc.) the order itself must still succeed for the
-    // customer. We only log the error here, never throw.
+    // Email is "best effort" — if it fails, the order itself must still succeed.
     try {
       await sendOrderConfirmation(
         session.user.email,
@@ -57,38 +128,6 @@ export async function POST(req: Request) {
     } catch (emailError) {
       console.error("Order email failed (order still placed):", emailError);
     }
-
-   for (const item of body.items) {
-  if (!isValidObjectId(item._id)) {
-    console.log("Skipped invalid _id:", item._id);
-    continue;
-  }
-
-  const product = await Product.findById(item._id);
-
-  if (!product) {
-    console.log("Product not found for _id:", item._id);
-    continue;
-  }
-
-  console.log("Product weights before:", JSON.stringify(product.weights));
-  console.log("Looking for selectedVariant:", item.selectedVariant, "qty:", item.quantity);
-
-  const variant = product.weights?.find(
-    (v: { size: string }) => v.size === item.selectedVariant
-  );
-
-  if (!variant) {
-    console.log("No matching variant found — stock NOT updated for this item.");
-    continue;
-  }
-
-  variant.stock = Math.max(0, variant.stock - item.quantity);
-  product.markModified("weights");
-
-  const saved = await product.save();
-  console.log("Product weights after save:", JSON.stringify(saved.weights));
-}
 
     return NextResponse.json({
       success: true,
@@ -108,8 +147,6 @@ export async function POST(req: Request) {
 }
 
 // Fetch Orders — scoped to the logged-in user only.
-// Previously this ran Order.find() with no filter at all, which would
-// return every customer's orders to whoever called this endpoint.
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);

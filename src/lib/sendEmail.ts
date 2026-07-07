@@ -1,5 +1,8 @@
 ﻿import nodemailer from "nodemailer";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://achaaryaar.com";
+const logoUrl = `${siteUrl}/image/logo.png`;
+
 export async function sendOrderConfirmation(
   email: string,
   fullName: string,
@@ -27,7 +30,7 @@ await transporter.sendMail({
       <div style="text-align:center;">
 
         <img
-          src="https://achaaryaar-git-main-sourabh-shekhars-projects.vercel.app/image/logo.png"
+          src="${logoUrl}"
           alt="AchaarYaar Logo"
           width="180"
         />
@@ -95,6 +98,9 @@ export async function sendAdminOrderNotification(order: {
     subject: `New order received - ${order._id}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; padding:20px;">
+        <div style="text-align:center; margin-bottom: 1rem;">
+          <img src="${logoUrl}" alt="AchaarYaar Logo" width="120" />
+        </div>
         <h2>New order received</h2>
         <p><strong>Order ID:</strong> ${order._id}</p>
         <p><strong>Customer:</strong> ${order.fullName || "Customer"}</p>
@@ -106,4 +112,3 @@ export async function sendAdminOrderNotification(order: {
     `,
   });
 }
-

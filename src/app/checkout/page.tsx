@@ -79,6 +79,7 @@ export default function CheckoutPage() {
     const [addressError, setAddressError] = useState("");
 
     const items = useCartStore((state) => state.items);
+    const clearCart = useCartStore((state) => state.clearCart);
 
     useEffect(() => {
         if (status !== "authenticated") return;
@@ -323,6 +324,7 @@ export default function CheckoutPage() {
                             const verifyData = await verifyResponse.json();
 
                             if (verifyData.success) {
+                                clearCart();
                                 router.push(`/order-success?orderId=${verifyData.order._id}`);
                             } else {
                                 alert(verifyData.message || "Payment verification failed");
@@ -354,6 +356,7 @@ export default function CheckoutPage() {
             const data = await response.json();
 
             if (data.success) {
+                clearCart();
                 router.push(`/order-success?orderId=${data.order._id}`);
             } else {
                 alert("Order failed");

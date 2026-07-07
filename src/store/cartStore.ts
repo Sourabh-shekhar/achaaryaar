@@ -33,6 +33,8 @@ type CartStore = {
     name: string,
     selectedVariant: string
   ) => void;
+
+  clearCart: () => void;
 };
 
 export const useCartStore = create<CartStore>()(
@@ -105,6 +107,8 @@ export const useCartStore = create<CartStore>()(
               )
           ),
         })),
+
+      clearCart: () => set({ items: [] }),
     }),
     {
       name: "achaaryaar-cart",
