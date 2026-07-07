@@ -87,7 +87,7 @@ export default function ContactPage() {
                 <h3 className="font-semibold text-xl mb-2">
                   📧 Email
                 </h3>
-                <p>orders@achaaryaar.com</p>
+                <p>support@achaaryaar.com</p>
               </div>
  
               <div>
