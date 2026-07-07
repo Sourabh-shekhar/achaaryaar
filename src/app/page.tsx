@@ -1212,7 +1212,7 @@ export default function HomePage() {
   const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`${baseUrl}/api/products`, { cache: "no-store" })
+fetch(`/api/products`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data.success) setProducts(data.products);
