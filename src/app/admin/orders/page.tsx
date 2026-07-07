@@ -98,24 +98,24 @@ export default function AdminOrdersPage() {
             alert("Failed to delete order");
         }
     };
-    const totalOrders = orde₹length;
+    const totalOrders = orders.length;
 
-    const pendingOrders = orde₹filter(
+    const pendingOrders = orders.filter(
         (order: any) => order.status === "Pending"
     ).length;
-    const newOrders = orde₹filter(
+    const newOrders = orders.filter(
         (order: any) => order.status === "Pending" || order.status === "Processing"
     );
 
-    const deliveredOrders = orde₹filter(
+    const deliveredOrders = orders.filter(
         (order: any) => order.status === "Delivered"
     ).length;
 
-    const totalRevenue = orde₹reduce(
+    const totalRevenue = orders.reduce(
         (total: number, order: any) => total + (order.total || 0),
         0
     );
-    const filteredOrders = orde₹filter((order: any) => {
+    const filteredOrders = orders.filter((order: any) => {
 
         const matchesSearch =
             (order.fullName || "")
@@ -217,15 +217,15 @@ export default function AdminOrdersPage() {
                         New / Pending Orders
                     </h2>
                     <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-bold text-orange-700">
-                        {newOrde₹length}
+                        {newOrders.length}
                     </span>
                 </div>
 
-                {newOrde₹length === 0 ? (
-                    <p className="text-sm text-gray-600">No new pending orde₹</p>
+                {newOrders.length === 0 ? (
+                    <p className="text-sm text-gray-600">No new pending orders.</p>
                 ) : (
                     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                        {newOrde₹slice(0, 6).map((order: any) => (
+                        {newOrders.slice(0, 6).map((order: any) => (
                             <div
                                 key={order._id}
                                 className="rounded-xl border border-gray-200 bg-orange-50 p-4"
@@ -237,7 +237,7 @@ export default function AdminOrdersPage() {
                                     {order.phone || order.email || "No contact"}
                                 </p>
                                 <p className="mt-2 text-sm font-bold text-orange-700">
-                                    ₹{order.total || 0} Â· {order.status}
+                                    ₹{order.total || 0} · {order.status}
                                 </p>
                             </div>
                         ))}
@@ -268,7 +268,7 @@ export default function AdminOrdersPage() {
 
             </div>
             <AdminAnalytics orders={orders} />
-            {filteredOrde₹length === 0 ? (
+            {filteredOrders.length === 0 ? (
                 <div className="bg-white rounded-2xl shadow-md p-6">
                     <p className="text-lg text-gray-700">
                         No orders found.
@@ -276,7 +276,7 @@ export default function AdminOrdersPage() {
                 </div>
             ) : (
                 <div className="space-y-6">
-                    {filteredOrde₹map((order: any) => (
+                    {filteredOrders.map((order: any) => (
                         <div
                             key={order._id}
                             className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
@@ -414,5 +414,3 @@ export default function AdminOrdersPage() {
         </div>
     );
 }
-
-

@@ -98,7 +98,7 @@ export default function ProfilePage() {
   }, [status]);
 
   const totalSpent = useMemo(
-    () => orde₹reduce((sum, order) => sum + Number(order.total || 0), 0),
+    () => orders.reduce((sum, order) => sum + Number(order.total || 0), 0),
     [orders]
   );
 
@@ -225,7 +225,7 @@ export default function ProfilePage() {
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-[#FBF7F1] p-4">
                   <p className="text-2xl font-black text-[#6B1F1F]">
-                    {orde₹length}
+                    {orders.length}
                   </p>
                   <p className="text-xs font-bold uppercase tracking-wide text-[#6F6258]">
                     Orders
@@ -247,7 +247,7 @@ export default function ProfilePage() {
                 Order history
               </h2>
 
-              {orde₹length === 0 ? (
+              {orders.length === 0 ? (
                 <div className="rounded-2xl bg-[#FBF7F1] p-8 text-center">
                   <p className="font-bold text-[#2D2A26]">No orders yet</p>
                   <p className="mt-2 text-sm text-[#5C5249]">
@@ -262,7 +262,7 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="space-y-5">
-                  {orde₹map((order) => {
+                  {orders.map((order) => {
                     const activeStep = getStepIndex(order.status);
 
                     return (
@@ -370,4 +370,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
