@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
-import { baseUrl } from "@/lib/baseUrl";
+   
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 
 type Weight = {
@@ -234,51 +234,57 @@ export default function ProductDetailsClient({
 
           {/* Variant selector */}
           <div className="mt-8">
-            <h3 className="font-bold text-[#2D2A26] mb-3 text-lg">
+            <label
+              htmlFor="product-weight"
+              className="mb-3 block text-lg font-bold text-[#2D2A26]"
+            >
               Select Weight
-            </h3>
+            </label>
 
-            <div className="grid grid-cols-3 gap-4">
-              {product.weights?.map((weight, index) => {
-                const isSelected = index === selectedIndex;
-                const isOut = weight.stock <= 0;
+            <div className="relative max-w-md">
+              <select
+                id="product-weight"
+                value={selectedIndex}
+                onChange={(e) => handleSelectWeight(Number(e.target.value))}
+                className="w-full appearance-none rounded-2xl border-2 border-[#E8DDD1] bg-white px-5 py-4 pr-12 text-lg font-bold text-[#2D2A26] shadow-sm outline-none transition focus:border-[#C18A42] focus:ring-4 focus:ring-[#C18A42]/20"
+              >
+                {product.weights?.map((weight, index) => {
+                  const label = weight.size || weight.quantity || weight.weight || "Size";
+                  return (
+                    <option key={`${label}-${index}`} value={index}>
+                      {label} - ₹{weight.price}
+                      {weight.stock <= 0 ? " - Out of Stock" : ""}
+                    </option>
+                  );
+                })}
+              </select>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-xl text-[#4F6B52]"
+              >
+                ˅
+              </span>
+            </div>
 
-                return (
-                  <button
-                    key={`${weight.size || weight.quantity || weight.weight || "size"}-${index}`}
-                    disabled={isOut}
-                    onClick={() => handleSelectWeight(index)}
-                    className={`border-2 p-4 rounded-2xl text-left transition shadow-sm ${isOut
-                      ? "border-[#E8DDD1] bg-[#F3EEE6] opacity-50 cursor-not-allowed"
-                      : isSelected
-                        ? "border-[#C18A42] bg-white ring-2 ring-[#C18A42]/30"
-                        : "border-[#E8DDD1] bg-white hover:border-[#C18A42]/60"
-                      }`}
-                  >
-                    <p className="font-bold text-lg text-[#2D2A26]">
-                      {weight.size || weight.quantity || weight.weight || "Size"}
-                    </p>
-                    {!isOut && (
-                      <p className="text-[#C18A42] font-bold mt-1">
-                        ₹{weight.price}
-                      </p>
-                    )}
-                    {isOut ? (
-                      <p className="text-[#6B1F1F] text-xs mt-1 font-semibold">
-                        Out of stock
-                      </p>
-                    ) : weight.stock <= 5 ? (
-                      <p className="text-[#6B1F1F] text-xs mt-1 font-semibold">
-                        Only {weight.stock} left
-                      </p>
-                    ) : (
-                      <p className="text-[#4F6B52] text-xs mt-1 font-semibold">
-                        In Stock
-                      </p>
-                    )}
-                  </button>
-                );
-              })}
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-semibold">
+              {outOfStock ? (
+                <span className="rounded-full bg-[#6B1F1F]/10 px-3 py-1 text-[#6B1F1F]">
+                  Out of Stock
+                </span>
+              ) : selectedWeight && selectedWeight.stock <= 5 ? (
+                <span className="rounded-full bg-[#6B1F1F]/10 px-3 py-1 text-[#6B1F1F]">
+                  Only {selectedWeight.stock} left
+                </span>
+              ) : (
+                <span className="rounded-full bg-[#4F6B52]/10 px-3 py-1 text-[#4F6B52]">
+                  In Stock
+                </span>
+              )}
+              {selectedWeight && (
+                <span className="text-[#7A6F65]">
+                  {selectedWeightLabel} selected
+                </span>
+              )}
             </div>
           </div>
 

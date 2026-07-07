@@ -141,11 +141,11 @@ export default function ProductCard({
 
               {!hasVariants ? (
                 <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-600">
-                  Out of stock
+                  Out of Stock
                 </span>
               ) : isOutOfStock ? (
                 <span className="rounded-full bg-[#6B1F1F]/10 px-3 py-1 text-xs font-bold text-[#6B1F1F]">
-                  Out of stock
+                  Out of Stock
                 </span>
               ) : isLowStock ? (
                 <span className="rounded-full bg-[#C18A42]/15 px-3 py-1 text-xs font-bold text-[#8A5E20]">
@@ -157,7 +157,7 @@ export default function ProductCard({
                 </span>
               ) : (
                 <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-600">
-                  Out of stock
+                  Out of Stock
                 </span>
               )}
             </div>

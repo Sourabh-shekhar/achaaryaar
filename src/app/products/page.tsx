@@ -1,6 +1,7 @@
 ﻿import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import { baseUrl } from "@/lib/baseUrl";
+   
 
 export const revalidate = 60;
 
@@ -75,7 +76,7 @@ const COMBO_PRODUCTS: Product[] = [
 ];
 
 async function getProducts(): Promise<Product[]> {
-  const res = await fetch(`/api/products`, {
+  const res = await fetch(`${baseUrl}/api/products`, {
     next: { revalidate },
   });
 
@@ -410,6 +411,8 @@ export default async function ProductsPage({
     </div>
   );
 }
+
+
 
 
 

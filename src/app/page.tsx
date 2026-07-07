@@ -992,7 +992,7 @@ function FAQSection() {
                     gap: "1rem",
                   }}>
                   {f.q}
-                  <span style={{ color: COLORS.forest, fontSize: "1.2rem", flexShrink: 0 }} aria-hidden="true">{isOpen ? "âˆ’" : "+"}</span>
+                  <span style={{ color: COLORS.forest, fontSize: "1.2rem", flexShrink: 0 }} aria-hidden="true">{isOpen ? "-" : "+"}</span>
                 </button>
               </h3>
               {isOpen && (
@@ -1418,5 +1418,4 @@ export default function HomePage() {
     </div>
   );
 }
-
 

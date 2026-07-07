@@ -2,7 +2,7 @@
 import AdminAnalytics from "@/components/AdminAnalytics";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { baseUrl } from "@/lib/baseUrl";
+   
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState<any[]>([]);

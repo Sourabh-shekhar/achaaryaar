@@ -5,12 +5,9 @@ import { baseUrl } from "@/lib/baseUrl";
 export const revalidate = 60;
 
 async function getProduct(id: string) {
-  const res = await fetch(
-    `/api/products/${id}`,
-    {
-      next: { revalidate },
-    }
-  );
+  const res = await fetch(`${baseUrl}/api/products/${id}`, {
+    next: { revalidate },
+  });
 
   if (!res.ok) return null;
 
@@ -19,12 +16,9 @@ async function getProduct(id: string) {
 }
 
 async function getAllProducts() {
-  const res = await fetch(
-    `/api/products`,
-    {
-      next: { revalidate },
-    }
-  );
+  const res = await fetch(`${baseUrl}/api/products`, {
+    next: { revalidate },
+  });
 
   if (!res.ok) return [];
 
