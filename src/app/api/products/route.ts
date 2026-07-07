@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // ⚠️ confirm this path matches your folder
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
 const ALLOWED_SIZES = ["125g", "225g", "425g"];
 const ALLOWED_COMBO_SIZES = [2, 3, 4];
+const ALLOWED_ORIGIN = "https://www.achaaryaar.com";
 
 function normalizeWeights(weights: any[] = []) {
   const seen = new Set<string>();
@@ -65,6 +68,7 @@ export async function GET() {
     }, {
       headers: {
         "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
       },
     });
   } catch (error) {
@@ -73,12 +77,28 @@ export async function GET() {
         success: false,
         message: "Failed to fetch products",
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        },
+      }
     );
   }
 }
+
 export async function POST(req: Request) {
   try {
+    // 🔒 Only the admin (matched by email) can create products
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user?.email !== process.env.ADMIN_EMAIL) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401, headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
+      );
+    }
+
     await connectDB();
 
     const body = await req.json();
@@ -93,7 +113,7 @@ export async function POST(req: Request) {
             success: false,
             message: "Combo size must be 2, 3, or 4",
           },
-          { status: 400 }
+          { status: 400, headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
         );
       }
 
@@ -105,7 +125,7 @@ export async function POST(req: Request) {
             success: false,
             message: `Select exactly ${comboSize} products for this combo`,
           },
-          { status: 400 }
+          { status: 400, headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
         );
       }
 
@@ -118,7 +138,7 @@ export async function POST(req: Request) {
             success: false,
             message: "Enter a valid combo price",
           },
-          { status: 400 }
+          { status: 400, headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
         );
       }
 
@@ -136,10 +156,10 @@ export async function POST(req: Request) {
         weights: [],
       });
 
-      return NextResponse.json({
-        success: true,
-        product,
-      });
+      return NextResponse.json(
+        { success: true, product },
+        { headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
+      );
     }
 
     // Regular product — weight/price/stock variants
@@ -151,7 +171,7 @@ export async function POST(req: Request) {
           success: false,
           message: "Add at least one valid variant: 125g, 225g, or 425g",
         },
-        { status: 400 }
+        { status: 400, headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
       );
     }
 
@@ -164,10 +184,10 @@ export async function POST(req: Request) {
       weights,
     });
 
-    return NextResponse.json({
-      success: true,
-      product,
-    });
+    return NextResponse.json(
+      { success: true, product },
+      { headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
+    );
 
   } catch (error) {
     console.log(error);
@@ -177,7 +197,18 @@ export async function POST(req: Request) {
         success: false,
         message: "Failed to create product",
       },
-      { status: 500 }
+      { status: 500, headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
     );
   }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
 }
