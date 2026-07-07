@@ -130,7 +130,6 @@ export default function CheckoutPage() {
     const couponMap: Record<string, number> = {
         WELCOME10: 10,
         BIHAR10: 10,
-        ACHAAR15: 15,
     };
     const discountPercent = appliedCoupon ? couponMap[appliedCoupon] || 0 : 0;
     const discount = Math.round((subtotal * discountPercent) / 100);

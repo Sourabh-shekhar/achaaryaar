@@ -31,7 +31,6 @@ export default function CartPage() {
   const couponMap: Record<string, number> = {
     WELCOME10: 10,
     BIHAR10: 10,
-    ACHAAR15: 15,
   };
   const discountPercent = appliedCoupon ? couponMap[appliedCoupon] || 0 : 0;
   const discount = Math.round((subtotal * discountPercent) / 100);
@@ -54,7 +53,7 @@ export default function CartPage() {
     }
 
     if (!couponMap[code]) {
-      setCouponMessage("Coupon not valid. Try WELCOME10, BIHAR10, or ACHAAR15.");
+      setCouponMessage("Coupon not valid.");
       setAppliedCoupon("");
       localStorage.removeItem("achaaryaar_coupon");
       return;

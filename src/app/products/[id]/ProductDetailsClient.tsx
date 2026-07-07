@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
-   
+
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 
 type Weight = {
@@ -13,12 +13,14 @@ type Weight = {
   weight?: string;
   price: number;
   stock: number;
+  unavailable?: boolean;
 };
 
 type Product = {
   _id: string;
   name: string;
   description: string;
+  shortDescription?: string;
   category: string;
   image: string;
   images?: string[];
@@ -27,6 +29,8 @@ type Product = {
   rating?: number;
   reviewsCount?: number;
 };
+
+const STANDARD_SIZES = ["125g", "225g", "425g"];
 
 export default function ProductDetailsClient({
   product,
@@ -47,14 +51,31 @@ export default function ProductDetailsClient({
       ? product.images
       : [product.image];
 
+  // Combo packs keep their own custom sizes (e.g. "3 items", "4 items").
+  // Every other product always shows all 3 standard sizes - real ones with
+  // their actual price/stock, and any missing ones shown as "Not Available".
+  const isCombo =
+    product.category?.toLowerCase().includes("combo") ||
+    product._id.startsWith("combo-");
+
+  const displayWeights: Weight[] = isCombo
+    ? product.weights || []
+    : STANDARD_SIZES.map((size) => {
+        const existing = product.weights?.find(
+          (w) => (w.size || w.quantity || w.weight) === size
+        );
+        return existing ? { ...existing } : { size, price: 0, stock: 0, unavailable: true };
+      });
+
   const [activeImage, setActiveImage] = useState(0);
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifySubmitted, setNotifySubmitted] = useState(false);
 
-  const selectedWeight = product.weights?.[selectedIndex];
+  const selectedWeight = displayWeights[selectedIndex];
+  const isUnavailable = selectedWeight?.unavailable === true;
   const selectedWeightLabel =
     selectedWeight?.size || selectedWeight?.quantity || selectedWeight?.weight || "Size";
-  const outOfStock = !selectedWeight || selectedWeight.stock <= 0;
+  const outOfStock = !selectedWeight || selectedWeight.stock <= 0 || isUnavailable;
 
   const handleAddToCart = () => {
     if (added) {
@@ -228,9 +249,12 @@ export default function ProductDetailsClient({
             </span>
           </div>
 
-          <p className="text-[#5A5249] text-lg leading-8 mt-6">
-            {product.description}
-          </p>
+          {/* Short 2-line preview only - full description lives in the Description tab below */}
+        {product.shortDescription && (
+            <p className="text-[#5A5249] text-base mt-4 line-clamp-2">
+              {product.shortDescription}
+            </p>
+          )}
 
           {/* Variant selector */}
           <div className="mt-8">
@@ -248,12 +272,14 @@ export default function ProductDetailsClient({
                 onChange={(e) => handleSelectWeight(Number(e.target.value))}
                 className="w-full appearance-none rounded-2xl border-2 border-[#E8DDD1] bg-white px-5 py-4 pr-12 text-lg font-bold text-[#2D2A26] shadow-sm outline-none transition focus:border-[#C18A42] focus:ring-4 focus:ring-[#C18A42]/20"
               >
-                {product.weights?.map((weight, index) => {
+                {displayWeights.map((weight, index) => {
                   const label = weight.size || weight.quantity || weight.weight || "Size";
+                  const unavailable = weight.unavailable === true;
                   return (
-                    <option key={`${label}-${index}`} value={index}>
-                      {label} - ₹{weight.price}
-                      {weight.stock <= 0 ? " - Out of Stock" : ""}
+                    <option key={`${label}-${index}`} value={index} disabled={unavailable}>
+                      {unavailable
+                        ? `${label} - Not Available`
+                        : `${label} - ₹${weight.price}${weight.stock <= 0 ? " - Out of Stock" : ""}`}
                     </option>
                   );
                 })}
@@ -267,7 +293,11 @@ export default function ProductDetailsClient({
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-semibold">
-              {outOfStock ? (
+              {isUnavailable ? (
+                <span className="rounded-full bg-gray-200 px-3 py-1 text-gray-600">
+                  Not Available
+                </span>
+              ) : outOfStock ? (
                 <span className="rounded-full bg-[#6B1F1F]/10 px-3 py-1 text-[#6B1F1F]">
                   Out of Stock
                 </span>
@@ -303,14 +333,15 @@ export default function ProductDetailsClient({
           {outOfStock ? (
             <div className="mt-8 bg-white border border-[#E8DDD1] rounded-2xl p-6">
               <p className="text-[#6B1F1F] font-bold text-lg mb-1">
-                Currently Out of Stock
+                {isUnavailable ? "This Size Isn't Offered" : "Currently Out of Stock"}
               </p>
               <p className="text-[#7A6F65] text-sm mb-4">
-                Leave your email and we'll let you know the moment it's
-                back.
+                {isUnavailable
+                  ? "Please choose a different size above."
+                  : "Leave your email and we'll let you know the moment it's back."}
               </p>
 
-              {notifySubmitted ? (
+              {!isUnavailable && (notifySubmitted ? (
                 <p className="text-[#4F6B52] font-semibold">
                   ✓ You're on the list - we'll notify you!
                 </p>
@@ -334,7 +365,7 @@ export default function ProductDetailsClient({
                     Notify Me
                   </button>
                 </form>
-              )}
+              ))}
             </div>
           ) : (
             // Desktop-only inline buttons. Mobile uses the fixed bottom bar instead.
@@ -368,7 +399,6 @@ export default function ProductDetailsClient({
 
             </div>
           )}
-
           {/* Trust badges */}
           <div className="mt-10 grid grid-cols-3 gap-4 text-center">
             <div className="bg-white rounded-xl p-4 border border-[#E8DDD1]">
@@ -578,16 +608,6 @@ export default function ProductDetailsClient({
                     18 - 24 Months
                   </div>
 
-                  <div>
-                    <span
-                      className="font-bold text-[#2F5533]"
-                      style={{ fontFamily: "'Playfair Display', serif" }}
-                    >
-                      Delivery Time :
-                    </span>{" "}
-                    6 - 8 Days Across India
-                  </div>
-
                 </div>
               </div>
             </div>
@@ -595,145 +615,22 @@ export default function ProductDetailsClient({
 
           {/* Manufacturer Tab */}
           {activeTab === "manufacturer" && (
-            <div className="bg-white rounded-3xl border border-[#E8DDD1] p-10 shadow-md">
-
+            <div>
               <h2
-                className="text-4xl font-bold text-[#2D2A26] mb-10"
-                style={{ fontFamily: "'Playfair Display', serif" }}
+                className="text-3xl font-extrabold text-[#2D2A26] mb-6"
+                style={{ fontFamily: FONT_DISPLAY }}
               >
-                Manufacturer Information
+                Manufacturer Info
               </h2>
-
-              <div className="grid md:grid-cols-2 gap-8">
-
-                {/* Manufacturer */}
-                <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
-                  <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
-                    Manufacturer
-                  </p>
-
-                  <p className="text-2xl font-bold text-[#2D2A26]">
-                    AchaarYaar Foods
-                  </p>
-                </div>
-
-                {/* Packed By */}
-                <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
-                  <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
-                    Packed By
-                  </p>
-
-                  <p className="text-2xl font-bold text-[#2D2A26]">
-                    AchaarYaar Foods
-                  </p>
-                </div>
-
-                {/* Address */}
-                <div className="md:col-span-2 bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
-                  <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
-                    Address
-                  </p>
-
-                  <p className="text-lg font-semibold text-[#2D2A26] leading-8">
-                    Kanti Kunj, Tarwara More <br />
-                    Siwan, Bihar - 841226
-                  </p>
-                </div>
-
-                {/* Customer Care */}
-                <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
-                  <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
-                    Customer Care
-                  </p>
-
-                  <p className="text-lg font-semibold text-[#2D2A26]">
-                    support@achaaryaar.com
-                  </p>
-                </div>
-
-                {/* Country */}
-                <div className="bg-[#FBF7F1] p-6 rounded-2xl border border-[#E8DDD1]">
-                  <p className="text-sm uppercase tracking-widest text-[#A8742F] mb-2">
-                    Country of Origin
-                  </p>
-
-                  <p className="text-lg font-semibold text-[#2D2A26]">
-                    India
-                  </p>
-                </div>
-
-              </div>
+              <p className="text-[#5A5249] text-lg leading-8">
+                Manufactured and packaged by AchaarYaar, Siwan, Bihar. For any
+                queries regarding this product, please reach out via our
+                Contact page.
+              </p>
             </div>
           )}
         </div>
       </section>
-
-      {/* Related Products */}
-      {relatedProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-6 mt-24">
-          <h2
-            className="text-4xl font-extrabold mb-10 text-center text-[#2D2A26]"
-            style={{ fontFamily: FONT_DISPLAY }}
-          >
-            You May Also Like
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {relatedProducts.map((item) => (
-              <Link
-                key={item._id}
-                href={`/products/${item._id}`}
-                className="block bg-white rounded-3xl shadow-lg overflow-hidden border border-[#E8DDD1] hover:shadow-2xl transition-all duration-300"
-              >
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  width={420}
-                  height={256}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-64 w-full object-cover"
-                />
-
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-[#2D2A26]">
-                    {item.name}
-                  </h3>
-
-                  <p className="text-[#C18A42] font-bold text-lg mt-2">
-                    ₹{item.weights?.[0]?.price ?? "N/A"}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Mobile sticky cart bar: Add to Cart | Buy at price, side by side */}
-      {!outOfStock && selectedWeight && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#E8DDD1] bg-white px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] sm:hidden">
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={handleAddToCart}
-              className={`flex items-center justify-center py-4 rounded-xl font-bold text-base border-2 transition ${added
-                ? "border-[#4F6B52] bg-[#4F6B52] text-white"
-                : "border-[#2D2A26] bg-white text-[#2D2A26] hover:bg-[#F3EDE3]"
-                }`}
-            >
-              {added ? "Go to Cart" : "Add to cart"}
-            </button>
-
-            <button
-              onClick={handleBuyNow}
-              className="flex items-center justify-center py-4 rounded-xl font-extrabold text-base bg-[#F5C518] hover:bg-[#E6B60F] text-[#2D2A26] transition"
-            >
-              Buy at ₹{selectedWeight.price}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
-

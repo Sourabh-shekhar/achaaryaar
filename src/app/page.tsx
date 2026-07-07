@@ -6,7 +6,8 @@ import Image from "next/image";
 import { SiInstagram, SiFacebook, SiYoutube } from "react-icons/si";
 import { FiTruck, FiFeather, FiHome, FiRefreshCw, FiPhone, FiMail, FiMapPin, FiCheck, FiCopy, FiShield, FiLock, FiAward } from "react-icons/fi";
 import WhatsAppButton from "@/components/WhatsAppButton";
-// â”€â”€â”€ DESIGN TOKENS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+import { baseUrl } from "@/lib/baseUrl";
+
 const COLORS = {
   forest: "#4F6B52",
   forestMid: "#5E7A60",
@@ -49,7 +50,7 @@ const CONTACT = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// â”€â”€â”€ SHARED: visually-hidden helper (for accessible labels) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- SHARED: visually-hidden helper (for accessible labels) ---
 const srOnly: React.CSSProperties = {
   position: "absolute",
   width: 1,
@@ -62,7 +63,7 @@ const srOnly: React.CSSProperties = {
   border: 0,
 };
 
-// â”€â”€â”€ SHARED: scroll-reveal wrapper (lightweight, no dependency) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- SHARED: scroll-reveal wrapper (lightweight, no dependency) ---
 function Reveal({ children, as: Tag = "div" }: { children: React.ReactNode; as?: any }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
@@ -95,7 +96,7 @@ function Reveal({ children, as: Tag = "div" }: { children: React.ReactNode; as?:
   );
 }
 
-// â”€â”€â”€ WELCOME POPUP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//
 function WelcomePopup() {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -287,7 +288,6 @@ function WelcomePopup() {
   );
 }
 
-// â”€â”€â”€ TRUST STRIP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function TrustStrip() {
   const items = [
     { icon: <FiTruck size={15} />, text: "Free delivery above ₹499" },
@@ -318,7 +318,7 @@ function TrustStrip() {
   );
 }
 
-// â”€â”€â”€ HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
 function Hero() {
   return (
     <section className="hero-section" style={{
@@ -413,7 +413,7 @@ function Hero() {
           </div>
         </div>
 
-        {/* Right â€“ real product photo */}
+        {/* Right - real product photo */}
         <div style={{ display: "flex", justifyContent: "center", position: "relative" }}>
           <div style={{
             borderRadius: RADIUS.round,
@@ -455,7 +455,7 @@ function Hero() {
   );
 }
 
-// â”€â”€â”€ OFFER BANNER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- OFFER BANNER ---
 // Contained card-style banner (matches the Hero's rounded-card treatment)
 // instead of a full-bleed, edge-to-edge section.
 function OfferBanner() {
@@ -634,7 +634,10 @@ function OfferBanner() {
   );
 }
 
-// â”€â”€â”€ CATEGORY GRID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- CATEGORY GRID ---
+// NOTE: these tiles use curated photos/copy, but link to /products?category=<slug>.
+// For that filter to return real results, make sure products saved in the
+// admin panel use these exact category values (lowercase): mango, spicy, garlic, lemon.
 function CategoryGrid() {
   const cats = [
     {
@@ -694,7 +697,7 @@ function CategoryGrid() {
                     letterSpacing: "1px", textTransform: "uppercase",
                     padding: "0.25rem 0.7rem", borderRadius: 100,
                   }}>{c.badge}</span>
-                  <div style={{ color: "#E69A1A", fontSize: "0.78rem", margin: "0.5rem 0 0.3rem" }} aria-hidden="true">â˜…â˜…â˜…â˜…â˜…</div>
+                  <div style={{ color: "#E69A1A", fontSize: "0.78rem", margin: "0.5rem 0 0.3rem" }} aria-hidden="true">★★★★★</div>
                   <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, color: COLORS.ink, fontSize: "1.05rem", marginBottom: "0.35rem" }}>{c.name}</div>
                   <div style={{ color: COLORS.muted, fontSize: "0.82rem", lineHeight: 1.5 }}>{c.desc}</div>
                 </div>
@@ -707,13 +710,10 @@ function CategoryGrid() {
   );
 }
 
-// â”€â”€â”€ FEATURED PRODUCTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function FeaturedProducts() {
-  const products = [
-    { id: 1, photo: "/image/mango-product.png", bg: "#FFF8E7", name: "Aam ka Achaar", desc: "Classic mango pickle with mustard oil and authentic spices.", price: "₹249", weight: "425g", tag: "Bestseller" },
-    { id: 2, photo: "/image/mirchi-product.png", bg: "#FFF1EE", name: "Mirchi Achaar", desc: "Fiery green chilli pickle for bold, spicy flavour lovers.", price: "₹219", weight: "425g", tag: "Hot Pick" },
-    { id: 3, photo: "/image/lemon-product.png", bg: "#FDFCE8", name: "Nimbu ka Achaar", desc: "Tangy lemon pickle - perfect with dal and rice.", price: "₹199", weight: "425g", tag: "New" },
-  ];
+// --- FEATURED PRODUCTS (now driven by real data from /api/products) ---
+function FeaturedProducts({ products }: { products: any[] }) {
+  if (products.length === 0) return null;
+
   return (
     <section className="section-pad" style={{ background: COLORS.creamDark, padding: "clamp(3rem, 7vw, 5rem) clamp(1.25rem, 5vw, 2rem)" }}>
       <div style={{ maxWidth: 1320, margin: "0 auto" }}>
@@ -725,8 +725,8 @@ function FeaturedProducts() {
           gap: "1.5rem",
         }}>
           {products.map(p => (
-            <Reveal key={p.id}>
-              <Link href="/products" className="card-link" style={{
+            <Reveal key={p._id}>
+              <Link href={`/products/${p._id}`} className="card-link" style={{
                 background: COLORS.white,
                 borderRadius: RADIUS.xl,
                 border: `1px solid ${COLORS.sand}`,
@@ -736,36 +736,42 @@ function FeaturedProducts() {
                 height: "100%",
               }}>
                 <div style={{
-                  background: p.bg,
+                  background: COLORS.creamDark,
                   aspectRatio: "4 / 3",
                   position: "relative",
                   overflow: "hidden",
                 }}>
                   <Image
-                    src={p.photo}
+                    src={p.image}
                     alt={p.name}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
                     style={{ objectFit: "cover" }}
                     loading="lazy"
                   />
-                  <span style={{
-                    position: "absolute", top: 12, left: 12,
-                    background: COLORS.forest,
-                    color: COLORS.gold,
-                    fontSize: "0.7rem", fontWeight: 700,
-                    padding: "0.3rem 0.75rem", borderRadius: 100,
-                    letterSpacing: "0.5px",
-                    zIndex: 2,
-                  }}>{p.tag}</span>
+                  {p.featured && (
+                    <span style={{
+                      position: "absolute", top: 12, left: 12,
+                      background: COLORS.forest,
+                      color: COLORS.gold,
+                      fontSize: "0.7rem", fontWeight: 700,
+                      padding: "0.3rem 0.75rem", borderRadius: 100,
+                      letterSpacing: "0.5px",
+                      zIndex: 2,
+                    }}>Bestseller</span>
+                  )}
                 </div>
                 <div style={{ padding: "1.25rem" }}>
                   <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, color: COLORS.ink, fontSize: "1.1rem", marginBottom: "0.35rem" }}>{p.name}</div>
-                  <div style={{ color: COLORS.muted, fontSize: "0.82rem", lineHeight: 1.55, marginBottom: "1rem" }}>{p.desc}</div>
+                  <div style={{ color: COLORS.muted, fontSize: "0.82rem", lineHeight: 1.55, marginBottom: "1rem" }}>{p.description}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <div>
-                      <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, color: COLORS.forest, fontSize: "1.3rem" }}>{p.price}</span>
-                      <span style={{ color: COLORS.muted, fontSize: "0.78rem", marginLeft: 4 }}>/ {p.weight}</span>
+                      <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, color: COLORS.forest, fontSize: "1.3rem" }}>
+                        ₹{p.isCombo ? p.comboPrice : p.weights?.[0]?.price}
+                      </span>
+                      <span style={{ color: COLORS.muted, fontSize: "0.78rem", marginLeft: 4 }}>
+                        / {p.isCombo ? `${p.comboSize}-Pack` : p.weights?.[0]?.size}
+                      </span>
                     </div>
                     <span
                       style={{
@@ -791,7 +797,7 @@ function FeaturedProducts() {
   );
 }
 
-// â”€â”€â”€ ASSURANCE / TRUST BADGES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- ASSURANCE / TRUST BADGES ---
 // Replaces the previous full-width poster banner with a compact, professional
 // row of quality & service guarantees - preservative-free, secure payments, etc.
 function AssuranceSection() {
@@ -860,7 +866,7 @@ function AssuranceSection() {
   );
 }
 
-// â”€â”€â”€ PROCESS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- PROCESS ---
 function ProcessSection() {
   const steps = [
     { emoji: "🥭", num: 1, title: "Fresh Ingredients", desc: "Carefully selected fruits and vegetables from trusted local farmers." },
@@ -913,7 +919,6 @@ function ProcessSection() {
   );
 }
 
-// â”€â”€â”€ STORY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StorySection() {
   const stats = [
     { num: "2K+", label: "Happy Customers" },
@@ -957,7 +962,7 @@ function StorySection() {
   );
 }
 
-// â”€â”€â”€ FAQ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- FAQ ---
 function FAQSection() {
   const [open, setOpen] = useState<number | null>(null);
   const baseId = useId();
@@ -1008,7 +1013,7 @@ function FAQSection() {
   );
 }
 
-// â”€â”€â”€ NEWSLETTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- NEWSLETTER ---
 type SubscribeStatus = "idle" | "loading" | "success" | "error";
 
 function Newsletter() {
@@ -1099,7 +1104,7 @@ function Newsletter() {
   );
 }
 
-// â”€â”€â”€ FOOTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- FOOTER ---
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function LegacyFooter() {
   const year = new Date().getFullYear();
@@ -1177,7 +1182,7 @@ function LegacyFooter() {
   );
 }
 
-// â”€â”€â”€ SECTION HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- SECTION HEADER ---
 function SectionHeader({ eyebrow, title, sub }: { eyebrow?: string; title: string; sub?: string }) {
   return (
     <div style={{ textAlign: "center", marginBottom: "3rem" }}>
@@ -1202,8 +1207,28 @@ function SectionHeader({ eyebrow, title, sub }: { eyebrow?: string; title: strin
   );
 }
 
-// â”€â”€â”€ PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// --- PAGE ---
 export default function HomePage() {
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${baseUrl}/api/products`, { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setProducts(data.products);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+  const featured = products
+    .filter((p) => !p.isCombo)
+    .sort((a, b) => {
+      if (a.featured && !b.featured) return -1;
+      if (!a.featured && b.featured) return 1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    })
+    .slice(0, 3);
+
   return (
     <div style={{ fontFamily: FONT_BODY, background: COLORS.cream, minHeight: "100vh", overflowX: "hidden" }}>
       <a href="#main-content" className="skip-link">Skip to main content</a>
@@ -1215,7 +1240,7 @@ export default function HomePage() {
         <Hero />
         <OfferBanner />
         <CategoryGrid />
-        <FeaturedProducts />
+        <FeaturedProducts products={featured} />
         <AssuranceSection />
         <ProcessSection />
         <StorySection />
@@ -1228,7 +1253,7 @@ export default function HomePage() {
         * { box-sizing: border-box; }
         html, body { overflow-x: hidden; max-width: 100%; }
 
-        /* â”€â”€ Skip link â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* -- Skip link -- */
         .skip-link {
           position: absolute;
           left: -9999px;
@@ -1246,7 +1271,7 @@ export default function HomePage() {
           left: 0;
         }
 
-        /* â”€â”€ Global focus visibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* -- Global focus visibility -- */
         a:focus-visible,
         button:focus-visible,
         input:focus-visible {
@@ -1255,7 +1280,7 @@ export default function HomePage() {
           border-radius: 4px;
         }
 
-        /* â”€â”€ Buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* -- Buttons -- */
         .btn-primary {
           background: linear-gradient(135deg, ${COLORS.goldLight} 0%, ${COLORS.gold} 100%);
           color: ${COLORS.forest};
@@ -1368,14 +1393,14 @@ export default function HomePage() {
         .footer-icon-link { transition: color 0.15s ease, transform 0.15s ease; }
         .footer-icon-link:hover, .footer-icon-link:focus-visible { color: ${COLORS.gold} !important; transform: translateY(-2px); }
 
-        /* â”€â”€ Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* -- Cards -- */
         .card-link { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .card-link:hover, .card-link:focus-visible {
           transform: translateY(-6px);
           box-shadow: ${SHADOW.md};
         }
 
-        /* â”€â”€ Scroll reveal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* -- Scroll reveal -- */
         .reveal {
           opacity: 0;
           transform: translateY(24px);
@@ -1396,7 +1421,7 @@ export default function HomePage() {
           .reveal { opacity: 1 !important; transform: none !important; }
         }
 
-        /* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+        /* -- Responsive -- */
         @media (max-width: 640px) {
           .trust-strip { gap: 1.1rem !important; padding: 0.65rem 1rem !important; justify-content: flex-start !important; overflow-x: auto !important; }
           .trust-item { font-size: 0.72rem !important; white-space: nowrap; }
@@ -1418,4 +1443,3 @@ export default function HomePage() {
     </div>
   );
 }
-

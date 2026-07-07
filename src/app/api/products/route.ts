@@ -142,9 +142,10 @@ export async function POST(req: Request) {
         );
       }
 
-      const product = await Product.create({
+    const product = await Product.create({
         name: body.name,
         description: body.description,
+        shortDescription: body.shortDescription || "",
         category: body.category,
         image: body.image,
         featured: body.featured || false,
@@ -175,9 +176,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const product = await Product.create({
+const product = await Product.create({
       name: body.name,
       description: body.description,
+      shortDescription: body.shortDescription || "",
       category: body.category,
       image: body.image,
       featured: body.featured || false,

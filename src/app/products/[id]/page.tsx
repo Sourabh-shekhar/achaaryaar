@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation";
 import ProductDetailsClient from "./ProductDetailsClient";
 import { baseUrl } from "@/lib/baseUrl";
-
 export const revalidate = 60;
 
 async function getProduct(id: string) {
-  const res = await fetch(`${baseUrl}/api/products/${id}`, {
-    next: { revalidate },
-  });
+const res = await fetch(`${baseUrl}/api/products/${id}`, {
+  next: { revalidate },
+});
 
   if (!res.ok) return null;
 

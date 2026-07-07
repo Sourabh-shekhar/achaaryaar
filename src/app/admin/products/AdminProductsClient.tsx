@@ -11,6 +11,7 @@ export default function AdminProductsClient() {
         name: "",
         image: "",
         description: "",
+        shortDescription: "",
         category: "Pickle",
 
         weights: [
@@ -142,6 +143,7 @@ export default function AdminProductsClient() {
             name: "",
             image: "",
             description: "",
+            shortDescription: "",
             category: "Pickle",
             weights: [
                 { size: "125g", price: "", stock: "" },
@@ -292,6 +294,19 @@ export default function AdminProductsClient() {
                         required
                     />
                     <input
+                        type="text"
+                        placeholder="Short Description (shown on product page, keep it brief)"
+                        value={formData.shortDescription}
+                        onChange={(e) =>
+                            setFormData({
+                                ...formData,
+                                shortDescription: e.target.value,
+                            })
+                        }
+                        className="w-full border rounded-xl p-3 text-gray-900"
+                        maxLength={120}
+                    />
+                    <input
                         type="file"
                         accept="image/*"
                         onChange={(e) => {
@@ -319,6 +334,19 @@ export default function AdminProductsClient() {
                         }
                         className="w-full border rounded-xl p-3 text-gray-900"
                         required
+                    />
+                    <input
+                        type="text"
+                        placeholder="Short Description (shown on product page)"
+                        value={formData.shortDescription}
+                        onChange={(e) =>
+                            setFormData({
+                                ...formData,
+                                shortDescription: e.target.value,
+                            })
+                        }
+                        className="w-full border rounded-xl p-3 text-gray-900"
+                        maxLength={120}
                     />
 
                     {isCombo ? (

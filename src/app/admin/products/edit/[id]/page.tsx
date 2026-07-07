@@ -32,6 +32,7 @@ export default function EditProductPage() {
         name: "",
         image: "",
         description: "",
+        shortDescription: "",
         weights: [],
     });
 
@@ -55,6 +56,7 @@ export default function EditProductPage() {
                     name: data.product.name || "",
                     image: data.product.image || "",
                     description: data.product.description || "",
+                    shortDescription: data.product.shortDescription || "",
                     weights: normalizeEditableWeights(data.product.weights),
                 });
             }
