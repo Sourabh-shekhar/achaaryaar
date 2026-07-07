@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useCartStore } from "@/store/cartStore";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -219,7 +219,7 @@ export default function CartPage() {
                   <div className="flex justify-between">
                     <span className="text-white/80">Coupon Discount</span>
                     <span className="font-bold text-[#D9A85F]">
-                      -Rs. {discount}
+                      -₹{discount}
                     </span>
                   </div>
                 )}
@@ -243,3 +243,5 @@ export default function CartPage() {
     </div>
   );
 }
+
+

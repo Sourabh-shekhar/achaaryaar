@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { baseUrl } from "@/lib/baseUrl";
 
-const PRODUCT_SIZES = ["125g", "225g", "500g"];
+const PRODUCT_SIZES = ["125g", "225g", "425g"];
 
 function normalizeEditableWeights(weights: any[] = []) {
     return PRODUCT_SIZES.map((size) => {
@@ -260,3 +260,4 @@ export default function EditProductPage() {
         </div>
     );
 }
+

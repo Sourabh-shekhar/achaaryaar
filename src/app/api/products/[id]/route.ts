@@ -2,14 +2,15 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
-const ALLOWED_SIZES = ["125g", "225g", "500g"];
+const ALLOWED_SIZES = ["125g", "225g", "425g"];
 
 function normalizeWeights(weights: any[] = []) {
   const seen = new Set<string>();
 
   return weights
     .map((weight) => {
-      const size = weight.size || weight.quantity || weight.weight;
+      const rawSize = weight.size || weight.quantity || weight.weight;
+      const size = rawSize === "500g" ? "425g" : rawSize;
       const price = Number(weight.price);
       const stock = Number(weight.stock || 0);
 
@@ -95,7 +96,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          message: "Add at least one valid variant: 125g, 225g, or 500g",
+          message: "Add at least one valid variant: 125g, 225g, or 425g",
         },
         { status: 400 }
       );

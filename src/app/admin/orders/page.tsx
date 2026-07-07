@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -98,24 +98,24 @@ export default function AdminOrdersPage() {
             alert("Failed to delete order");
         }
     };
-    const totalOrders = orders.length;
+    const totalOrders = orde₹length;
 
-    const pendingOrders = orders.filter(
+    const pendingOrders = orde₹filter(
         (order: any) => order.status === "Pending"
     ).length;
-    const newOrders = orders.filter(
+    const newOrders = orde₹filter(
         (order: any) => order.status === "Pending" || order.status === "Processing"
     );
 
-    const deliveredOrders = orders.filter(
+    const deliveredOrders = orde₹filter(
         (order: any) => order.status === "Delivered"
     ).length;
 
-    const totalRevenue = orders.reduce(
+    const totalRevenue = orde₹reduce(
         (total: number, order: any) => total + (order.total || 0),
         0
     );
-    const filteredOrders = orders.filter((order: any) => {
+    const filteredOrders = orde₹filter((order: any) => {
 
         const matchesSearch =
             (order.fullName || "")
@@ -142,7 +142,7 @@ export default function AdminOrdersPage() {
                         {newOrderAlert.fullName || "Customer"}
                     </h2>
                     <p className="mt-1 text-sm text-gray-600">
-                        Total: Rs. {newOrderAlert.total || 0}
+                        Total: ₹{newOrderAlert.total || 0}
                     </p>
                     <button
                         type="button"
@@ -217,15 +217,15 @@ export default function AdminOrdersPage() {
                         New / Pending Orders
                     </h2>
                     <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-bold text-orange-700">
-                        {newOrders.length}
+                        {newOrde₹length}
                     </span>
                 </div>
 
-                {newOrders.length === 0 ? (
-                    <p className="text-sm text-gray-600">No new pending orders.</p>
+                {newOrde₹length === 0 ? (
+                    <p className="text-sm text-gray-600">No new pending orde₹</p>
                 ) : (
                     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                        {newOrders.slice(0, 6).map((order: any) => (
+                        {newOrde₹slice(0, 6).map((order: any) => (
                             <div
                                 key={order._id}
                                 className="rounded-xl border border-gray-200 bg-orange-50 p-4"
@@ -237,7 +237,7 @@ export default function AdminOrdersPage() {
                                     {order.phone || order.email || "No contact"}
                                 </p>
                                 <p className="mt-2 text-sm font-bold text-orange-700">
-                                    Rs. {order.total || 0} · {order.status}
+                                    ₹{order.total || 0} Â· {order.status}
                                 </p>
                             </div>
                         ))}
@@ -268,7 +268,7 @@ export default function AdminOrdersPage() {
 
             </div>
             <AdminAnalytics orders={orders} />
-            {filteredOrders.length === 0 ? (
+            {filteredOrde₹length === 0 ? (
                 <div className="bg-white rounded-2xl shadow-md p-6">
                     <p className="text-lg text-gray-700">
                         No orders found.
@@ -276,7 +276,7 @@ export default function AdminOrdersPage() {
                 </div>
             ) : (
                 <div className="space-y-6">
-                    {filteredOrders.map((order: any) => (
+                    {filteredOrde₹map((order: any) => (
                         <div
                             key={order._id}
                             className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
@@ -414,3 +414,5 @@ export default function AdminOrdersPage() {
         </div>
     );
 }
+
+

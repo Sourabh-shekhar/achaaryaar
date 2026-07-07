@@ -135,13 +135,13 @@ export default function ProductCard({
                   Starts at
                 </p>
                 <p className="text-3xl font-black text-[#6B1F1F]">
-                  {selectedData ? `Rs. ${selectedData.price}` : "Unavailable"}
+                  {selectedData ? `₹${selectedData.price}` : "Out of Stock"}
                 </p>
               </div>
 
               {!hasVariants ? (
                 <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-600">
-                  Unavailable
+                  Out of stock
                 </span>
               ) : isOutOfStock ? (
                 <span className="rounded-full bg-[#6B1F1F]/10 px-3 py-1 text-xs font-bold text-[#6B1F1F]">
@@ -157,7 +157,7 @@ export default function ProductCard({
                 </span>
               ) : (
                 <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-600">
-                  Availability unknown
+                  Out of stock
                 </span>
               )}
             </div>
@@ -213,7 +213,7 @@ export default function ProductCard({
                           <span>
                             {label}
                             <span className="ml-2 text-xs font-medium text-[#8A8074]">
-                              Rs. {weight.price}
+                              ₹{weight.price}
                             </span>
                           </span>
                           {isSelected && <FiCheck size={16} className="text-[#4F6B52]" />}
@@ -236,7 +236,7 @@ export default function ProductCard({
             >
               <FiShoppingBag size={18} />
               {!hasVariants
-                ? "Unavailable"
+                ? "Out of Stock"
                 : isOutOfStock
                   ? "Out of Stock"
                   : justAdded

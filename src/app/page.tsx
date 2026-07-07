@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
@@ -6,7 +6,7 @@ import Image from "next/image";
 import { SiInstagram, SiFacebook, SiYoutube } from "react-icons/si";
 import { FiTruck, FiFeather, FiHome, FiRefreshCw, FiPhone, FiMail, FiMapPin, FiCheck, FiCopy, FiShield, FiLock, FiAward } from "react-icons/fi";
 import WhatsAppButton from "@/components/WhatsAppButton";
-// ─── DESIGN TOKENS ────────────────────────────────────────────────────────────
+// â”€â”€â”€ DESIGN TOKENS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const COLORS = {
   forest: "#4F6B52",
   forestMid: "#5E7A60",
@@ -34,7 +34,7 @@ const SHADOW = {
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 const FONT_BODY = "system-ui, -apple-system, sans-serif";
 
-// Social + contact links — update these with your real handles/details
+// Social + contact links - update these with your real handles/details
 const SOCIAL_LINKS = {
   instagram: "https://instagram.com/achaaryaar",
   facebook: "https://www.facebook.com/share/1JYUx8xQc4/",
@@ -49,7 +49,7 @@ const CONTACT = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// ─── SHARED: visually-hidden helper (for accessible labels) ─────────────────
+// â”€â”€â”€ SHARED: visually-hidden helper (for accessible labels) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const srOnly: React.CSSProperties = {
   position: "absolute",
   width: 1,
@@ -62,7 +62,7 @@ const srOnly: React.CSSProperties = {
   border: 0,
 };
 
-// ─── SHARED: scroll-reveal wrapper (lightweight, no dependency) ─────────────
+// â”€â”€â”€ SHARED: scroll-reveal wrapper (lightweight, no dependency) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Reveal({ children, as: Tag = "div" }: { children: React.ReactNode; as?: any }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
@@ -70,7 +70,7 @@ function Reveal({ children, as: Tag = "div" }: { children: React.ReactNode; as?:
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
-    // Respect users who've asked for reduced motion — show immediately, no animation.
+    // Respect users who've asked for reduced motion - show immediately, no animation.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setVisible(true);
       return;
@@ -95,7 +95,7 @@ function Reveal({ children, as: Tag = "div" }: { children: React.ReactNode; as?:
   );
 }
 
-// ─── WELCOME POPUP ────────────────────────────────────────────────────────────
+// â”€â”€â”€ WELCOME POPUP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function WelcomePopup() {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -199,7 +199,7 @@ function WelcomePopup() {
             borderRadius: RADIUS.sm,
           }}
         >
-          ✕
+          x
         </button>
 
         <div
@@ -256,7 +256,7 @@ function WelcomePopup() {
           }}
         >
           Recipes passed down through three generations, hand-mixed in small batches
-          and matured the traditional way — pure ingredients, no shortcuts, no
+          and matured the traditional way - pure ingredients, no shortcuts, no
           preservatives.
         </p>
 
@@ -287,7 +287,7 @@ function WelcomePopup() {
   );
 }
 
-// ─── TRUST STRIP ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ TRUST STRIP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function TrustStrip() {
   const items = [
     { icon: <FiTruck size={15} />, text: "Free delivery above ₹499" },
@@ -318,7 +318,7 @@ function TrustStrip() {
   );
 }
 
-// ─── HERO ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ HERO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Hero() {
   return (
     <section className="hero-section" style={{
@@ -355,7 +355,7 @@ function Hero() {
             textTransform: "uppercase",
             marginBottom: "1.5rem",
           }}>
-            🥒 Authentic Bihar Pickles
+            Authentic Bihar Pickles
           </div>
 
           <h1 style={{
@@ -408,12 +408,12 @@ function Hero() {
             </div>
             <div>
               <div style={{ color: COLORS.white, fontWeight: 700, fontSize: "0.85rem" }}>2,000+ Happy Customers</div>
-              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem" }}>Across India ⭐⭐⭐⭐⭐</div>
+              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.78rem" }}>Across India ★★★★★</div>
             </div>
           </div>
         </div>
 
-        {/* Right – real product photo */}
+        {/* Right â€“ real product photo */}
         <div style={{ display: "flex", justifyContent: "center", position: "relative" }}>
           <div style={{
             borderRadius: RADIUS.round,
@@ -425,7 +425,7 @@ function Hero() {
           }}>
             <Image
               src="/image/jars-yellow.png"
-              alt="Achaar Yaar pickle jars — mango, lemon, garlic, green chilli, red chilli and mixed pickle"
+              alt="Achaar Yaar pickle jars - mango, lemon, garlic, green chilli, red chilli and mixed pickle"
               width={1024}
               height={1024}
               style={{ width: "100%", height: "auto", display: "block" }}
@@ -455,7 +455,7 @@ function Hero() {
   );
 }
 
-// ─── OFFER BANNER ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ OFFER BANNER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Contained card-style banner (matches the Hero's rounded-card treatment)
 // instead of a full-bleed, edge-to-edge section.
 function OfferBanner() {
@@ -467,7 +467,7 @@ function OfferBanner() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard API unavailable (older browser / insecure context) — fall back silently,
+      // Clipboard API unavailable (older browser / insecure context) - fall back silently,
       // the code is already visible on-screen for the person to type manually.
     }
   }, []);
@@ -525,7 +525,7 @@ function OfferBanner() {
                 marginBottom: "1rem",
                 boxShadow: "0 6px 16px rgba(0,0,0,0.2)",
               }}>
-                🎁 New Customers · First Batch On Us
+                New Customers · First Batch On Us
               </div>
 
               <h2 className="offer-heading" style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(1.3rem, 3.6vw, 2rem)", lineHeight: 1.15, color: COLORS.white, marginBottom: "0.5rem", fontWeight: 900 }}>
@@ -601,7 +601,7 @@ function OfferBanner() {
             }}>
               <Image
                 src="/image/discount.png"
-                alt="AchaarYaar jars — your first order, 10% off"
+                alt="AchaarYaar jars - your first order, 10% off"
                 fill
                 sizes="(max-width: 768px) 60vw, 240px"
                 style={{ objectFit: "cover", objectPosition: "center" }}
@@ -634,7 +634,7 @@ function OfferBanner() {
   );
 }
 
-// ─── CATEGORY GRID ────────────────────────────────────────────────────────────
+// â”€â”€â”€ CATEGORY GRID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function CategoryGrid() {
   const cats = [
     {
@@ -694,7 +694,7 @@ function CategoryGrid() {
                     letterSpacing: "1px", textTransform: "uppercase",
                     padding: "0.25rem 0.7rem", borderRadius: 100,
                   }}>{c.badge}</span>
-                  <div style={{ color: "#E69A1A", fontSize: "0.78rem", margin: "0.5rem 0 0.3rem" }} aria-hidden="true">★★★★★</div>
+                  <div style={{ color: "#E69A1A", fontSize: "0.78rem", margin: "0.5rem 0 0.3rem" }} aria-hidden="true">â˜…â˜…â˜…â˜…â˜…</div>
                   <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, color: COLORS.ink, fontSize: "1.05rem", marginBottom: "0.35rem" }}>{c.name}</div>
                   <div style={{ color: COLORS.muted, fontSize: "0.82rem", lineHeight: 1.5 }}>{c.desc}</div>
                 </div>
@@ -707,12 +707,12 @@ function CategoryGrid() {
   );
 }
 
-// ─── FEATURED PRODUCTS ────────────────────────────────────────────────────────
+// â”€â”€â”€ FEATURED PRODUCTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function FeaturedProducts() {
   const products = [
-    { id: 1, photo: "/image/mango-product.png", bg: "#FFF8E7", name: "Aam ka Achaar", desc: "Classic mango pickle with mustard oil and authentic spices.", price: "₹249", weight: "500g", tag: "Bestseller" },
-    { id: 2, photo: "/image/mirchi-product.png", bg: "#FFF1EE", name: "Mirchi Achaar", desc: "Fiery green chilli pickle for bold, spicy flavour lovers.", price: "₹219", weight: "500g", tag: "Hot Pick" },
-    { id: 3, photo: "/image/lemon-product.png", bg: "#FDFCE8", name: "Nimbu ka Achaar", desc: "Tangy lemon pickle — perfect with dal and rice.", price: "₹199", weight: "500g", tag: "New" },
+    { id: 1, photo: "/image/mango-product.png", bg: "#FFF8E7", name: "Aam ka Achaar", desc: "Classic mango pickle with mustard oil and authentic spices.", price: "₹249", weight: "425g", tag: "Bestseller" },
+    { id: 2, photo: "/image/mirchi-product.png", bg: "#FFF1EE", name: "Mirchi Achaar", desc: "Fiery green chilli pickle for bold, spicy flavour lovers.", price: "₹219", weight: "425g", tag: "Hot Pick" },
+    { id: 3, photo: "/image/lemon-product.png", bg: "#FDFCE8", name: "Nimbu ka Achaar", desc: "Tangy lemon pickle - perfect with dal and rice.", price: "₹199", weight: "425g", tag: "New" },
   ];
   return (
     <section className="section-pad" style={{ background: COLORS.creamDark, padding: "clamp(3rem, 7vw, 5rem) clamp(1.25rem, 5vw, 2rem)" }}>
@@ -791,12 +791,12 @@ function FeaturedProducts() {
   );
 }
 
-// ─── ASSURANCE / TRUST BADGES ─────────────────────────────────────────────────
+// â”€â”€â”€ ASSURANCE / TRUST BADGES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Replaces the previous full-width poster banner with a compact, professional
-// row of quality & service guarantees — preservative-free, secure payments, etc.
+// row of quality & service guarantees - preservative-free, secure payments, etc.
 function AssuranceSection() {
   const badges = [
-    { icon: <FiFeather size={20} />, title: "Preservative Free", desc: "Naturally cured the traditional way — nothing artificial, ever." },
+    { icon: <FiFeather size={20} />, title: "Preservative Free", desc: "Naturally cured the traditional way - nothing artificial, ever." },
     { icon: <FiLock size={20} />, title: "Secure Payments", desc: "Every transaction is encrypted and processed through trusted gateways." },
     { icon: <FiAward size={20} />, title: "Quality Assured", desc: "Small batches, checked by hand before they ever leave our kitchen." },
     { icon: <FiShield size={20} />, title: "Safe, Sealed Delivery", desc: "Tamper-proof jars, packed to survive the journey to your door." },
@@ -860,7 +860,7 @@ function AssuranceSection() {
   );
 }
 
-// ─── PROCESS ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ PROCESS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ProcessSection() {
   const steps = [
     { emoji: "🥭", num: 1, title: "Fresh Ingredients", desc: "Carefully selected fruits and vegetables from trusted local farmers." },
@@ -913,7 +913,7 @@ function ProcessSection() {
   );
 }
 
-// ─── STORY ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ STORY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StorySection() {
   const stats = [
     { num: "2K+", label: "Happy Customers" },
@@ -937,7 +937,7 @@ function StorySection() {
           </h2>
           <div style={{ width: 56, height: 3, background: COLORS.gold, borderRadius: 2, marginBottom: "1.5rem" }} aria-hidden="true" />
           <p style={{ color: "rgba(255,255,255,0.82)", lineHeight: 1.8, marginBottom: "1rem", fontSize: "0.95rem" }}>
-            AchaarYaar was born from a simple dream — to preserve and share the authentic homemade flavours of Bihar with families across India.
+            AchaarYaar was born from a simple dream - to preserve and share the authentic homemade flavours of Bihar with families across India.
           </p>
           <p style={{ color: "rgba(255,255,255,0.82)", lineHeight: 1.8, fontSize: "0.95rem" }}>
             Inspired by our grandmothers and their treasured recipes, each jar is handcrafted with patience, passion, and deep respect for tradition.
@@ -957,15 +957,15 @@ function StorySection() {
   );
 }
 
-// ─── FAQ ──────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ FAQ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function FAQSection() {
   const [open, setOpen] = useState<number | null>(null);
   const baseId = useId();
   const faqs = [
-    { q: "How are AchaarYaar pickles prepared?", a: "All our pickles are handcrafted in small batches using traditional family recipes, premium ingredients, and authentic spices — no shortcuts." },
+    { q: "How are AchaarYaar pickles prepared?", a: "All our pickles are handcrafted in small batches using traditional family recipes, premium ingredients, and authentic spices - no shortcuts." },
     { q: "Do your pickles contain preservatives?", a: "No. Our pickles are naturally preserved using traditional methods without harmful artificial preservatives." },
     { q: "Do you deliver across India?", a: "Yes. We deliver safely across India through trusted courier partners, with careful packaging to ensure jars arrive in perfect condition." },
-    { q: "What is the shelf life of your pickles?", a: "Generally 18–24 months in a cool, dry place. Once opened, refrigerate and consume within 3 months." },
+    { q: "What is the shelf life of your pickles?", a: "Generally 18-24 months in a cool, dry place. Once opened, refrigerate and consume within 3 months." },
   ];
   return (
     <section className="section-pad" id="faq" style={{ background: COLORS.cream, padding: "clamp(3rem, 7vw, 5rem) clamp(1.25rem, 5vw, 2rem)" }}>
@@ -992,7 +992,7 @@ function FAQSection() {
                     gap: "1rem",
                   }}>
                   {f.q}
-                  <span style={{ color: COLORS.forest, fontSize: "1.2rem", flexShrink: 0 }} aria-hidden="true">{isOpen ? "−" : "+"}</span>
+                  <span style={{ color: COLORS.forest, fontSize: "1.2rem", flexShrink: 0 }} aria-hidden="true">{isOpen ? "âˆ’" : "+"}</span>
                 </button>
               </h3>
               {isOpen && (
@@ -1008,7 +1008,7 @@ function FAQSection() {
   );
 }
 
-// ─── NEWSLETTER ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ NEWSLETTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type SubscribeStatus = "idle" | "loading" | "success" | "error";
 
 function Newsletter() {
@@ -1076,7 +1076,7 @@ function Newsletter() {
             className="btn-gold-solid"
             style={{ opacity: status === "loading" ? 0.7 : 1, cursor: status === "loading" ? "wait" : "pointer" }}
           >
-            {status === "loading" ? "Subscribing…" : "Subscribe"}
+            {status === "loading" ? "Subscribing..." : "Subscribe"}
           </button>
         </form>
         <div role="status" aria-live="polite" style={{
@@ -1099,7 +1099,7 @@ function Newsletter() {
   );
 }
 
-// ─── FOOTER ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ FOOTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function LegacyFooter() {
   const year = new Date().getFullYear();
@@ -1127,7 +1127,7 @@ function LegacyFooter() {
               Handcrafted pickles from the heart of Bihar. Traditional recipes, pure ingredients, delivered to your door.
             </p>
 
-            {/* Contact details — builds trust for a real, reachable business */}
+            {/* Contact details - builds trust for a real, reachable business */}
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.25rem" }}>
               <a href={`tel:${CONTACT.phone.replace(/\s/g, "")}`} className="footer-link" style={{ display: "flex", alignItems: "center", gap: "0.6rem", color: "rgba(255,255,255,0.65)", textDecoration: "none", fontSize: "0.82rem" }}>
                 <FiPhone size={14} color={COLORS.gold} aria-hidden="true" /> {CONTACT.phone}
@@ -1170,14 +1170,14 @@ function LegacyFooter() {
           color: "rgba(255,255,255,0.5)",
           fontSize: "0.75rem",
         }}>
-          © {year} AchaarYaar. All rights reserved. Made with ❤️ in Bihar.
+          © {year} AchaarYaar. All rights reserved. Made with love in Bihar.
         </div>
       </div>
     </footer>
   );
 }
 
-// ─── SECTION HEADER ───────────────────────────────────────────────────────────
+// â”€â”€â”€ SECTION HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function SectionHeader({ eyebrow, title, sub }: { eyebrow?: string; title: string; sub?: string }) {
   return (
     <div style={{ textAlign: "center", marginBottom: "3rem" }}>
@@ -1202,7 +1202,7 @@ function SectionHeader({ eyebrow, title, sub }: { eyebrow?: string; title: strin
   );
 }
 
-// ─── PAGE ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function HomePage() {
   return (
     <div style={{ fontFamily: FONT_BODY, background: COLORS.cream, minHeight: "100vh", overflowX: "hidden" }}>
@@ -1228,7 +1228,7 @@ export default function HomePage() {
         * { box-sizing: border-box; }
         html, body { overflow-x: hidden; max-width: 100%; }
 
-        /* ── Skip link ─────────────────────────────────────────────── */
+        /* â”€â”€ Skip link â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .skip-link {
           position: absolute;
           left: -9999px;
@@ -1246,7 +1246,7 @@ export default function HomePage() {
           left: 0;
         }
 
-        /* ── Global focus visibility ───────────────────────────────── */
+        /* â”€â”€ Global focus visibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         a:focus-visible,
         button:focus-visible,
         input:focus-visible {
@@ -1255,7 +1255,7 @@ export default function HomePage() {
           border-radius: 4px;
         }
 
-        /* ── Buttons ────────────────────────────────────────────────── */
+        /* â”€â”€ Buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .btn-primary {
           background: linear-gradient(135deg, ${COLORS.goldLight} 0%, ${COLORS.gold} 100%);
           color: ${COLORS.forest};
@@ -1368,14 +1368,14 @@ export default function HomePage() {
         .footer-icon-link { transition: color 0.15s ease, transform 0.15s ease; }
         .footer-icon-link:hover, .footer-icon-link:focus-visible { color: ${COLORS.gold} !important; transform: translateY(-2px); }
 
-        /* ── Cards ──────────────────────────────────────────────────── */
+        /* â”€â”€ Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .card-link { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .card-link:hover, .card-link:focus-visible {
           transform: translateY(-6px);
           box-shadow: ${SHADOW.md};
         }
 
-        /* ── Scroll reveal ──────────────────────────────────────────── */
+        /* â”€â”€ Scroll reveal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         .reveal {
           opacity: 0;
           transform: translateY(24px);
@@ -1396,7 +1396,7 @@ export default function HomePage() {
           .reveal { opacity: 1 !important; transform: none !important; }
         }
 
-        /* ── Responsive ─────────────────────────────────────────────── */
+        /* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
         @media (max-width: 640px) {
           .trust-strip { gap: 1.1rem !important; padding: 0.65rem 1rem !important; justify-content: flex-start !important; overflow-x: auto !important; }
           .trust-item { font-size: 0.72rem !important; white-space: nowrap; }
@@ -1418,3 +1418,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+

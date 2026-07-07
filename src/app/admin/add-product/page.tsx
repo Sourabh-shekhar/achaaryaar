@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { baseUrl } from "@/lib/baseUrl";
@@ -17,8 +17,8 @@ export default function AddProductPage() {
         price225: "",
         stock225: "",
 
-        price500: "",
-        stock500: "",
+        price425: "",
+        stock425: "",
     });
 
     const handleChange = (
@@ -82,11 +82,11 @@ export default function AddProductPage() {
             });
         }
 
-        if (form.price500) {
+        if (form.price425) {
             weights.push({
-                size: "500g",
-                price: Number(form.price500),
-                stock: Number(form.stock500),
+                size: "425g",
+                price: Number(form.price425),
+                stock: Number(form.stock425),
             });
         }
 
@@ -124,8 +124,8 @@ export default function AddProductPage() {
                 price225: "",
                 stock225: "",
 
-                price500: "",
-                stock500: "",
+                price425: "",
+                stock425: "",
             });
         } else {
             alert("Failed to add product");
@@ -235,23 +235,23 @@ export default function AddProductPage() {
 
                     <div className="border p-5 rounded-xl">
                         <h2 className="font-bold text-xl mb-4 text-black">
-                            500g Variant
+                            425g Variant
                         </h2>
 
                         <input
                             type="number"
-                            name="price500"
+                            name="price425"
                             placeholder="Price"
-                            value={form.price500}
+                            value={form.price425}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl mb-3 text-black"
                         />
 
                         <input
                             type="number"
-                            name="stock500"
+                            name="stock425"
                             placeholder="Stock"
-                            value={form.stock500}
+                            value={form.stock425}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl text-black"
                         />
@@ -282,3 +282,4 @@ export default function AddProductPage() {
         </div>
     );
 }
+

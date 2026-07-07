@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import { baseUrl } from "@/lib/baseUrl";
 
@@ -221,7 +221,6 @@ export default async function ProductsPage({
             method="GET"
             style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}
           >
-            {category && <input type="hidden" name="category" value={category} />}
             <input
               type="text"
               name="search"
@@ -239,6 +238,27 @@ export default async function ProductsPage({
                 background: COLORS.cream,
               }}
             />
+            <select
+              name="category"
+              defaultValue={category}
+              style={{
+                minWidth: 170,
+                padding: "0.85rem 1rem",
+                borderRadius: 12,
+                border: `1px solid ${COLORS.sand}`,
+                fontSize: "0.95rem",
+                outline: "none",
+                color: COLORS.ink,
+                background: COLORS.cream,
+                fontWeight: 800,
+              }}
+            >
+              {CATEGORY_LINKS.map((item) => (
+                <option key={item.label} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
             <button
               type="submit"
               style={{
@@ -255,41 +275,6 @@ export default async function ProductsPage({
               Search
             </button>
           </form>
-
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "0.65rem",
-              marginTop: "1rem",
-            }}
-          >
-            {CATEGORY_LINKS.map((item) => {
-              const isActive = item.value === category;
-              const href = item.value
-                ? `/products?category=${item.value}${search ? `&search=${search}` : ""}`
-                : `/products${search ? `?search=${search}` : ""}`;
-
-              return (
-                <Link
-                  key={item.label}
-                  href={href}
-                  style={{
-                    border: `1px solid ${isActive ? COLORS.forest : COLORS.sand}`,
-                    background: isActive ? COLORS.forest : COLORS.cream,
-                    color: isActive ? "#fff" : COLORS.ink,
-                    borderRadius: 999,
-                    padding: "0.55rem 0.9rem",
-                    fontSize: "0.82rem",
-                    fontWeight: 800,
-                    textDecoration: "none",
-                  }}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
         </section>
 
         <section
@@ -305,7 +290,7 @@ export default async function ProductsPage({
             { value: `${inStockCount}`, label: "currently in stock" },
             { value: `${featuredCount}`, label: "featured favourites" },
             {
-              value: startingPrice ? `Rs. ${startingPrice}` : "Soon",
+              value: startingPrice ? `₹${startingPrice}` : "Soon",
               label: "starting price",
             },
           ].map((item) => (
@@ -425,3 +410,6 @@ export default async function ProductsPage({
     </div>
   );
 }
+
+
+

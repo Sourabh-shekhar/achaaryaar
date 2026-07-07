@@ -260,7 +260,7 @@ export default function ProductDetailsClient({
                     </p>
                     {!isOut && (
                       <p className="text-[#C18A42] font-bold mt-1">
-                        Rs. {weight.price}
+                        ₹{weight.price}
                       </p>
                     )}
                     {isOut ? (
@@ -286,7 +286,7 @@ export default function ProductDetailsClient({
           {selectedWeight && !outOfStock && (
             <div className="mt-6 flex items-baseline gap-3">
               <span className="text-3xl font-extrabold text-[#2D2A26]">
-                Rs. {selectedWeight.price}
+                ₹{selectedWeight.price}
               </span>
               <span className="text-[#7A6F65]">
                 / {selectedWeightLabel}
@@ -695,7 +695,7 @@ export default function ProductDetailsClient({
                   </h3>
 
                   <p className="text-[#C18A42] font-bold text-lg mt-2">
-                    Rs. {item.weights?.[0]?.price ?? "N/A"}
+                    ₹{item.weights?.[0]?.price ?? "N/A"}
                   </p>
                 </div>
               </Link>
@@ -722,7 +722,7 @@ export default function ProductDetailsClient({
               onClick={handleBuyNow}
               className="flex items-center justify-center py-4 rounded-xl font-extrabold text-base bg-[#F5C518] hover:bg-[#E6B60F] text-[#2D2A26] transition"
             >
-              Buy at Rs. {selectedWeight.price}
+              Buy at ₹{selectedWeight.price}
             </button>
           </div>
         </div>
@@ -730,3 +730,4 @@ export default function ProductDetailsClient({
     </div>
   );
 }
+

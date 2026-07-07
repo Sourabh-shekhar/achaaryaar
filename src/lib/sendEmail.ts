@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+﻿import nodemailer from "nodemailer";
 
 export async function sendOrderConfirmation(
   email: string,
@@ -101,8 +101,9 @@ export async function sendAdminOrderNotification(order: {
         <p><strong>Email:</strong> ${order.email || "N/A"}</p>
         <p><strong>Phone:</strong> ${order.phone || "N/A"}</p>
         <p><strong>Payment:</strong> ${order.paymentMethod || "N/A"}</p>
-        <p><strong>Total:</strong> Rs. ${order.total || 0}</p>
+        <p><strong>Total:</strong> ₹${order.total || 0}</p>
       </div>
     `,
   });
 }
+

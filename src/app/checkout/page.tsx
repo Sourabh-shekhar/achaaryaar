@@ -775,7 +775,7 @@ export default function CheckoutPage() {
                                             </span>
 
                                             <span className="font-medium text-[#2D2A26]">
-                                                Rs. {item.price}
+                                                ₹{item.price}
                                             </span>
                                         </div>
                                     ))}
@@ -785,14 +785,14 @@ export default function CheckoutPage() {
                                     <div className="flex justify-between">
                                         <span className="text-[#7A6F65]">Subtotal</span>
                                         <span className="font-semibold text-[#2D2A26]">
-                                            Rs. {subtotal}
+                                            ₹{subtotal}
                                         </span>
                                     </div>
 
                                     <div className="flex justify-between">
                                         <span className="text-[#7A6F65]">Shipping</span>
                                         <span className="font-semibold text-[#2D2A26]">
-                                            Rs. {shipping}
+                                            ₹{shipping}
                                         </span>
                                     </div>
 
@@ -802,7 +802,7 @@ export default function CheckoutPage() {
                                                 Coupon ({appliedCoupon})
                                             </span>
                                             <span className="font-semibold text-[#4F6B52]">
-                                                -Rs. {discount}
+                                                -₹{discount}
                                             </span>
                                         </div>
                                     )}
@@ -812,7 +812,7 @@ export default function CheckoutPage() {
                                     <div className="flex justify-between text-xl font-bold">
                                         <span className="text-[#2D2A26]">Total</span>
                                         <span className="text-[#C18A42]">
-                                            Rs. {total}
+                                            ₹{total}
                                         </span>
                                     </div>
 
@@ -850,3 +850,4 @@ export default function CheckoutPage() {
         </div>
     );
 }
+

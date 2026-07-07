@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -98,7 +98,7 @@ export default function ProfilePage() {
   }, [status]);
 
   const totalSpent = useMemo(
-    () => orders.reduce((sum, order) => sum + Number(order.total || 0), 0),
+    () => orde₹reduce((sum, order) => sum + Number(order.total || 0), 0),
     [orders]
   );
 
@@ -225,7 +225,7 @@ export default function ProfilePage() {
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-[#FBF7F1] p-4">
                   <p className="text-2xl font-black text-[#6B1F1F]">
-                    {orders.length}
+                    {orde₹length}
                   </p>
                   <p className="text-xs font-bold uppercase tracking-wide text-[#6F6258]">
                     Orders
@@ -233,7 +233,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="rounded-2xl bg-[#FBF7F1] p-4">
                   <p className="text-2xl font-black text-[#6B1F1F]">
-                    Rs. {totalSpent}
+                    ₹{totalSpent}
                   </p>
                   <p className="text-xs font-bold uppercase tracking-wide text-[#6F6258]">
                     Total spent
@@ -247,7 +247,7 @@ export default function ProfilePage() {
                 Order history
               </h2>
 
-              {orders.length === 0 ? (
+              {orde₹length === 0 ? (
                 <div className="rounded-2xl bg-[#FBF7F1] p-8 text-center">
                   <p className="font-bold text-[#2D2A26]">No orders yet</p>
                   <p className="mt-2 text-sm text-[#5C5249]">
@@ -262,7 +262,7 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="space-y-5">
-                  {orders.map((order) => {
+                  {orde₹map((order) => {
                     const activeStep = getStepIndex(order.status);
 
                     return (
@@ -348,7 +348,7 @@ export default function ProfilePage() {
                                 </span>
                               </span>
                               <span className="font-bold text-[#6B1F1F]">
-                                Rs. {item.price || 0}
+                                ₹{item.price || 0}
                               </span>
                             </div>
                           ))}
@@ -356,7 +356,7 @@ export default function ProfilePage() {
 
                         <div className="mt-4 flex justify-between border-t border-[#E8DDD1] pt-4 font-black">
                           <span>Total</span>
-                          <span className="text-[#6B1F1F]">Rs. {order.total || 0}</span>
+                          <span className="text-[#6B1F1F]">₹{order.total || 0}</span>
                         </div>
                       </article>
                     );
@@ -370,3 +370,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+
