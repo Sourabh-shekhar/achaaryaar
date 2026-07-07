@@ -61,11 +61,11 @@ export default function ProductDetailsClient({
   const displayWeights: Weight[] = isCombo
     ? product.weights || []
     : STANDARD_SIZES.map((size) => {
-        const existing = product.weights?.find(
-          (w) => (w.size || w.quantity || w.weight) === size
-        );
-        return existing ? { ...existing } : { size, price: 0, stock: 0, unavailable: true };
-      });
+      const existing = product.weights?.find(
+        (w) => (w.size || w.quantity || w.weight) === size
+      );
+      return existing ? { ...existing } : { size, price: 0, stock: 0, unavailable: true };
+    });
 
   const [activeImage, setActiveImage] = useState(0);
   const [notifyEmail, setNotifyEmail] = useState("");
@@ -149,7 +149,6 @@ export default function ProductDetailsClient({
 
     setTimeout(() => setToast(null), 3000);
   };
-
   const rating = product.rating ?? 0;
   const reviewsCount = product.reviewsCount ?? 0;
   const fullStars = Math.round(rating);
@@ -161,6 +160,29 @@ export default function ProductDetailsClient({
         <div className="fixed top-6 right-6 z-50 bg-[#3D5640] text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-[fadeIn_0.2s_ease-out]">
           <span className="text-[#C18A42] text-xl">✓</span>
           <span className="font-semibold">{toast}</span>
+        </div>
+      )}
+      {/* Mobile Sticky Cart Bar — Flipkart-style: Add to Cart | Buy at ₹price */}
+      {!outOfStock && selectedWeight && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#E8DDD1] bg-white px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] sm:hidden">
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={handleAddToCart}
+              className={`flex items-center justify-center py-4 rounded-xl font-bold text-base border-2 transition ${added
+                ? "border-[#4F6B52] bg-[#4F6B52] text-white"
+                : "border-[#2D2A26] bg-white text-[#2D2A26] hover:bg-[#F3EDE3]"
+                }`}
+            >
+              {added ? "Go to Cart" : "Add to cart"}
+            </button>
+
+            <button
+              onClick={handleBuyNow}
+              className="flex items-center justify-center py-4 rounded-xl font-extrabold text-base bg-[#F5C518] hover:bg-[#E6B60F] text-[#2D2A26] transition"
+            >
+              Buy at ₹{selectedWeight.price}
+            </button>
+          </div>
         </div>
       )}
       {/* Breadcrumb */}
@@ -250,7 +272,7 @@ export default function ProductDetailsClient({
           </div>
 
           {/* Short 2-line preview only - full description lives in the Description tab below */}
-        {product.shortDescription && (
+          {product.shortDescription && (
             <p className="text-[#5A5249] text-base mt-4 line-clamp-2">
               {product.shortDescription}
             </p>
@@ -369,7 +391,7 @@ export default function ProductDetailsClient({
             </div>
           ) : (
             // Desktop-only inline buttons. Mobile uses the fixed bottom bar instead.
-            <div className="hidden sm:grid grid-cols-3 gap-3 mt-8">
+            <div className="hidden sm:grid grid-cols-2 gap-3 mt-8">
 
               <button
                 onClick={handleAddToCart}
@@ -381,13 +403,6 @@ export default function ProductDetailsClient({
               >
                 {added ? "Go to Cart" : "Add to Cart"}
               </button>
-
-              <Link
-                href="/cart"
-                className="flex items-center justify-center rounded-2xl border-2 border-[#3D5640] bg-white py-4 text-lg font-bold text-[#3D5640] shadow-md transition hover:bg-[#F3EDE3]"
-              >
-                Go to Cart
-              </Link>
 
               <button
                 onClick={handleBuyNow}
@@ -559,11 +574,11 @@ export default function ProductDetailsClient({
               {/* Description */}
               <div className="max-w-5xl mx-auto">
 
-                <p className="text-[#3B342D] text-xl leading-[3rem] mb-8 font-medium">
+                <p className="text-[#3B342D] text-base leading-7 sm:text-lg sm:leading-8 md:text-xl md:leading-10 mb-8 font-medium">
                   {product.description}
                 </p>
 
-                <div className="space-y-6 text-xl leading-10 text-[#3B342D]">
+                <div className="space-y-6 text-base leading-7 sm:text-lg sm:leading-8 md:text-xl md:leading-10 text-[#3B342D]">
 
                   <div>
                     <span
@@ -617,16 +632,60 @@ export default function ProductDetailsClient({
           {activeTab === "manufacturer" && (
             <div>
               <h2
-                className="text-3xl font-extrabold text-[#2D2A26] mb-6"
+                className="text-3xl font-extrabold text-[#2D2A26] mb-8"
                 style={{ fontFamily: FONT_DISPLAY }}
               >
                 Manufacturer Info
               </h2>
-              <p className="text-[#5A5249] text-lg leading-8">
-                Manufactured and packaged by AchaarYaar, Siwan, Bihar. For any
-                queries regarding this product, please reach out via our
-                Contact page.
-              </p>
+
+              <div className="divide-y divide-[#E8DDD1] border-t border-b border-[#E8DDD1]">
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 py-4">
+                  <p className="text-sm font-semibold text-[#7A6F65]">
+                    Manufacturer Name &amp; Address
+                  </p>
+                  <p className="sm:col-span-2 font-medium text-[#2D2A26]">
+                    AchaarYaar, Siwan, Bihar, India
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 py-4">
+                  <p className="text-sm font-semibold text-[#7A6F65]">
+                    Packer Name &amp; Address
+                  </p>
+                  <p className="sm:col-span-2 font-medium text-[#2D2A26]">
+                    AchaarYaar, Siwan, Bihar, India
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 py-4">
+                  <p className="text-sm font-semibold text-[#7A6F65]">
+                    Importer Name &amp; Address
+                  </p>
+                  <p className="sm:col-span-2 font-medium text-[#2D2A26]">
+                    Not Applicable
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 py-4">
+                  <p className="text-sm font-semibold text-[#7A6F65]">
+                    Country of Origin
+                  </p>
+                  <p className="sm:col-span-2 font-medium text-[#2D2A26]">
+                    India
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 py-4">
+                  <p className="text-sm font-semibold text-[#7A6F65]">
+                    Customer Care
+                  </p>
+                  <p className="sm:col-span-2 font-medium text-[#2D2A26]">
+                    For any queries regarding this product, please reach out
+                    via our Contact page.
+                  </p>
+                </div>
+
+              </div>
             </div>
           )}
         </div>
