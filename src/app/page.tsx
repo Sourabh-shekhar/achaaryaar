@@ -45,7 +45,7 @@ const SOCIAL_LINKS = {
 const CONTACT = {
   phone: "+91 75619 72501",
   email: "support@achaaryaar.com",
-  location: "Siwan, Bihar, Patna",
+  location: "Siwan, Bihar, India",
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

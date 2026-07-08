@@ -68,10 +68,10 @@ export default function Footer() {
               href="mailto:support@achaaryaar.com"
               className="flex items-center gap-3 transition hover:text-[#D9A85F]"
             >
-              <FiMail className="text-[#D9A85F]" /> support@achaaryaar.com
+              <FiMail className="text-[#D9A85F]"/> support@achaaryaar.com
             </a>
             <p className="flex items-center gap-3">
-              <FiMapPin className="text-[#D9A85F]" /> Siwan,Bihar, India
+              <FiMapPin className="text-[#D9A85F]" /> Siwan, Bihar, India
             </p>
           </div>
 
