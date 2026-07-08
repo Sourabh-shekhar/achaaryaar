@@ -84,17 +84,28 @@ export default function InvoicePage() {
         .font-display { font-family: 'Fraunces', serif; }
         .font-body { font-family: 'Inter', sans-serif; }
         @media print {
-          @page { margin: 12mm; }
+          @page { size: A4; margin: 8mm; }
+          html, body { height: auto !important; }
+          .invoice-box { break-inside: avoid; page-break-inside: avoid; }
         }
       `}</style>
 
-      <div className="font-body max-w-3xl mx-auto bg-[#FBF8F0] text-[#2A2A24] shadow-xl print:shadow-none rounded-sm overflow-hidden border border-[#E3DAC1]">
+      <div className="invoice-box font-body max-w-3xl mx-auto bg-[#FBF8F0] text-[#2A2A24] shadow-xl print:shadow-none rounded-sm overflow-hidden border border-[#E3DAC1]">
         {/* Top accent band */}
         <div className="h-2 bg-[#3E4A2E] print:h-1" />
 
-        <div className="p-10 sm:p-12">
+        <div className="p-10 sm:p-12 print:p-6">
+          {/* Logo */}
+          <div className="flex justify-center mb-6 print:mb-4">
+            <img
+              src="/logo.png"
+              alt="AchaarYaar"
+              className="h-16 w-auto object-contain print:h-14"
+            />
+          </div>
+
           {/* Header */}
-          <div className="flex items-start justify-between pb-8 border-b-2 border-dashed border-[#D8CBA5]">
+          <div className="flex items-start justify-between pb-6 print:pb-4 border-b-2 border-dashed border-[#D8CBA5]">
             <div>
               <h1 className="font-display text-4xl font-semibold text-[#3E4A2E] tracking-tight">
                 AchaarYaar
