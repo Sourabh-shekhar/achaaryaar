@@ -71,7 +71,7 @@ export default function Footer() {
               <FiMail className="text-[#D9A85F]" /> support@achaaryaar.com
             </a>
             <p className="flex items-center gap-3">
-              <FiMapPin className="text-[#D9A85F]" /> Bihar, India
+              <FiMapPin className="text-[#D9A85F]" /> Siwan,Bihar, India
             </p>
           </div>
 
