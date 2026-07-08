@@ -1,7 +1,7 @@
 "use client";
- 
+
 import { useState } from "react";
-    
+
 export default function ContactPage() {
   const [loading, setLoading] = useState(false);
  
@@ -10,7 +10,7 @@ export default function ContactPage() {
     email: "",
     message: "",
   });
- 
+
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
