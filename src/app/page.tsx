@@ -424,7 +424,7 @@ function Hero() {
             border: "1px solid rgba(255,255,255,0.12)",
           }}>
             <Image
-              src="/image/jars-yellow.png"
+              src="/image/jars-pic.png"
               alt="Achaar Yaar pickle jars - mango, lemon, garlic, green chilli, red chilli and mixed pickle"
               width={1024}
               height={1024}
