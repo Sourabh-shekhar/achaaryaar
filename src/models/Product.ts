@@ -44,9 +44,19 @@ const ProductSchema = new Schema(
       required: true,
     },
 
+    // Cover image — kept for anything that still expects a single image
+    // (e.g. combo item previews, cart line items).
     image: {
       type: String,
       required: true,
+    },
+
+    // Full photo set for the product's swipeable gallery. Falls back to
+    // just [image] on the frontend for any product saved before this field
+    // existed, so it's optional here rather than required.
+    images: {
+      type: [String],
+      default: [],
     },
 
     weights: [

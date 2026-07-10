@@ -1,10 +1,7 @@
 ﻿"use client";
 
-import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FiShoppingBag, FiStar, FiChevronDown, FiCheck } from "react-icons/fi";
-import { useCartStore } from "@/store/cartStore";
+import { FiArrowUpRight, FiStar } from "react-icons/fi";
 
 type ProductProps = {
   _id: string;
@@ -29,67 +26,22 @@ export default function ProductCard({
   href,
   weights,
 }: ProductProps) {
-  const router = useRouter();
   const hasVariants = Array.isArray(weights) && weights.length > 0;
   const getVariantLabel = (weight?: ProductProps["weights"][number]) =>
     weight?.size || weight?.quantity || weight?.weight || "Size";
 
-  const [selectedVariant, setSelectedVariant] =
-    useState(getVariantLabel(weights?.[0]));
-  const [justAdded, setJustAdded] = useState(false);
-  const [isSizeOpen, setIsSizeOpen] = useState(false);
-  const sizeDropdownRef = useRef<HTMLDivElement | null>(null);
+  // The card no longer lets you pick a weight or add to cart directly —
+  // that happens on the product page. Here we just default to the first
+  // in-stock variant (or, if everything's out of stock, the first variant)
+  // so the price/stock badge still has something to show.
+  const defaultVariant =
+    weights?.find((w) => w.stock > 0) ?? weights?.[0] ?? null;
 
-  // Close the custom size dropdown on outside click / Escape
-  useEffect(() => {
-    if (!isSizeOpen) return;
-
-    function onClickOutside(e: MouseEvent) {
-      if (sizeDropdownRef.current && !sizeDropdownRef.current.contains(e.target as Node)) {
-        setIsSizeOpen(false);
-      }
-    }
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setIsSizeOpen(false);
-    }
-
-    document.addEventListener("mousedown", onClickOutside);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", onClickOutside);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [isSizeOpen]);
-
-  const selectedData =
-    weights?.find((w) => getVariantLabel(w) === selectedVariant) ??
-    weights?.[0] ??
-    null;
-
-  const addItem = useCartStore((state) => state.addItem);
+  const selectedData = defaultVariant;
 
   const stock = selectedData?.stock;
   const isOutOfStock = hasVariants && stock === 0;
   const isLowStock = typeof stock === "number" && stock > 0 && stock <= 5;
-
-  function handleAddToCart(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (justAdded) {
-      router.push("/cart");
-      return;
-    }
-    if (!selectedData || isOutOfStock) return;
-
-    addItem({
-      _id,
-      name,
-      price: selectedData.price,
-      selectedVariant,
-    });
-
-    setJustAdded(true);
-  }
 
   return (
     <Link href={href || `/products/${_id}`} className="group block h-full">
@@ -162,87 +114,24 @@ export default function ProductCard({
               )}
             </div>
 
-            {hasVariants && (
-              <div className="relative mb-3" ref={sizeDropdownRef}>
-                <button
-                  type="button"
-                  aria-haspopup="listbox"
-                  aria-expanded={isSizeOpen}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsSizeOpen((open) => !open);
-                  }}
-                  className={`flex w-full items-center justify-between rounded-xl border bg-[#FBF7F1] p-3 font-semibold text-[#2D2A26] outline-none transition focus:ring-2 focus:ring-[#4F6B52]/20 ${
-                    isSizeOpen ? "border-[#4F6B52]" : "border-[#E8DDD1]"
-                  }`}
-                >
-                  <span>{selectedVariant || getVariantLabel(selectedData)}</span>
-                  <FiChevronDown
-                    size={16}
-                    className={`text-[#4F6B52] transition-transform duration-200 ${isSizeOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-
-                {isSizeOpen && (
-                  <div
-                    role="listbox"
-                    className="absolute left-0 right-0 top-[calc(100%+6px)] z-20 max-h-56 overflow-y-auto rounded-xl border border-[#E8DDD1] bg-white shadow-[0_16px_36px_rgba(28,61,46,0.18)]"
-                  >
-                    {weights?.map((weight, index) => {
-                      const label = getVariantLabel(weight);
-                      const isSelected = label === selectedVariant;
-                      return (
-                        <button
-                          key={`${weight.size}-${index}`}
-                          type="button"
-                          role="option"
-                          aria-selected={isSelected}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setSelectedVariant(label);
-                            setIsSizeOpen(false);
-                          }}
-                          className={`flex w-full items-center justify-between px-4 py-3 text-left font-semibold transition-colors ${
-                            isSelected
-                              ? "bg-[#F3E7DA] text-[#4F6B52]"
-                              : "text-[#2D2A26] hover:bg-[#FBF7F1]"
-                          }`}
-                        >
-                          <span>
-                            {label}
-                            <span className="ml-2 text-xs font-medium text-[#8A8074]">
-                              ₹{weight.price}
-                            </span>
-                          </span>
-                          {isSelected && <FiCheck size={16} className="text-[#4F6B52]" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-
-            <button
-              disabled={!selectedData || isOutOfStock}
-              onClick={handleAddToCart}
+            <span
               className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-extrabold transition duration-300 ${
-                !selectedData || isOutOfStock
-                  ? "cursor-not-allowed bg-gray-300 text-gray-600"
-                  : "bg-[#1877F2] text-white hover:bg-[#166FE5]"
+                !hasVariants || isOutOfStock
+                  ? "bg-gray-300 text-gray-600"
+                  : "bg-[#3D5640] text-white group-hover:bg-[#2F4533]"
               }`}
             >
-              <FiShoppingBag size={18} />
               {!hasVariants
                 ? "Out of Stock"
                 : isOutOfStock
                   ? "Out of Stock"
-                  : justAdded
-                    ? "Go to Cart"
-                    : "Add to Cart"}
-            </button>
+                  : (
+                    <>
+                      View Product
+                      <FiArrowUpRight size={18} />
+                    </>
+                  )}
+            </span>
           </div>
         </div>
       </article>

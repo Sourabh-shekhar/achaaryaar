@@ -30,6 +30,22 @@ function normalizeWeights(weights: any[] = []) {
     });
 }
 
+// Keeps only real, non-empty string URLs, and makes sure the cover `image`
+// is always included as the first entry even if the client didn't send it
+// as part of the `images` array. Mirrors the same helper in the POST route
+// (src/app/api/products/route.ts) so create and update stay consistent.
+function normalizeImages(images: any[] = [], fallbackCover?: string) {
+  const cleaned = (images || []).filter(
+    (url) => typeof url === "string" && url.trim().length > 0
+  );
+
+  if (fallbackCover && !cleaned.includes(fallbackCover)) {
+    return [fallbackCover, ...cleaned];
+  }
+
+  return cleaned;
+}
+
 // Get Single Product
 export async function GET(
   req: Request,
@@ -87,8 +103,24 @@ export async function PATCH(
     const { id } = await context.params;
     const body = await req.json();
 
+    const images = normalizeImages(body.images, body.image);
+
+    if (images.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Keep at least one product photo",
+        },
+        { status: 400 }
+      );
+    }
+
     const nextBody = {
       ...body,
+      images,
+      // Cover image always mirrors the first photo so anything still
+      // reading the single `image` field stays in sync.
+      image: images[0],
       weights: normalizeWeights(body.weights),
     };
 

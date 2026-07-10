@@ -51,6 +51,21 @@ function normalizeComboItems(comboItems: any[] = [], comboSize: number) {
   return items;
 }
 
+// Keeps only real, non-empty string URLs, and makes sure the cover `image`
+// is always included as the first entry even if the client didn't send it
+// as part of the `images` array.
+function normalizeImages(images: any[] = [], fallbackCover?: string) {
+  const cleaned = (images || []).filter(
+    (url) => typeof url === "string" && url.trim().length > 0
+  );
+
+  if (fallbackCover && !cleaned.includes(fallbackCover)) {
+    return [fallbackCover, ...cleaned];
+  }
+
+  return cleaned;
+}
+
 export async function GET() {
   try {
     await connectDB();
@@ -102,6 +117,7 @@ export async function POST(req: Request) {
     await connectDB();
 
     const body = await req.json();
+    const images = normalizeImages(body.images, body.image);
 
     // Combo pack — fixed set of existing products bundled at one price.
     if (body.isCombo) {
@@ -148,6 +164,7 @@ export async function POST(req: Request) {
         shortDescription: body.shortDescription || "",
         category: body.category,
         image: body.image,
+        images,
         featured: body.featured || false,
         isCombo: true,
         comboSize,
@@ -182,6 +199,7 @@ const product = await Product.create({
       shortDescription: body.shortDescription || "",
       category: body.category,
       image: body.image,
+      images,
       featured: body.featured || false,
       weights,
     });

@@ -350,7 +350,7 @@ export default function AboutPage() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid md:grid-cols-4 gap-8">
               {[
-                { value: "4.8K+", label: "Happy Customers" },
+                { value: "2K+", label: "Happy Customers" },
                 { value: "100%", label: "Handcrafted Feel" },
                 { value: "0", label: "Shortcuts in Taste" },
                 { value: "50+", label: "Cities Covered" },

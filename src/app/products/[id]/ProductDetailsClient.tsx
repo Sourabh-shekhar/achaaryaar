@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
@@ -70,6 +70,68 @@ export default function ProductDetailsClient({
   const [activeImage, setActiveImage] = useState(0);
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifySubmitted, setNotifySubmitted] = useState(false);
+
+  // --- Swipe navigation for the main product image (mobile-style, no buttons) ---
+  const touchStartX = useRef<number | null>(null);
+  const touchDeltaX = useRef(0);
+  const SWIPE_THRESHOLD = 40; // px — minimum drag distance to count as a swipe
+
+  const goToImage = (index: number) => {
+    if (gallery.length === 0) return;
+    const clamped = Math.max(0, Math.min(gallery.length - 1, index));
+    setActiveImage(clamped);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchDeltaX.current = 0;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    touchDeltaX.current = e.touches[0].clientX - touchStartX.current;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null) return;
+    if (touchDeltaX.current <= -SWIPE_THRESHOLD) {
+      // swiped left -> next image
+      goToImage(activeImage + 1);
+    } else if (touchDeltaX.current >= SWIPE_THRESHOLD) {
+      // swiped right -> previous image
+      goToImage(activeImage - 1);
+    }
+    touchStartX.current = null;
+    touchDeltaX.current = 0;
+  };
+
+  // Mouse-drag equivalent so swipe also works with a trackpad/mouse on desktop
+  const mouseStartX = useRef<number | null>(null);
+  const mouseDeltaX = useRef(0);
+  const isDragging = useRef(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    mouseStartX.current = e.clientX;
+    mouseDeltaX.current = 0;
+    isDragging.current = true;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || mouseStartX.current === null) return;
+    mouseDeltaX.current = e.clientX - mouseStartX.current;
+  };
+
+  const endDrag = () => {
+    if (!isDragging.current) return;
+    if (mouseDeltaX.current <= -SWIPE_THRESHOLD) {
+      goToImage(activeImage + 1);
+    } else if (mouseDeltaX.current >= SWIPE_THRESHOLD) {
+      goToImage(activeImage - 1);
+    }
+    isDragging.current = false;
+    mouseStartX.current = null;
+    mouseDeltaX.current = 0;
+  };
 
   const selectedWeight = displayWeights[selectedIndex];
   const isUnavailable = selectedWeight?.unavailable === true;
@@ -200,7 +262,16 @@ export default function ProductDetailsClient({
       <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16">
         {/* Image gallery */}
         <div>
-          <div className="rounded-3xl shadow-xl overflow-hidden bg-white border border-[#E8DDD1]">
+          <div
+            className="relative rounded-3xl shadow-xl overflow-hidden bg-white border border-[#E8DDD1] select-none"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={endDrag}
+            onMouseLeave={endDrag}
+          >
             <img
               src={gallery[activeImage]}
               alt={product.name}
@@ -208,8 +279,16 @@ export default function ProductDetailsClient({
               height={480}
               loading="eager"
               decoding="async"
-              className="w-full h-[480px] object-cover"
+              draggable={false}
+              className="w-full h-[480px] object-cover pointer-events-none"
             />
+
+            {/* Non-interactive page counter — just feedback, not a control */}
+            {gallery.length > 1 && (
+              <span className="absolute bottom-4 right-4 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white">
+                {activeImage + 1} / {gallery.length}
+              </span>
+            )}
           </div>
 
           {gallery.length > 1 && (

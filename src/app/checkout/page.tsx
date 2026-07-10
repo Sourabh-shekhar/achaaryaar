@@ -127,7 +127,8 @@ export default function CheckoutPage() {
         return total + price * item.quantity;
     }, 0);
 
-    const shipping = items.length > 0 ? 50 : 0;
+    // Free delivery on orders of ₹499 or more
+    const shipping = items.length === 0 ? 0 : subtotal >= 499 ? 0 : 50;
     const couponMap: Record<string, number> = {
         WELCOME10: 10,
         BIHAR10: 10,
@@ -794,9 +795,15 @@ export default function CheckoutPage() {
                                     <div className="flex justify-between">
                                         <span className="text-[#7A6F65]">Shipping</span>
                                         <span className="font-semibold text-[#2D2A26]">
-                                            ₹{shipping}
+                                            {shipping === 0 ? "Free" : `₹${shipping}`}
                                         </span>
                                     </div>
+
+                                    {subtotal > 0 && subtotal < 499 && (
+                                        <p className="text-xs text-[#4F6B52] -mt-2">
+                                            Add ₹{499 - subtotal} more to get free delivery
+                                        </p>
+                                    )}
 
                                     {discount > 0 && (
                                         <div className="flex justify-between">
@@ -838,7 +845,7 @@ export default function CheckoutPage() {
                                     )}
 
                                     <p className="text-center text-xs text-[#9C9388] mt-2">
-                                        ðŸ”’ Secure checkout Â· Handcrafted with care in Bihar
+                                        🔒 Secure checkout · Handcrafted with care in Bihar
                                     </p>
                                 </div>
                             </>
@@ -852,4 +859,3 @@ export default function CheckoutPage() {
         </div>
     );
 }
-

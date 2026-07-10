@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 export default function AdminProductsClient() {
     const router = useRouter();
-    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
@@ -86,34 +86,55 @@ export default function AdminProductsClient() {
         }
     };
 
-    // Uploads the selected file to /api/upload and returns the hosted
-    // image URL. Returns null (and alerts) if nothing was selected or
-    // the upload fails, so handleSubmit can bail out cleanly.
-    const uploadImage = async (): Promise<string | null> => {
-        if (!imageFile) {
-            alert("Please choose a product image");
+    // Handle selecting one or more photos. Appends to whatever's already
+    // picked rather than replacing, so people can add photos in a few passes.
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const picked = Array.from(e.target.files);
+        setImageFiles((current) => [...current, ...picked]);
+        // reset the input so selecting the same file again still fires onChange
+        e.target.value = "";
+    };
+
+    const removeSelectedImage = (index: number) => {
+        setImageFiles((current) => current.filter((_, i) => i !== index));
+    };
+
+    // Uploads every selected file to /api/upload and returns the array of
+    // hosted image URLs, in the same order they were selected. Returns null
+    // (and alerts) if nothing was selected or any upload fails, so
+    // handleSubmit can bail out cleanly.
+    const uploadImages = async (): Promise<string[] | null> => {
+        if (imageFiles.length === 0) {
+            alert("Please choose at least one product image");
             return null;
         }
 
         setIsUploading(true);
 
         try {
-            const uploadData = new FormData();
-            uploadData.append("file", imageFile);
+            const urls: string[] = [];
 
-            const res = await fetch(`/api/upload`, {
-                method: "POST",
-                body: uploadData,
-            });
+            for (const file of imageFiles) {
+                const uploadData = new FormData();
+                uploadData.append("file", file);
 
-            const data = await res.json();
+                const res = await fetch(`/api/upload`, {
+                    method: "POST",
+                    body: uploadData,
+                });
 
-            if (!data.success || !data.url) {
-                alert(data.message || "Image upload failed");
-                return null;
+                const data = await res.json();
+
+                if (!data.success || !data.url) {
+                    alert(data.message || "One of the image uploads failed");
+                    return null;
+                }
+
+                urls.push(data.url as string);
             }
 
-            return data.url as string;
+            return urls;
         } catch (error) {
             console.error(error);
             alert("Image upload failed");
@@ -151,7 +172,7 @@ export default function AdminProductsClient() {
                 { size: "425g", price: "", stock: "" },
             ],
         });
-        setImageFile(null);
+        setImageFiles([]);
         setIsCombo(false);
         setComboSize(3);
         setSelectedProductIds([]);
@@ -162,8 +183,13 @@ export default function AdminProductsClient() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const imageUrl = await uploadImage();
-        if (!imageUrl) return;
+        const imageUrls = await uploadImages();
+        if (!imageUrls) return;
+
+        // Keep a single `image` field (the first photo) for any part of the
+        // app that still expects one cover image, plus the full `images`
+        // array for the swipeable gallery on the product page.
+        const coverImage = imageUrls[0];
 
         if (isCombo) {
             if (selectedProductIds.length !== comboSize) {
@@ -192,7 +218,8 @@ export default function AdminProductsClient() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         name: formData.name,
-                        image: imageUrl,
+                        image: coverImage,
+                        images: imageUrls,
                         description: formData.description,
                         category: formData.category,
                         isCombo: true,
@@ -228,7 +255,8 @@ export default function AdminProductsClient() {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    image: imageUrl,
+                    image: coverImage,
+                    images: imageUrls,
                     weights: formData.weights
                         .filter((v) => v.price !== "" && Number(v.price) > 0)
                         .map((v) => ({
@@ -306,21 +334,48 @@ export default function AdminProductsClient() {
                         className="w-full border rounded-xl p-3 text-gray-900"
                         maxLength={120}
                     />
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                            if (e.target.files?.[0]) {
-                                setImageFile(e.target.files[0]);
-                            }
-                        }}
-                        className="w-full border rounded-xl p-3 text-gray-900"
-                    />
-                    {imageFile && (
-                        <p className="text-sm text-gray-600 -mt-3">
-                            Selected: {imageFile.name}
-                        </p>
-                    )}
+
+                    {/* Photos — multiple allowed. First photo picked becomes the
+                        cover image; all of them power the swipeable gallery on
+                        the product page. */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Product Photos (first photo = cover image)
+                        </label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleImageSelect}
+                            className="w-full border rounded-xl p-3 text-gray-900"
+                        />
+
+                        {imageFiles.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-3">
+                                {imageFiles.map((file, index) => (
+                                    <div key={`${file.name}-${index}`} className="relative">
+                                        <img
+                                            src={URL.createObjectURL(file)}
+                                            alt={file.name}
+                                            className="w-20 h-20 object-cover rounded-lg border"
+                                        />
+                                        {index === 0 && (
+                                            <span className="absolute -top-2 -left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                Cover
+                                            </span>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeSelectedImage(index)}
+                                            className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
                     <textarea
                         placeholder="Description"
@@ -334,19 +389,6 @@ export default function AdminProductsClient() {
                         }
                         className="w-full border rounded-xl p-3 text-gray-900"
                         required
-                    />
-                    <input
-                        type="text"
-                        placeholder="Short Description (shown on product page)"
-                        value={formData.shortDescription}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                shortDescription: e.target.value,
-                            })
-                        }
-                        className="w-full border rounded-xl p-3 text-gray-900"
-                        maxLength={120}
                     />
 
                     {isCombo ? (
@@ -515,7 +557,7 @@ export default function AdminProductsClient() {
                         className="bg-orange-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-700 disabled:opacity-50"
                     >
                         {isUploading
-                            ? "Uploading image..."
+                            ? "Uploading images..."
                             : isCombo
                                 ? "Add Combo Pack"
                                 : "Add Product"}

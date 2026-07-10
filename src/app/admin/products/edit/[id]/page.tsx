@@ -26,7 +26,10 @@ export default function EditProductPage() {
 
     const id = params?.id;
 
-    const [imageFile, setImageFile] = useState<File | null>(null);
+    // Photos already saved on the product (fetched from the server).
+    const [existingImages, setExistingImages] = useState<string[]>([]);
+    // New photos picked in this session, not uploaded yet.
+    const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
 
     const [formData, setFormData] = useState<any>({
         name: "",
@@ -59,22 +62,48 @@ export default function EditProductPage() {
                     shortDescription: data.product.shortDescription || "",
                     weights: normalizeEditableWeights(data.product.weights),
                 });
+
+                // Fall back to the single `image` field for older products
+                // that were saved before multi-photo support existed.
+                const productImages =
+                    Array.isArray(data.product.images) && data.product.images.length > 0
+                        ? data.product.images
+                        : data.product.image
+                            ? [data.product.image]
+                            : [];
+
+                setExistingImages(productImages);
             }
         } catch (error) {
             console.error(error);
         }
     };
 
+    const handleNewImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const picked = Array.from(e.target.files);
+        setNewImageFiles((current) => [...current, ...picked]);
+        e.target.value = "";
+    };
+
+    const removeExistingImage = (index: number) => {
+        setExistingImages((current) => current.filter((_, i) => i !== index));
+    };
+
+    const removeNewImage = (index: number) => {
+        setNewImageFiles((current) => current.filter((_, i) => i !== index));
+    };
+
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
 
-
         try {
-            let imageUrl = formData.image;
+            // Upload any newly-added photos first.
+            const uploadedUrls: string[] = [];
 
-            if (imageFile) {
+            for (const file of newImageFiles) {
                 const data = new FormData();
-                data.append("file", imageFile);
+                data.append("file", file);
 
                 const uploadRes = await fetch(`/api/upload`, {
                     method: "POST",
@@ -83,8 +112,21 @@ export default function EditProductPage() {
 
                 const uploadData = await uploadRes.json();
 
-                imageUrl = uploadData.image;
+                if (!uploadData.success || !(uploadData.url || uploadData.image)) {
+                    alert("One of the image uploads failed");
+                    return;
+                }
+
+                uploadedUrls.push(uploadData.url || uploadData.image);
             }
+
+            const allImages = [...existingImages, ...uploadedUrls];
+
+            if (allImages.length === 0) {
+                alert("Please keep at least one product photo");
+                return;
+            }
+
             const res = await fetch(
                 `/api/products/${id}`,
                 {
@@ -94,7 +136,8 @@ export default function EditProductPage() {
                     },
                     body: JSON.stringify({
                         ...formData,
-                        image: imageUrl,
+                        image: allImages[0],
+                        images: allImages,
                         weights: formData.weights
                             .filter((v: any) => v.price !== "" && Number(v.price) > 0)
                             .map((v: any) => ({
@@ -145,19 +188,6 @@ export default function EditProductPage() {
                         required
                     />
 
-                    {/* <input
-            type="number"
-            placeholder="Price"
-            value={formData.price}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                price: e.target.value,
-              })
-            }
-            className="w-full border rounded-xl p-3 text-gray-900"
-            required
-          /> */}
                     {formData.weights.map((variant: any, index: number) => (
                         <div key={index} className="border p-4 rounded-xl">
 
@@ -198,29 +228,75 @@ export default function EditProductPage() {
                             />
                         </div>
                     ))}
-                    {/* <input
-                        type="text"
-                        placeholder="Image URL"
-                        value={formData.image}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                image: e.target.value,
-                            })
-                        }
-                        className="w-full border rounded-xl p-3 text-gray-900"
-                        required
-                    /> */}
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                            if (e.target.files?.[0]) {
-                                setImageFile(e.target.files[0]);
-                            }
-                        }}
-                        className="w-full border rounded-xl p-3 text-gray-900"
-                    />
+
+                    {/* Existing photos — remove any that no longer apply */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Current Photos
+                        </label>
+
+                        {existingImages.length === 0 ? (
+                            <p className="text-sm text-gray-500 mb-2">
+                                No photos yet — add some below.
+                            </p>
+                        ) : (
+                            <div className="flex flex-wrap gap-3 mb-2">
+                                {existingImages.map((url, index) => (
+                                    <div key={`${url}-${index}`} className="relative">
+                                        <img
+                                            src={url}
+                                            alt={`Product photo ${index + 1}`}
+                                            className="w-20 h-20 object-cover rounded-lg border"
+                                        />
+                                        {index === 0 && (
+                                            <span className="absolute -top-2 -left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                Cover
+                                            </span>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeExistingImage(index)}
+                                            className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <label className="block text-sm font-semibold text-gray-700 mb-2 mt-4">
+                            Add New Photos
+                        </label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleNewImageSelect}
+                            className="w-full border rounded-xl p-3 text-gray-900"
+                        />
+
+                        {newImageFiles.length > 0 && (
+                            <div className="flex flex-wrap gap-3 mt-3">
+                                {newImageFiles.map((file, index) => (
+                                    <div key={`${file.name}-${index}`} className="relative">
+                                        <img
+                                            src={URL.createObjectURL(file)}
+                                            alt={file.name}
+                                            className="w-20 h-20 object-cover rounded-lg border"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeNewImage(index)}
+                                            className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
                     <textarea
                         rows={4}
@@ -236,20 +312,6 @@ export default function EditProductPage() {
                         required
                     />
 
-                    {/* <input
-            type="number"
-            placeholder="Stock Quantity"
-            value={formData.stock}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                stock: e.target.value,
-              })
-            }
-            className="w-full border rounded-xl p-3 text-gray-900"
-            required
-          /> */}
-
                     <button
                         type="submit"
                         className="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700"
@@ -262,4 +324,3 @@ export default function EditProductPage() {
         </div>
     );
 }
-
