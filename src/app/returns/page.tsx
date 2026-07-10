@@ -110,7 +110,7 @@ export default function ReturnsPage() {
           </li>
           <li style={{ marginBottom: "0.5rem" }}>
             The product shows signs of <strong style={{ color: COLORS.ink }}>spoilage, contamination, or a
-            quality defect</strong> that isn&apos;t due to improper storage after delivery.
+            quality defect </strong> that isn&apos;t due to improper storage after delivery.
           </li>
           <li>
             Your order <strong style={{ color: COLORS.ink }}>never arrived</strong> and tracking confirms it was
