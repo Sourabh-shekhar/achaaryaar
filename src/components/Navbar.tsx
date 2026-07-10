@@ -1,292 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import Link from "next/link";
-// import { useCartStore } from "@/store/cartStore";
-// import { useRouter, usePathname } from "next/navigation";
-// import { useSession, signOut } from "next-auth/react";
-
-// const MOBILE_NAV_ITEMS = [
-//   { label: "Home", href: "/" },
-//   { label: "Shop", href: "/products" },
-//   { label: "About Us", href: "/about" },
-//   { label: "Contact", href: "/contact" },
-// ];
-
-// export default function Navbar() {
-//   const [isOpen, setIsOpen] = useState(false);
-//   const [search, setSearch] = useState("");
-//   const [mounted, setMounted] = useState(false);
-
-//   const router = useRouter();
-//   const pathname = usePathname();
-//   const { data: session } = useSession();
-
-//   const items = useCartStore((state) => state.items);
-
-//   const totalItems = items.reduce(
-//     (total, item) => total + item.quantity,
-//     0
-//   );
-
-//   useEffect(() => {
-//     setMounted(true);
-//   }, []);
-
-//   // Lock body scroll while the mobile side menu is open
-//   useEffect(() => {
-//     document.body.style.overflow = isOpen ? "hidden" : "";
-//     return () => {
-//       document.body.style.overflow = "";
-//     };
-//   }, [isOpen]);
-
-//   const handleSearch = (
-//     e: React.KeyboardEvent<HTMLInputElement>
-//   ) => {
-//     if (e.key === "Enter" && search.trim()) {
-//       router.push(`/products?search=${search}`);
-//     }
-//   };
-
-//   return (<nav className="sticky top-0 z-50 bg-white shadow-lg border-b border-gray-200">
-
-//     <div className="max-w-7xl mx-auto px-6 py-4">
-
-//       <div className="flex items-center justify-between">
-
-//         {/* Logo */}
-//         <Link href="/">
-//           <img
-//             src="/image/logo.png"
-//             alt="Logo"
-//             className="h-16 w-auto"
-//           />
-//         </Link>
-
-//         {/* Search */}
-//         <div className="hidden lg:block relative">
-//           <input
-//             type="text"
-//             placeholder="Search pickles..."
-//             value={search}
-//             onChange={(e) => setSearch(e.target.value)}
-//             onKeyDown={handleSearch}
-//             className="w-full max-w-md px-5 py-3 border border-gray-300 rounded-2xl bg-white text-gray-900 placeholder:text-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-//           />
-//         </div>
-
-//         {/* Desktop Menu */}
-//         <div className="hidden md:flex items-center gap-8">
-
-//           <Link
-//             href="/"
-//             className="text-black font-bold text-xl hover:text-orange-600 transition"
-//           >
-//             Home
-//           </Link>
-
-//           <Link
-//             href="/products"
-//             className="text-black font-bold text-xl hover:text-orange-600 transition"
-//           >
-//             Shop
-//           </Link>
-
-//           <Link
-//             href="/about"
-//             className="text-black font-bold text-xl hover:text-orange-600 transition"
-//           >
-//             About Us
-//           </Link>
-
-//           <Link
-//             href="/contact"
-//             className="text-black font-bold text-xl hover:text-orange-600 transition"
-//           >
-//             Contact
-//           </Link>
-
-//           {/* Profile */}
-//           <div className="relative group">
-
-//             <button className="text-3xl">
-//               👤
-//             </button>
-
-//             <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-xl border hidden group-hover:block p-4 z-50">
-//               {!mounted ? null : session ? (
-//                 <>
-//                   <p className="text-center text-gray-700">
-//                     👋 Welcome
-//                   </p>
-
-//                   <p className="text-center text-orange-600 font-bold mb-4">
-//                     {session.user?.name}
-//                   </p>
-
-//                   <button
-//                     onClick={() => signOut()}
-//                     className="w-full bg-red-600 text-white py-2 rounded-xl"
-//                   >
-//                     Logout
-//                   </button>
-//                 </>
-//               ) : (
-//                 <div className="space-y-3">
-//                   <Link
-//                     href="/login"
-//                     className="block text-center border border-gray-300 py-3 rounded-xl text-gray-900 font-semibold hover:bg-gray-100"
-//                   >
-//                     Login
-//                   </Link>
-
-//                   <Link
-//                     href="/signup"
-//                     className="block text-center bg-orange-600 text-white py-2 rounded-xl"
-//                   >
-//                     Sign Up
-//                   </Link>
-//                 </div>
-//               )}
-
-//             </div>
-//           </div>
-
-//           {/* Cart */}
-//           <Link
-//             href="/cart"
-//             className="relative bg-orange-600 text-white px-6 py-3 rounded-2xl"
-//           >
-//             🛒 Cart
-
-//             {mounted && totalItems > 0 && (
-//               <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center">
-//                 {totalItems}
-//               </span>
-//             )}
-//           </Link>
-
-//         </div>
-
-//         {/* Mobile Hamburger */}
-//         <button
-//           onClick={() => setIsOpen(!isOpen)}
-//           aria-label={isOpen ? "Close menu" : "Open menu"}
-//           aria-expanded={isOpen}
-//           className="md:hidden text-4xl text-black font-bold p-2"
-//         >
-//           {isOpen ? "✕" : "☰"}
-//         </button>
-
-//       </div>
-
-//       {/* Mobile Menu */}
-//       {/* Overlay */}
-//       {isOpen && (
-//         <div
-//           className="fixed inset-0 bg-black/50 z-40 md:hidden"
-//           onClick={() => setIsOpen(false)}
-//         />
-//       )}
-
-//       {/* Mobile Side Menu */}
-//       <div
-//         className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white shadow-2xl z-[60] transform transition-transform duration-300 ease-in-out md:hidden ${isOpen ? "translate-x-0" : "translate-x-full"
-//           }`}
-//       >
-//         <div className="p-6 text-gray-900">
-//           <div className="mb-8">
-//             <img
-//               src="/image/logo.png"
-//               alt="Achaaryaar"
-//               className="h-14 w-auto"
-//             />
-//           </div>
-
-//           <div className="flex justify-end">
-//             <button
-//               onClick={() => setIsOpen(false)}
-//               aria-label="Close menu"
-//               className="text-4xl text-black"
-//             >
-//               ✕
-//             </button>
-//           </div>
-
-//           <div className="flex flex-col gap-2 mt-8">
-
-//             {MOBILE_NAV_ITEMS.map((item) => {
-//               const isActive = pathname === item.href;
-//               return (
-//                 <Link
-//                   key={item.label}
-//                   href={item.href}
-//                   onClick={() => setIsOpen(false)}
-//                   className={`uppercase tracking-wide text-lg font-semibold px-4 py-3 rounded-xl transition-colors duration-150 active:bg-orange-100
-//                     ${isActive
-//                       ? "bg-orange-50 text-orange-600"
-//                       : "bg-white text-gray-900 hover:bg-gray-100 hover:text-orange-600"
-//                     }`}
-//                 >
-//                   {item.label}
-//                 </Link>
-//               );
-//             })}
-
-//             <Link
-//               href="/cart"
-//               onClick={() => setIsOpen(false)}
-//               className={`uppercase tracking-wide text-lg font-semibold px-4 py-3 rounded-xl transition-colors duration-150 active:bg-orange-100
-//                 ${pathname === "/cart"
-//                   ? "bg-orange-50 text-orange-600"
-//                   : "bg-white text-gray-900 hover:bg-gray-100 hover:text-orange-600"
-//                 }`}
-//             >
-//               Cart ({mounted ? totalItems : 0})
-//             </Link>
-//           </div>
-
-//           {!mounted ? null : session ? (
-//             <div className="mt-10 border-t pt-6">
-//               <p className="text-gray-700">👋 Welcome</p>
-//               <p className="font-bold text-orange-600">
-//                 {session.user?.name}
-//               </p>
-
-//               <button
-//                 onClick={() => signOut()}
-//                 className="w-full mt-5 bg-red-600 text-white py-3 rounded-xl"
-//               >
-//                 Logout
-//               </button>
-//             </div>
-//           ) : (
-//             <div className="mt-10 flex flex-col gap-4">
-//               <Link
-//                 href="/login"
-//                 onClick={() => setIsOpen(false)}
-//                 className="text-center border border-gray-300 py-3 rounded-xl text-gray-900 font-semibold"
-//               >
-//                 Login
-//               </Link>
-
-//               <Link
-//                 href="/signup"
-//                 onClick={() => setIsOpen(false)}
-//                 className="text-center bg-orange-600 text-white py-3 rounded-xl"
-//               >
-//                 Sign Up
-//               </Link>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   </nav>
-
-//   );
-// }
 
 "use client";
 
@@ -322,7 +33,7 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
-
+  const isHome = pathname === "/";
   const items = useCartStore((state) => state.items);
 
   const totalItems = items.reduce(
@@ -371,7 +82,12 @@ export default function Navbar() {
               <span className="bihar-brand-origin">Bihar Origin</span>
             </span>
           </Link>
-
+          {/* Skyline strip — home page, mobile only */}
+          {isHome && (
+            <div className="flex md:hidden items-center flex-1 min-w-0 translate-y-1.5">
+              <MobileSkylineStrip />
+            </div>
+          )}
           {/* Search */}
           <div className="hidden lg:flex flex-1 max-w-md relative">
             <FiSearch
@@ -624,5 +340,185 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
+  );
+}
+function MobileSkylineStrip() {
+  const S = 1.15; // uniform size for every landmark
+
+  return (
+    <svg
+      viewBox="0 0 1660 150"
+      className="h-10 w-full"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <g fill={SAND}>
+
+        {/* 1 ── Golghar ── */}
+        <g transform={`translate(-55,0) scale(${S})`}>
+          <path d="M40 112 C40 70, 55 34, 100 30 C145 34, 160 70, 160 112 Z" />
+          <path d="M48 100 Q100 78 152 100" stroke={CREAM} strokeWidth="2" fill="none" />
+          <path d="M44 84 Q100 62 156 84" stroke={CREAM} strokeWidth="2" fill="none" />
+          <rect x="97" y="16" width="6" height="16" />
+          <circle cx="100" cy="14" r="4" />
+          <path d="M88 112 L88 96 Q100 84 112 96 L112 112 Z" fill={CREAM} />
+        </g>
+
+        {/* 2 ── Griddhakuta Hill / Vulture's Peak ── */}
+        <g transform={`translate(110.5,0) scale(${S})`}>
+          <path d="M10 112 L28 62 L45 42 L55 30 L65 44 L80 62 L95 112 Z" />
+          <rect x="48" y="20" width="14" height="12" fill={SAND} />
+          <circle cx="55" cy="16" r="4" fill={GOLD} />
+          <line x1="55" y1="8" x2="55" y2="20" stroke={SAND} strokeWidth="1.5" />
+          <path d="M20 100 Q45 78 75 100" stroke={CREAM} strokeWidth="1.5" fill="none" opacity="0.6" />
+        </g>
+
+        {/* 3 ── Ashoka Pillar ── */}
+        <g transform={`translate(23,0) scale(${S})`}>
+          <rect x="218" y="40" width="8" height="66" rx="1" />
+          <path d="M212 40 Q222 24 232 40 Z" />
+          <rect x="208" y="38" width="28" height="5" />
+          <path d="M214 20 q4 -8 8 0 q4 -6 8 0 q3 4 -1 8 q-6 4 -14 0 q-3 -3 -1 -8 Z" />
+          <rect x="204" y="106" width="36" height="8" />
+        </g>
+
+        {/* 4 ── Rajgir Cyclopean Wall ── */}
+        <g transform={`translate(326.5,0) scale(${S})`}>
+          <path d="M5 112 L20 82 L35 92 L50 66 L65 86 L80 76 L95 112 Z" />
+          <path
+            d="M18 84 L18 76 L25 76 L25 84 M32 90 L32 82 L39 82 L39 90
+               M48 68 L48 60 L55 60 L55 68 M63 88 L63 80 L70 80 L70 88"
+            fill="none" stroke={CREAM} strokeWidth="2"
+          />
+        </g>
+
+        {/* 5 ── Mahabodhi Temple ── */}
+        <g transform={`translate(98.7,0) scale(${S})`}>
+          <path d="M300 112 L300 96 L312 96 L312 82 L322 82 L322 66
+                   L332 66 L332 48 L342 48 L342 24 L352 40 L352 66
+                   L362 66 L362 82 L372 82 L372 96 L384 96 L384 112 Z" />
+          <circle cx="342" cy="18" r="4" />
+          <rect x="339" y="10" width="6" height="8" />
+          <rect x="312" y="70" width="60" height="2" fill={CREAM} />
+          <rect x="316" y="86" width="52" height="2" fill={CREAM} />
+          <path d="M332 112 L332 100 Q342 92 352 100 L352 112 Z" fill={CREAM} />
+        </g>
+
+        {/* 6 ── Nalanda ruins ── */}
+        <g transform={`translate(42.25,0) scale(${S})`}>
+          <rect x="430" y="90" width="110" height="22" />
+          <path d="M440 90 Q452 68 464 90 Z" fill={CREAM} />
+          <path d="M470 90 Q482 68 494 90 Z" fill={CREAM} />
+          <path d="M500 90 Q512 68 524 90 Z" fill={CREAM} />
+          <rect x="430" y="108" width="110" height="4" opacity="0.6" />
+          <path d="M430 90 L440 84 L452 90 L462 82 L474 90 L486 85 L498 90 L510 83 L524 90 L540 90"
+                fill="none" stroke={SAND} strokeWidth="10" strokeLinejoin="round" />
+        </g>
+
+        {/* 7 ── Munger Fort ── */}
+        <g transform={`translate(650.5,0) scale(${S})`}>
+          <rect x="15" y="90" width="70" height="22" />
+          <rect x="15" y="82" width="8" height="8" /><rect x="31" y="82" width="8" height="8" />
+          <rect x="47" y="82" width="8" height="8" /><rect x="63" y="82" width="8" height="8" />
+          <rect x="40" y="58" width="20" height="30" />
+          <path d="M40 58 Q50 42 60 58 Z" />
+          <rect x="49" y="36" width="2" height="8" />
+          <rect x="10" y="112" width="80" height="3" opacity="0.35" />
+          <path d="M42 112 L42 100 Q50 92 58 100 L58 112 Z" fill={CREAM} />
+        </g>
+
+        {/* 8 ── Patna Sahib Gurudwara ── */}
+        <g transform={`translate(97.25,0) scale(${S})`}>
+          <rect x="590" y="86" width="70" height="26" />
+          <path d="M590 86 Q625 44 660 86 Z" />
+          <rect x="621" y="30" width="8" height="16" />
+          <circle cx="625" cy="26" r="4" fill={GOLD} />
+          <path d="M600 82 Q625 50 650 82" stroke={CREAM} strokeWidth="1.5" fill="none" />
+          <circle cx="598" cy="80" r="7" />
+          <rect x="594" y="80" width="8" height="8" />
+          <circle cx="652" cy="80" r="7" />
+          <rect x="648" y="80" width="8" height="8" />
+          <path d="M614 112 L614 98 Q625 88 636 98 L636 112 Z" fill={CREAM} />
+        </g>
+
+        {/* 9 ── Kesaria Stupa ── */}
+        <g transform={`translate(77.6,0) scale(${S})`}>
+          <path d="M710 112 C706 100, 706 92, 716 86 C712 78, 714 68, 726 62
+                   C722 54, 726 44, 736 40 C746 44, 750 54, 746 62
+                   C758 68, 760 78, 756 86 C766 92, 766 100, 762 112 Z" />
+          <rect x="733" y="24" width="6" height="16" />
+          <circle cx="736" cy="20" r="3.5" fill={GOLD} />
+          <circle cx="736" cy="70" r="4" fill={CREAM} />
+          <rect x="720" y="98" width="32" height="3" fill={CREAM} />
+        </g>
+
+        {/* 10 ── Pawapuri Jal Mandir ── */}
+        <g transform={`translate(974.5,0) scale(${S})`}>
+          <path d="M0 120 Q25 113 50 120 T100 120" stroke={CREAM} strokeWidth="2" fill="none" opacity="0.7" />
+          <rect x="25" y="96" width="50" height="16" />
+          <rect x="35" y="70" width="30" height="26" />
+          <path d="M35 70 Q50 50 65 70 Z" />
+          <rect x="48" y="40" width="4" height="12" />
+          <circle cx="50" cy="37" r="3.5" fill={GOLD} />
+          <rect x="43" y="112" width="14" height="8" fill={CREAM} />
+        </g>
+
+        {/* 11 ── Vishwa Shanti Stupa ── */}
+        <g transform={`translate(164.8,0) scale(${S})`}>
+          <rect x="820" y="98" width="56" height="14" />
+          <path d="M820 98 Q848 60 876 98 Z" />
+          <rect x="845" y="34" width="6" height="18" />
+          <path d="M839 34 L857 34 L848 24 Z" />
+          <circle cx="836" cy="90" r="4" fill={CREAM} />
+          <circle cx="848" cy="82" r="4" fill={CREAM} />
+          <circle cx="860" cy="90" r="4" fill={CREAM} />
+        </g>
+
+        {/* 12 ── Barabar Caves ── */}
+        <g transform={`translate(144,0) scale(${S})`}>
+          <path d="M930 112 C925 90, 935 68, 960 62 C985 68, 995 90, 990 112 Z" />
+          <path d="M948 112 L948 92 Q960 78 972 92 L972 112 Z" fill={CREAM} />
+          <path d="M935 96 Q960 88 985 96" stroke={CREAM} strokeWidth="1.5" fill="none" opacity="0.7" />
+        </g>
+
+        {/* 13 ── Sher Shah Suri Tomb ── */}
+        <g transform={`translate(108.25,0) scale(${S})`}>
+          <rect x="1040" y="100" width="90" height="12" />
+          <rect x="1055" y="76" width="60" height="24" />
+          <path d="M1055 76 Q1085 42 1115 76 Z" />
+          <rect x="1082" y="26" width="6" height="14" />
+          <circle cx="1085" cy="22" r="3.5" fill={GOLD} />
+          <circle cx="1058" cy="72" r="6" />
+          <rect x="1054" y="72" width="8" height="6" />
+          <circle cx="1112" cy="72" r="6" />
+          <rect x="1108" y="72" width="8" height="6" />
+          <rect x="1030" y="112" width="110" height="3" opacity="0.35" />
+          <path d="M1070 100 L1070 88 Q1085 78 1100 88 L1100 100 Z" fill={CREAM} />
+        </g>
+
+        {/* 14 ── Vaishali Stupa & Lion Pillar ── */}
+        <g transform={`translate(55.25,0) scale(${S})`}>
+          <path d="M1190 112 C1185 96, 1190 82, 1210 78 C1230 82, 1235 96, 1230 112 Z" />
+          <circle cx="1210" cy="72" r="3.5" fill={CREAM} />
+          <rect x="1207" y="60" width="6" height="14" />
+          <rect x="1245" y="76" width="6" height="36" />
+          <rect x="1236" y="74" width="24" height="4" />
+          <path d="M1241 60 q4 -7 8 0 q4 -5 8 0 q2.5 3.5 -1 7 q-5 3.5 -12 0 q-3.5 -3.5 -3 -7 Z" />
+          <rect x="1232" y="112" width="32" height="6" />
+        </g>
+
+        {/* 15 ── Vikramshila ruins ── */}
+        <g transform={`translate(25.25,0) scale(${S})`}>
+          <path d="M1320 112 L1320 98 L1330 98 L1330 86 L1340 86 L1340 72
+                   L1350 72 L1350 86 L1360 86 L1360 98 L1370 98 L1370 112 Z" />
+          <rect x="1330" y="90" width="40" height="2" fill={CREAM} />
+          <path d="M1338 112 L1338 100 Q1345 94 1352 100 L1352 112 Z" fill={CREAM} />
+          <rect x="1310" y="110" width="70" height="4" opacity="0.6" />
+          <path d="M1310 98 L1320 92 L1332 98 L1345 90 L1358 98 L1370 92 L1380 98"
+                fill="none" stroke={SAND} strokeWidth="8" strokeLinejoin="round" />
+        </g>
+
+      </g>
+    </svg>
   );
 }
