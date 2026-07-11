@@ -8,6 +8,7 @@ import InfoTicker from "@/components/InfoTicker";
 import Footer from "@/components/Footer";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import SplashScreen from "@/components/SplashScreen";
+import ChatWidget from "@/components/ChatWidget";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -74,7 +75,7 @@ export default function RootLayout({
           </main>
 
           <Footer />
-
+          <ChatWidget />
         </AuthProvider>
 
       </body>

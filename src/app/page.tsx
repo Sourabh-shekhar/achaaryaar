@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { SiInstagram, SiFacebook, SiYoutube } from "react-icons/si";
 import { FiTruck, FiFeather, FiHome, FiRefreshCw, FiPhone, FiMail, FiMapPin, FiCheck, FiCopy, FiShield, FiLock, FiAward } from "react-icons/fi";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import { baseUrl } from "@/lib/baseUrl";
 
 const COLORS = {
@@ -1245,7 +1244,6 @@ fetch(`/api/products`, { cache: "no-store" })
         <StorySection />
         <FAQSection />
         <Newsletter />
-        <WhatsAppButton />
       </main>
 
       <style>{`

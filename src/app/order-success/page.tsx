@@ -8,6 +8,7 @@ import { FiCheckCircle, FiCopy, FiPackage } from "react-icons/fi";
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") || "";
+   const shortRef = orderId ? orderId.slice(-8).toUpperCase() : ""; 
 
   async function copyOrderId() {
     if (!orderId) return;
@@ -49,6 +50,9 @@ function OrderSuccessContent() {
                 <FiCopy size={18} />
               </button>
             </div>
+             <p className="mt-3 text-xs text-[#5C5249]">
+              Quick reference for chat support: <strong className="text-[#2D2A26]">{shortRef}</strong>
+            </p>
           </div>
         )}
 
