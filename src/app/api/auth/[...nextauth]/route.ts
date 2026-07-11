@@ -104,6 +104,11 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials) {
                 const adminPassword = process.env.ADMIN_PASSWORD;
 
+                console.log(
+                    "[admin-login] ADMIN_PASSWORD is",
+                    adminPassword ? `set (length ${adminPassword.length})` : "MISSING"
+                );
+
                 if (!adminPassword) {
                     throw new Error("Admin login is not configured");
                 }
