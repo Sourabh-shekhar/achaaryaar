@@ -6,8 +6,13 @@ import AdminProductsClient from "./AdminProductsClient";
 export default async function AdminProductsPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || session.user?.email !== process.env.ADMIN_EMAIL) {
-    redirect("/login");
+
+  console.log("SESSION:", JSON.stringify(session, null, 2));
+  if (
+    !session ||
+    (session.user as { role?: string }).role !== "admin"
+  ) {
+    redirect("/admin/login");
   }
 
   return <AdminProductsClient />;

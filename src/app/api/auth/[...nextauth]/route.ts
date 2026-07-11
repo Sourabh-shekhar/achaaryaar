@@ -122,7 +122,8 @@ export const authOptions: NextAuthOptions = {
                 return {
                     id: "admin",
                     name: "Admin",
-                    email: "admin@achaaryaar.com",
+                    email: process.env.ADMIN_EMAIL!,
+
                 };
             },
 
