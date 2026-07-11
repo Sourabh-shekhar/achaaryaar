@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // ⚠️ confirm this path matches your folder
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
@@ -66,6 +66,14 @@ function normalizeImages(images: any[] = [], fallbackCover?: string) {
   return cleaned;
 }
 
+// Shared admin check — any session with role "admin" (set only via the
+// admin-credentials login using the shared ADMIN_PASSWORD) passes.
+async function requireAdmin() {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  return role === "admin";
+}
+
 export async function GET() {
   try {
     await connectDB();
@@ -104,10 +112,9 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    // 🔒 Only the admin (matched by email) can create products
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user?.email !== process.env.ADMIN_EMAIL) {
+    // 🔒 Only an admin session (logged in via the shared admin password)
+    // can create products.
+    if (!(await requireAdmin())) {
       return NextResponse.json(
         { success: false, message: "Unauthorized" },
         { status: 401, headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }

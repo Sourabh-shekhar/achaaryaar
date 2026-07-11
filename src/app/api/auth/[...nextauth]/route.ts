@@ -15,8 +15,11 @@ export const authOptions: NextAuthOptions = {
 
     providers: [
 
+        // Regular customer login — unchanged. Looks up a User by email and
+        // checks their hashed password.
         CredentialsProvider({
 
+            id: "credentials",
             name: "credentials",
 
 
@@ -85,6 +88,41 @@ export const authOptions: NextAuthOptions = {
 
         }),
 
+        // Admin login — a single shared password (set in ADMIN_PASSWORD),
+        // separate from customer accounts. No User lookup, no email needed.
+        // Anyone who knows the password gets an "admin" role on their
+        // session, which the /api/products routes check for.
+        CredentialsProvider({
+
+            id: "admin-credentials",
+            name: "Admin",
+
+            credentials: {
+                password: { label: "Admin password", type: "password" },
+            },
+
+            async authorize(credentials) {
+                const adminPassword = process.env.ADMIN_PASSWORD;
+
+                if (!adminPassword) {
+                    throw new Error("Admin login is not configured");
+                }
+
+                if (!credentials?.password || credentials.password !== adminPassword) {
+                    throw new Error("Wrong password");
+                }
+
+                // No real user record — just a fixed identity representing
+                // "whoever currently knows the admin password".
+                return {
+                    id: "admin",
+                    name: "Admin",
+                    email: "admin@achaaryaar.com",
+                };
+            },
+
+        }),
+
     ],
 
 
@@ -105,15 +143,22 @@ export const authOptions: NextAuthOptions = {
 
 
 
-    // These two callbacks carry the user's Mongo _id from the JWT
-    // into the session, so API routes know which user is logged in.
+    // These callbacks carry the user's Mongo _id (for customers) and an
+    // admin role flag (for admin logins) from the JWT into the session, so
+    // API routes and pages know who's logged in and whether they're admin.
     callbacks: {
 
-        async jwt({ token, user }) {
+        async jwt({ token, user, account }) {
 
             if (user) {
 
                 token.id = user.id;
+
+            }
+
+            if (account?.provider === "admin-credentials") {
+
+                token.role = "admin";
 
             }
 
@@ -127,9 +172,13 @@ export const authOptions: NextAuthOptions = {
 
             if (session.user) {
 
-                (session.user as typeof session.user & { id?: string }).id =
+                (session.user as typeof session.user & { id?: string; role?: string }).id =
 
                     token.id as string;
+
+                (session.user as typeof session.user & { id?: string; role?: string }).role =
+
+                    (token.role as string) || "customer";
 
             }
 

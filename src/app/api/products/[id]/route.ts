@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
@@ -46,7 +48,16 @@ function normalizeImages(images: any[] = [], fallbackCover?: string) {
   return cleaned;
 }
 
-// Get Single Product
+// Shared admin check — any session with role "admin" (set only via the
+// admin-credentials login using the shared ADMIN_PASSWORD) passes.
+async function requireAdmin() {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  return role === "admin";
+}
+
+// Get Single Product — left public, since product pages need this without
+// anyone being logged in.
 export async function GET(
   req: Request,
   context: { params: Promise<{ id: string }> }
@@ -92,12 +103,20 @@ export async function GET(
   }
 }
 
-// Update Product
+// Update Product — admin only.
 export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    // 🔒 Was previously missing — anyone could hit this endpoint before.
+    if (!(await requireAdmin())) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     await connectDB();
 
     const { id } = await context.params;
@@ -157,12 +176,20 @@ export async function PATCH(
   }
 }
 
-// Delete Product
+// Delete Product — admin only.
 export async function DELETE(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    // 🔒 Was previously missing — anyone could hit this endpoint before.
+    if (!(await requireAdmin())) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     await connectDB();
 
     const { id } = await context.params;

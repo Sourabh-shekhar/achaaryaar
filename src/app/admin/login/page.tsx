@@ -1,56 +1,66 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = () => {
-    if (
-      username === "admin" &&
-      password === "admin123"
-    ) {
-      localStorage.setItem("isAdmin", "true");
-      router.push("/admin/orders");
-    } else {
-      alert("Invalid credentials");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+
+    const result = await signIn("admin-credentials", {
+      password,
+      redirect: false,
+    });
+
+    setIsSubmitting(false);
+
+    if (result?.error) {
+      setError("Incorrect password. Please try again.");
+      return;
     }
+
+    router.push("/admin/products");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+      <div className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-lg">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Admin Login</h1>
+        <p className="text-sm text-gray-500 mb-6">
+          Enter the admin password to manage products.
+        </p>
 
-        <h1 className="text-3xl font-bold text-center text-gray-900 mb-6">
-          Admin Login
-        </h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="password"
+            placeholder="Admin password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border rounded-xl p-3 text-gray-900"
+            required
+            autoFocus
+          />
 
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="w-full border rounded-xl p-3 mb-4 text-gray-900"
-        />
+          {error && (
+            <p className="text-red-600 text-sm font-semibold">{error}</p>
+          )}
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded-xl p-3 mb-6 text-gray-900"
-        />
-
-        <button
-          onClick={handleLogin}
-          className="w-full bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700"
-        >
-          Login
-        </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700 disabled:opacity-50"
+          >
+            {isSubmitting ? "Checking..." : "Log In"}
+          </button>
+        </form>
       </div>
     </div>
   );
