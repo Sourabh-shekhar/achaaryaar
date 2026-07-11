@@ -54,6 +54,10 @@ const UserSchema = new Schema(
     },
 
     phone: String,
+    phoneVerified: {
+      type: Boolean,
+      default: false,
+    },
     address: String,
     city: String,
     pincode: String,

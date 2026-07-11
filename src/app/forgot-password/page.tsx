@@ -4,21 +4,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function SignupPage() {
+export default function ForgotPasswordPage() {
   const router = useRouter();
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [verified, setVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const sendOtp = async () => {
     if (!/^[6-9]\d{9}$/.test(phone)) {
@@ -52,35 +53,37 @@ export default function SignupPage() {
     }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
-    if (name.trim().length < 2) {
-      setError("Please enter your full name.");
-      return;
-    }
     if (!verified) {
       setError("Please verify your phone number first.");
       return;
     }
-    if (password.length < 8) {
+    if (newPassword.length < 8) {
       setError("Password must be at least 8 characters long.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch("/api/register", {
+      const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, password }),
+        body: JSON.stringify({ phone, otp, newPassword }),
       });
 
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
-        router.push("/login");
+        setSuccess("Password reset successful! Redirecting to login...");
+        setTimeout(() => router.push("/login"), 1500);
         return;
       }
 
@@ -95,7 +98,6 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FBF7F1] px-4">
       <div className="w-full max-w-md">
-        {/* Brand mark */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <div
             className="flex items-center justify-center rounded-full shadow-md"
@@ -121,10 +123,10 @@ export default function SignupPage() {
             className="text-3xl font-extrabold text-center mb-2"
             style={{ fontFamily: "'Playfair Display', Georgia, serif", color: "#2D2A26" }}
           >
-            Create Account
+            Reset Password
           </h1>
           <p className="text-center text-sm text-[#7A6F65] mb-8">
-            Join us for authentic homemade pickles, delivered fresh.
+            Verify your phone number to set a new password.
           </p>
 
           {error && (
@@ -132,38 +134,13 @@ export default function SignupPage() {
               {error}
             </div>
           )}
-
-          <form onSubmit={handleSignup} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-[#2D2A26] mb-1.5">
-                Full Name
-              </label>
-              <input
-                id="name"
-                type="text"
-                placeholder="Enter your full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full p-3.5 border border-[#DED3C6] rounded-2xl bg-white text-[#2D2A26] placeholder-[#A39A8F] focus:outline-none focus:ring-2 focus:ring-[#C9923A] focus:border-transparent transition"
-              />
+          {success && (
+            <div className="mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+              {success}
             </div>
+          )}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[#2D2A26] mb-1.5">
-                Email Address
-              </label>
-              <input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full p-3.5 border border-[#DED3C6] rounded-2xl bg-white text-[#2D2A26] placeholder-[#A39A8F] focus:outline-none focus:ring-2 focus:ring-[#C9923A] focus:border-transparent transition"
-              />
-            </div>
-
+          <form onSubmit={handleReset} className="space-y-4">
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-[#2D2A26] mb-1.5">
                 Phone Number
@@ -216,30 +193,50 @@ export default function SignupPage() {
               )}
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[#2D2A26] mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="At least 8 characters"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  className="w-full p-3.5 pr-11 border border-[#DED3C6] rounded-2xl bg-white text-[#2D2A26] placeholder-[#A39A8F] focus:outline-none focus:ring-2 focus:ring-[#C9923A] focus:border-transparent transition"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#A39A8F]"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
+            {verified && (
+              <>
+                <div>
+                  <label htmlFor="newPassword" className="block text-sm font-medium text-[#2D2A26] mb-1.5">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="newPassword"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="At least 8 characters"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      minLength={8}
+                      className="w-full p-3.5 pr-11 border border-[#DED3C6] rounded-2xl bg-white text-[#2D2A26] placeholder-[#A39A8F] focus:outline-none focus:ring-2 focus:ring-[#C9923A] focus:border-transparent transition"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#A39A8F]"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#2D2A26] mb-1.5">
+                    Confirm New Password
+                  </label>
+                  <input
+                    id="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Re-enter new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    className="w-full p-3.5 border border-[#DED3C6] rounded-2xl bg-white text-[#2D2A26] placeholder-[#A39A8F] focus:outline-none focus:ring-2 focus:ring-[#C9923A] focus:border-transparent transition"
+                  />
+                </div>
+              </>
+            )}
 
             <button
               type="submit"
@@ -249,19 +246,14 @@ export default function SignupPage() {
               onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#2A5540"; }}
               onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#1C3D2E"; }}
             >
-              {loading ? "Creating account..." : "Sign Up"}
+              {loading ? "Resetting..." : "Reset Password"}
             </button>
           </form>
 
           <p className="text-center text-sm text-[#7A6F65] mt-6">
-            Already have an account?{" "}
+            Remembered your password?{" "}
             <a href="/login" className="font-semibold" style={{ color: "#C9923A" }}>
               Log in
-            </a>
-          </p>
-          <p className="text-center text-sm text-[#7A6F65] mt-2">
-            <a href="/forgot-password" className="font-semibold" style={{ color: "#C9923A" }}>
-              Forgot password?
             </a>
           </p>
         </div>
