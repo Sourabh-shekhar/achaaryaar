@@ -1,78 +1,10 @@
-// "use client";
-
-// import { useState } from "react";
-// import { signIn } from "next-auth/react";
-// import { useRouter } from "next/navigation";
-
-// export default function LoginPage() {
-//   const router = useRouter();
-
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-
-//   const handleLogin = async () => {
-//     const res = await signIn("credentials", {
-//       email,
-//       password,
-//       redirect: false,
-//     });
-
-//     if (res?.error) {
-//       alert("Invalid Email or Password");
-//     } else {
-//       alert("Login Successful");
-//       router.push("/");
-//       router.refresh();
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-orange-50">
-
-//       <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md">
-
-//         <h1 className="text-5xl font-bold text-gray-900 text-center mb-10">
-//           Login
-//         </h1>
-
-//         <div className="space-y-6">
-
-//           <input
-//             type="email"
-//             placeholder="Email"
-//             value={email}
-//             onChange={(e) => setEmail(e.target.value)}
-//             className="w-full p-4 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
-//           />
-
-//           <input
-//             type="password"
-//             placeholder="Password"
-//             value={password}
-//             onChange={(e) => setPassword(e.target.value)}
-//             className="w-full p-4 border border-gray-300 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
-//           />
-
-//           <button
-//             onClick={handleLogin}
-//             className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-orange-700 transition"
-//           >
-//             Login
-//           </button>
-
-//         </div>
-
-//       </div>
-
-//     </div>
-//   );
-// }
 "use client";
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -80,6 +12,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -170,17 +103,34 @@ export default function LoginPage() {
                 />
               </div>
 
-              <div>
+      <div>
                 <label className="mb-2 block text-sm font-medium text-[#3E352F]">
                   Password
                 </label>
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-2xl border border-[#DED3C6] bg-white px-4 py-4 text-[#2D2A26] placeholder:text-[#8A8178] focus:outline-none focus:ring-2 focus:ring-[#6B1F1F]"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-2xl border border-[#DED3C6] bg-white px-4 py-4 pr-12 text-[#2D2A26] placeholder:text-[#8A8178] focus:outline-none focus:ring-2 focus:ring-[#6B1F1F]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8A8178]"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+                <div className="mt-2 text-right">
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm font-medium text-[#6B1F1F] hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
 
               {errorMessage && (
