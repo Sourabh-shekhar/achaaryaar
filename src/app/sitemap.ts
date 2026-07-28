@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://achaaryaar.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.achaaryaar.com";
 export const revalidate = 3600;
 
 type Product = {
