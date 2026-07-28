@@ -7,6 +7,58 @@ import Order from "@/models/Order";
 import Product from "@/models/Product";
 import { sendAdminOrderNotification, sendOrderConfirmation } from "@/lib/sendEmail";
 
+// Source of truth for coupons — the browser is never trusted for the
+// discount percentage or eligibility, only for which code the customer
+// typed in. Keep this in sync with any coupon codes shown in the UI
+// (currently in the checkout page's old client-side couponMap).
+const COUPONS: Record<string, { percent: number; firstOrderOnly?: boolean }> = {
+  WELCOME10: { percent: 10, firstOrderOnly: true },
+  BIHAR10: { percent: 10 },
+};
+
+// Validates a coupon code for this specific customer. Returns the
+// discount percent to apply (0 if no/invalid coupon), and an error
+// message if the customer tried to use one they're not eligible for.
+async function resolveCoupon(email: string, rawCode: string | undefined) {
+  const code = (rawCode || "").trim().toUpperCase();
+
+  if (!code) {
+    return { code: "", percent: 0, error: null as string | null };
+  }
+
+  const coupon = COUPONS[code];
+
+  if (!coupon) {
+    return { code: "", percent: 0, error: "That coupon code isn't valid." };
+  }
+
+  // Has this exact code been used by this customer before?
+  const alreadyUsed = await Order.findOne({ email, couponCode: code });
+
+  if (alreadyUsed) {
+    return {
+      code: "",
+      percent: 0,
+      error: `You've already used ${code} on a previous order.`,
+    };
+  }
+
+  // Codes like WELCOME10 only apply to a customer's very first order.
+  if (coupon.firstOrderOnly) {
+    const anyPriorOrder = await Order.findOne({ email });
+
+    if (anyPriorOrder) {
+      return {
+        code: "",
+        percent: 0,
+        error: `${code} is only valid on your first order.`,
+      };
+    }
+  }
+
+  return { code, percent: coupon.percent, error: null as string | null };
+}
+
 // Create Order
 export async function POST(req: Request) {
   try {
@@ -22,6 +74,18 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
+    const email = session.user.email;
+
+    // ---- STEP 0: Validate the coupon server-side before doing anything
+    // else. The discount % and eligibility never come from the client. ----
+    const coupon = await resolveCoupon(email, body.couponCode);
+
+    if (coupon.error) {
+      return NextResponse.json(
+        { success: false, message: coupon.error },
+        { status: 400 }
+      );
+    }
 
     // ---- STEP 1: Validate & reserve stock BEFORE creating the order ----
     // We do this first, atomically per item, so an out-of-stock item
@@ -102,10 +166,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // ---- STEP 2: Stock is confirmed and reserved — now create the order ----
+    // ---- STEP 2: Recompute discount/total from the server-trusted
+    // coupon percent, ignoring whatever discount the client sent. The
+    // subtotal itself still comes from the client for now — verifying it
+    // against live product prices is a good next hardening step, but is
+    // separate from the coupon-abuse fix this endpoint focuses on. ----
+    const subtotal = Number(body.subtotal) || 0;
+    const shipping = Number(body.shipping) || 0;
+    const discount = Math.round((subtotal * coupon.percent) / 100);
+    const total = Math.max(0, subtotal - discount + shipping);
+
+    // ---- STEP 3: Stock is confirmed and reserved — now create the order ----
     const order = await Order.create({
       ...body,
-      email: session.user.email,
+      email,
+      couponCode: coupon.code,
+      discount,
+      total,
       paymentStatus:
         body.paymentMethod === "cod" ? "Pending COD" : body.paymentStatus || "Pending",
     });
@@ -113,16 +190,16 @@ export async function POST(req: Request) {
     // Email is "best effort" — if it fails, the order itself must still succeed.
     try {
       await sendOrderConfirmation(
-        session.user.email,
+        email,
         body.fullName,
         order._id.toString()
       );
       await sendAdminOrderNotification({
         _id: order._id.toString(),
         fullName: body.fullName,
-        email: session.user.email,
+        email,
         phone: body.phone,
-        total: body.total,
+        total,
         paymentMethod: body.paymentMethod,
       });
     } catch (emailError) {

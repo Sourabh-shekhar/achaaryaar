@@ -360,7 +360,7 @@ export default function CheckoutPage() {
                 clearCart();
                 router.push(`/order-success?orderId=${data.order._id}`);
             } else {
-                alert("Order failed");
+                alert(data.message || "Order failed");
             }
         } catch (error) {
             console.error(error);

@@ -33,6 +33,23 @@ const OrderSchema = new mongoose.Schema(
     items: Array,
     subtotal: Number,
     shipping: Number,
+
+    // Added so coupon usage is actually persisted — previously these
+    // fields weren't in the schema at all, so Mongoose silently dropped
+    // them on save, which meant there was no record of which coupon (if
+    // any) was used on a given order. That's also why reuse could never
+    // be checked or prevented.
+    couponCode: {
+      type: String,
+      default: "",
+      uppercase: true,
+      trim: true,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
+
     total: Number,
     courierName: String,
     trackingNumber: String,
