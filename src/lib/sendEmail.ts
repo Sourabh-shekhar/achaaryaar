@@ -1,6 +1,6 @@
 ﻿import nodemailer from "nodemailer";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://achaaryaar.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.achaaryaar.com";
 const logoUrl = `${siteUrl}/image/logo.png`;
 
 export async function sendOrderConfirmation(
