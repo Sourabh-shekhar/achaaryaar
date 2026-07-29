@@ -1,7 +1,16 @@
-﻿import Link from "next/link";
+﻿import type { Metadata } from "next";
+import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import { baseUrl } from "@/lib/baseUrl";
    
+export const metadata: Metadata = {
+  title: "Shop Bihar Pickles | Mango, Lemon, Garlic & Spicy Achaar | AchaarYaar",
+  description:
+    "Browse authentic homemade Bihar pickles — mango, lemon, garlic, spicy, and combo achaar. 100% natural, small-batch, delivered fresh across India.",
+  alternates: {
+    canonical: "/products",
+  },
+};
 
 export const revalidate = 60;
 

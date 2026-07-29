@@ -1,40 +1,57 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
-export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
+export default function ResetPasswordPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Enter a valid email address");
+    if (!token) {
+      setError("Invalid or missing reset link. Please request a new one.");
+      return;
+    }
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/forgot-password", {
+      const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ token, newPassword }),
       });
 
-      // We always show a generic success message, whether or not
-      // the email exists — this prevents attackers from checking
-      // which emails are registered.
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
-        setSuccess("If that email exists, we've sent a password reset link. Please check your inbox.");
-      } else {
-        const data = await res.json().catch(() => ({}));
-        setError(data?.message || "Something went wrong. Please try again.");
+        setSuccess("Password reset successful! Redirecting to login...");
+        setTimeout(() => router.push("/login"), 1500);
+        return;
       }
+
+      setError(data?.message || "This reset link is invalid or has expired.");
     } catch {
       setError("Network error. Please check your connection and try again.");
     } finally {
@@ -70,10 +87,10 @@ export default function ForgotPasswordPage() {
             className="text-3xl font-extrabold text-center mb-2"
             style={{ fontFamily: "'Playfair Display', Georgia, serif", color: "#2D2A26" }}
           >
-            Forgot Password
+            Set New Password
           </h1>
           <p className="text-center text-sm text-[#7A6F65] mb-8">
-            Enter your email and we'll send you a link to reset your password.
+            Choose a new password for your account.
           </p>
 
           {error && (
@@ -87,18 +104,44 @@ export default function ForgotPasswordPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleReset} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-[#2D2A26] mb-1.5">
-                Email Address
+              <label htmlFor="newPassword" className="block text-sm font-medium text-[#2D2A26] mb-1.5">
+                New Password
+              </label>
+              <div className="relative">
+                <input
+                  id="newPassword"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="At least 8 characters"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className="w-full p-3.5 pr-11 border border-[#DED3C6] rounded-2xl bg-white text-[#2D2A26] placeholder-[#A39A8F] focus:outline-none focus:ring-2 focus:ring-[#C9923A] focus:border-transparent transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#A39A8F]"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#2D2A26] mb-1.5">
+                Confirm New Password
               </label>
               <input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                placeholder="Re-enter new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                minLength={8}
                 className="w-full p-3.5 border border-[#DED3C6] rounded-2xl bg-white text-[#2D2A26] placeholder-[#A39A8F] focus:outline-none focus:ring-2 focus:ring-[#C9923A] focus:border-transparent transition"
               />
             </div>
@@ -111,16 +154,9 @@ export default function ForgotPasswordPage() {
               onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#2A5540"; }}
               onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = "#1C3D2E"; }}
             >
-              {loading ? "Sending..." : "Send Reset Link"}
+              {loading ? "Resetting..." : "Reset Password"}
             </button>
           </form>
-
-          <p className="text-center text-sm text-[#7A6F65] mt-6">
-            Remembered your password?{" "}
-            <a href="/login" className="font-semibold" style={{ color: "#C9923A" }}>
-              Log in
-            </a>
-          </p>
         </div>
       </div>
     </div>

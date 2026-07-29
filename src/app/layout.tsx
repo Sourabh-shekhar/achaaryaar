@@ -23,6 +23,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.achaaryaar.com"),
   title: "AchaarYaar | Authentic Homemade Bihar Pickles",
   description:
     "Buy authentic homemade Bihar pickles online. Traditional recipes, premium ingredients, and homemade taste delivered across India.",
@@ -39,6 +40,10 @@ export const metadata: Metadata = {
 
   authors: [{ name: "AchaarYaar" }],
 
+  alternates: {
+    canonical: "/",
+  },
+
   openGraph: {
     title: "AchaarYaar | Authentic Homemade Bihar Pickles",
     description:
@@ -48,8 +53,6 @@ export const metadata: Metadata = {
     locale: "en_IN",
     type: "website",
   },
-
-
 };
 
 export default function RootLayout({

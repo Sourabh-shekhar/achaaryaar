@@ -67,6 +67,13 @@ const UserSchema = new Schema(
       type: [AddressSchema],
       default: [],
     },
+    // NEW: fields for email-based password reset
+    resetToken: {
+      type: String,
+    },
+    resetTokenExpiry: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
