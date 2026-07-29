@@ -9,48 +9,11 @@ export default function SignupPage() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [verified, setVerified] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
-
-  const sendOtp = async () => {
-    if (!/^[6-9]\d{9}$/.test(phone)) {
-      setError("Enter a valid 10-digit phone number");
-      return;
-    }
-    setError("");
-    setOtpLoading(true);
-    await fetch("/api/auth/send-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone }),
-    });
-    setOtpSent(true);
-    setOtpLoading(false);
-  };
-
-  const verifyOtp = async () => {
-    setOtpLoading(true);
-    const res = await fetch("/api/auth/verify-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, otp }),
-    });
-    setOtpLoading(false);
-    if (res.ok) {
-      setVerified(true);
-      setError("");
-    } else {
-      setError("Invalid or expired OTP");
-    }
-  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,10 +21,6 @@ export default function SignupPage() {
 
     if (name.trim().length < 2) {
       setError("Please enter your full name.");
-      return;
-    }
-    if (!verified) {
-      setError("Please verify your phone number first.");
       return;
     }
     if (password.length < 8) {
@@ -174,46 +133,8 @@ export default function SignupPage() {
                 placeholder="10-digit mobile number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                required
-                disabled={verified}
-                className="w-full p-3.5 border border-[#DED3C6] rounded-2xl bg-white text-[#2D2A26] placeholder-[#A39A8F] focus:outline-none focus:ring-2 focus:ring-[#C9923A] focus:border-transparent transition disabled:opacity-60"
+                className="w-full p-3.5 border border-[#DED3C6] rounded-2xl bg-white text-[#2D2A26] placeholder-[#A39A8F] focus:outline-none focus:ring-2 focus:ring-[#C9923A] focus:border-transparent transition"
               />
-              {!otpSent && !verified && (
-                <button
-                  type="button"
-                  onClick={sendOtp}
-                  disabled={otpLoading}
-                  className="mt-2 text-sm font-semibold"
-                  style={{ color: "#C9923A" }}
-                >
-                  {otpLoading ? "Sending..." : "Send OTP"}
-                </button>
-              )}
-              {otpSent && !verified && (
-                <div className="flex gap-2 mt-2">
-                  <input
-                    type="text"
-                    placeholder="Enter OTP"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    className="flex-1 p-3 border border-[#DED3C6] rounded-2xl bg-white text-[#2D2A26] focus:outline-none focus:ring-2 focus:ring-[#C9923A]"
-                  />
-                  <button
-                    type="button"
-                    onClick={verifyOtp}
-                    disabled={otpLoading}
-                    className="px-4 rounded-2xl font-semibold text-white"
-                    style={{ background: "#1C3D2E" }}
-                  >
-                    Verify
-                  </button>
-                </div>
-              )}
-              {verified && (
-                <span className="text-sm mt-1 block font-medium" style={{ color: "#1C3D2E" }}>
-                  ✓ Phone verified
-                </span>
-              )}
             </div>
 
             <div>
@@ -243,7 +164,7 @@ export default function SignupPage() {
 
             <button
               type="submit"
-              disabled={loading || !verified}
+              disabled={loading}
               className="w-full py-3.5 rounded-2xl font-bold text-base text-white transition disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ background: "#1C3D2E" }}
               onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = "#2A5540"; }}
