@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   FaCcMastercard,
@@ -30,6 +31,16 @@ const supportLinks = [
   { label: "Returns", href: "/returns" },
   { label: "Privacy Policy", href: "/privacy-policy" },
   { label: "Terms", href: "/terms" },
+];
+
+// Certification / government scheme logos shown in the footer.
+// Drop the official logo image files into /public/certifications/
+// with these exact filenames, or update the `src` paths below to match.
+const certificationLogos = [
+  { label: "MSME Registered", src: "/certifications/msme.png" },
+  { label: "GST Registered", src: "/certifications/gst.png" },
+  { label: "FSSAI Licensed", src: "/certifications/fssai.png" },
+  { label: "Make in India", src: "/certifications/make-in-india.png" },
 ];
 
 export default function Footer() {
@@ -139,16 +150,39 @@ export default function Footer() {
         ))}
       </div>
 
+      {/* Certification / government scheme logos */}
+      <div className="mx-auto max-w-7xl border-t border-white/10 py-8">
+        <div className="flex flex-wrap items-center justify-center gap-8">
+          {certificationLogos.map((cert) => (
+            <div
+              key={cert.label}
+              className="flex flex-col items-center gap-2 opacity-90 transition hover:opacity-100"
+            >
+              <div className="flex h-14 w-24 items-center justify-center rounded-lg bg-white/95 p-2">
+                <Image
+                  src={cert.src}
+                  alt={cert.label}
+                  width={80}
+                  height={40}
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <span className="text-xs text-white/60">{cert.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-white/10 py-6 text-sm text-white/55 md:flex-row">
         <p>© {new Date().getFullYear()} AchaarYaar. All rights reserved.</p>
-        <div className="flex items-center gap-4 text-3xl text-white/70">
-          <FaCcVisa />
-          <FaCcMastercard />
-          <span className="rounded-md border border-white/30 px-2 py-1 text-sm font-black">
+        <div className="flex items-center gap-4 text-3xl">
+          <FaCcVisa className="text-[#1A1F71]" />
+          <FaCcMastercard className="text-[#EB001B]" />
+          <span className="rounded-md border border-white/30 px-2 py-1 text-sm font-black text-white/70">
             RuPay
           </span>
-          <SiGooglepay />
-          <SiPaytm />
+          <SiGooglepay className="text-white/90" />
+          <SiPaytm className="text-[#00BAF2]" />
         </div>
       </div>
     </footer>

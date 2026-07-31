@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     const resetLink = `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password?token=${resetToken}`;
 
     await resend.emails.send({
-      from: "Achaaryaar <onboarding@resend.dev>", // replace once your domain is verified in Resend
+      from: "Achaaryaar <noreply@achaaryaar.com>",
       to: [user.email],
       subject: "Reset your password",
       html: `
