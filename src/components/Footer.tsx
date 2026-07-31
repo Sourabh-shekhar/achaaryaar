@@ -39,7 +39,7 @@ const supportLinks = [
 const certificationLogos = [
   { label: "MSME Registered", src: "/certifications/msme.png" },
   { label: "GST Registered", src: "/certifications/gst.png" },
-  { label: "FSSAI Licensed", src: "/certifications/fssai.png" },
+  { label: "FSSAI Registered", src: "/certifications/fssai.png" },
   { label: "Make in India", src: "/certifications/make-in-india.png" },
 ];
 
