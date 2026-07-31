@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -33,7 +32,6 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { data: session } = useSession();
-  const isHome = pathname === "/";
   const items = useCartStore((state) => state.items);
 
   const totalItems = items.reduce(
@@ -82,12 +80,10 @@ export default function Navbar() {
               <span className="bihar-brand-origin">Bihar Origin</span>
             </span>
           </Link>
-          {/* Skyline strip — home page, mobile only */}
-          {isHome && (
-            <div className="flex md:hidden items-center flex-1 min-w-0 translate-y-1.5">
-              <MobileSkylineStrip />
-            </div>
-          )}
+          {/* Skyline strip — shown on every page, mobile only */}
+          <div className="flex md:hidden items-center flex-1 min-w-0 translate-y-1.5">
+            <MobileSkylineStrip />
+          </div>
           {/* Search */}
           <div className="hidden lg:flex flex-1 max-w-md relative">
             <FiSearch
