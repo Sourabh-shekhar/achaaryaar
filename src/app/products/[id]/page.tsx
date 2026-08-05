@@ -108,6 +108,19 @@ export default async function ProductDetails({
     .filter((p: any) => p._id !== product._id)
     .slice(0, 3);
 
+  const image =
+    product.images?.length > 0
+      ? product.images.map((img: string) =>
+          img.startsWith("http")
+            ? img
+            : `https://www.achaaryaar.com${img}`
+        )
+      : [
+          product.image.startsWith("http")
+            ? product.image
+            : `https://www.achaaryaar.com${product.image}`,
+        ];
+
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -117,18 +130,7 @@ export default async function ProductDetails({
     description:
       product.shortDescription || product.description,
 
-    image:
-      product.images?.length > 0
-        ? product.images.map((img: string) =>
-            img.startsWith("http")
-              ? img
-              : `https://www.achaaryaar.com${img}`
-          )
-        : [
-            product.image.startsWith("http")
-              ? product.image
-              : `https://www.achaaryaar.com${product.image}`,
-          ],
+    image,
 
     sku: product._id,
 
@@ -174,7 +176,38 @@ export default async function ProductDetails({
         : "https://schema.org/OutOfStock",
 
       itemCondition: "https://schema.org/NewCondition",
+
+      seller: {
+        "@type": "Organization",
+        name: "AchaarYaar",
+      },
     },
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://www.achaaryaar.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Products",
+        item: "https://www.achaaryaar.com/products",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: product.name,
+        item: `https://www.achaaryaar.com/products/${id}`,
+      },
+    ],
   };
 
   return (
@@ -183,7 +216,10 @@ export default async function ProductDetails({
         id="product-schema"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(productSchema),
+          __html: JSON.stringify([
+            productSchema,
+            breadcrumbSchema,
+          ]),
         }}
       />
 
