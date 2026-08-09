@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 export default function AdminProductsClient() {
     const router = useRouter();
     const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -16,19 +17,19 @@ export default function AdminProductsClient() {
 
         weights: [
             {
-                size: "125g",
+                size: "220g",
                 price: "",
                 stock: "",
             },
 
             {
-                size: "225g",
+                size: "330g",
                 price: "",
                 stock: "",
             },
 
             {
-                size: "425g",
+                size: "430g",
                 price: "",
                 stock: "",
             },
@@ -167,9 +168,9 @@ export default function AdminProductsClient() {
             shortDescription: "",
             category: "Pickle",
             weights: [
-                { size: "125g", price: "", stock: "" },
-                { size: "225g", price: "", stock: "" },
-                { size: "425g", price: "", stock: "" },
+                { size: "220g", price: "", stock: "" },
+                { size: "330g", price: "", stock: "" },
+                { size: "430g", price: "", stock: "" },
             ],
         });
         setImageFiles([]);
@@ -354,10 +355,13 @@ export default function AdminProductsClient() {
                             <div className="mt-3 flex flex-wrap gap-3">
                                 {imageFiles.map((file, index) => (
                                     <div key={`${file.name}-${index}`} className="relative">
-                                        <img
+                                        <Image
                                             src={URL.createObjectURL(file)}
                                             alt={file.name}
-                                            className="w-20 h-20 object-cover rounded-lg border"
+                                            width={80}
+                                            height={80}
+                                            className="object-cover rounded-lg border"
+                                            unoptimized
                                         />
                                         {index === 0 && (
                                             <span className="absolute -top-2 -left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -449,10 +453,12 @@ export default function AdminProductsClient() {
                                                         }
                                                         className="w-5 h-5 accent-orange-600"
                                                     />
-                                                    <img
+                                                    <Image
                                                         src={product.image}
                                                         alt={product.name}
-                                                        className="w-12 h-12 rounded-lg object-cover"
+                                                        width={48}
+                                                        height={48}
+                                                        className="rounded-lg object-cover"
                                                     />
                                                     <span className="font-semibold text-gray-900">
                                                         {product.name}
@@ -577,10 +583,13 @@ export default function AdminProductsClient() {
                             key={product._id}
                             className="bg-white p-6 rounded-2xl shadow-lg"
                         >
-                            <img
+                            <Image
                                 src={product.image}
                                 alt={product.name}
+                                width={500}
+                                height={300}
                                 className="h-48 w-full object-cover rounded-xl mb-4"
+                                loading="lazy"
                             />
 
                             <div className="flex items-center gap-2 flex-wrap">

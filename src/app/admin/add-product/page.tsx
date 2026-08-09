@@ -11,14 +11,14 @@ export default function AddProductPage() {
         image: "",
         featured: false,
 
-        price125: "",
-        stock125: "",
+        price220: "",
+        stock220: "",
 
-        price225: "",
-        stock225: "",
+        price330: "",
+        stock330: "",
 
-        price425: "",
-        stock425: "",
+        price430: "",
+        stock430: "",
     });
 
     const handleChange = (
@@ -66,27 +66,27 @@ export default function AddProductPage() {
         }
 
         const weights = [];
-        if (form.price125) {
+        if (form.price220) {
             weights.push({
-                size: "125g",
-                price: Number(form.price125),
-                stock: Number(form.stock125),
+                size: "220g",
+                price: Number(form.price220),
+                stock: Number(form.stock220),
             });
         }
 
-        if (form.price225) {
+        if (form.price330) {
             weights.push({
-                size: "225g",
-                price: Number(form.price225),
-                stock: Number(form.stock225),
+                size: "330g",
+                price: Number(form.price330),
+                stock: Number(form.stock330),
             });
         }
 
-        if (form.price425) {
+        if (form.price430) {
             weights.push({
-                size: "425g",
-                price: Number(form.price425),
-                stock: Number(form.stock425),
+                size: "430g",
+                price: Number(form.price430),
+                stock: Number(form.stock430),
             });
         }
 
@@ -118,14 +118,14 @@ export default function AddProductPage() {
                 image: "",
                 featured: false,
 
-                price125: "",
-                stock125: "",
+                price220: "",
+                stock220: "",
 
-                price225: "",
-                stock225: "",
+                price330: "",
+                stock330: "",
 
-                price425: "",
-                stock425: "",
+                price430: "",
+                stock430: "",
             });
         } else {
             alert("Failed to add product");
@@ -187,23 +187,23 @@ export default function AddProductPage() {
 
                     <div className="border p-5 rounded-xl">
                         <h2 className="font-bold text-xl mb-4 text-black">
-                            125g Variant
+                            220g Variant
                         </h2>
 
                         <input
                             type="number"
-                            name="price125"
+                            name="price220"
                             placeholder="Price"
-                            value={form.price125}
+                            value={form.price220}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl mb-3 text-black"
                         />
 
                         <input
                             type="number"
-                            name="stock125"
+                            name="stock220"
                             placeholder="Stock"
-                            value={form.stock125}
+                            value={form.stock220}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl text-black"
                         />
@@ -211,23 +211,23 @@ export default function AddProductPage() {
 
                     <div className="border p-5 rounded-xl">
                         <h2 className="font-bold text-xl mb-4 text-black">
-                            225g Variant
+                            330g Variant
                         </h2>
 
                         <input
                             type="number"
-                            name="price225"
+                            name="price330"
                             placeholder="Price"
-                            value={form.price225}
+                            value={form.price330}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl mb-3 text-black"
                         />
 
                         <input
                             type="number"
-                            name="stock225"
+                            name="stock330"
                             placeholder="Stock"
-                            value={form.stock225}
+                            value={form.stock330}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl text-black"
                         />
@@ -235,23 +235,23 @@ export default function AddProductPage() {
 
                     <div className="border p-5 rounded-xl">
                         <h2 className="font-bold text-xl mb-4 text-black">
-                            425g Variant
+                            430g Variant
                         </h2>
 
                         <input
                             type="number"
-                            name="price425"
+                            name="price430"
                             placeholder="Price"
-                            value={form.price425}
+                            value={form.price430}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl mb-3 text-black"
                         />
 
                         <input
                             type="number"
-                            name="stock425"
+                            name="stock430"
                             placeholder="Stock"
-                            value={form.stock425}
+                            value={form.stock430}
                             onChange={handleChange}
                             className="w-full p-3 border rounded-xl text-black"
                         />

@@ -4,7 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
-const ALLOWED_SIZES = ["125g", "225g", "425g"];
+const ALLOWED_SIZES = ["220g", "330g", "430g"];
 const ALLOWED_COMBO_SIZES = [2, 3, 4];
 const ALLOWED_ORIGIN = "https://www.achaaryaar.com";
 
@@ -14,7 +14,7 @@ function normalizeWeights(weights: any[] = []) {
   return weights
     .map((weight) => {
       const rawSize = weight.size || weight.quantity || weight.weight;
-      const size = rawSize === "500g" ? "425g" : rawSize;
+      const size = rawSize === "500g" ? "430g" : rawSize;
       const price = Number(weight.price);
       const stock = Number(weight.stock || 0);
 
@@ -194,7 +194,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: false,
-          message: "Add at least one valid variant: 125g, 225g, or 425g",
+          message: "Add at least one valid variant: 220g, 330g, or 430g",
         },
         { status: 400, headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
       );

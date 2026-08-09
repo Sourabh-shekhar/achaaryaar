@@ -51,7 +51,13 @@ export default function Footer() {
         <div>
           <Link href="/" className="bihar-brand-lockup mb-5">
             <span className="bihar-brand-mark" aria-hidden="true">
-              <img src="/image/logo.png" alt="" width={36} height={36} loading="lazy" decoding="async" />
+              <Image
+                src="/image/logo.png"
+                alt="AchaarYaar Logo"
+                width={36}
+                height={36}
+                priority={false}
+              />
             </span>
             <span>
               <span className="bihar-brand-name bihar-brand-name-light">
@@ -79,7 +85,7 @@ export default function Footer() {
               href="mailto:support@achaaryaar.com"
               className="flex items-center gap-3 transition hover:text-[#D9A85F]"
             >
-              <FiMail className="text-[#D9A85F]"/> support@achaaryaar.com
+              <FiMail className="text-[#D9A85F]" /> support@achaaryaar.com
             </a>
             <p className="flex items-center gap-3">
               <FiMapPin className="text-[#D9A85F]" /> Siwan, Bihar, India

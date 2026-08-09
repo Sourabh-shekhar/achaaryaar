@@ -113,7 +113,7 @@ export async function POST(req: Request) {
           { new: true }
         );
       } else {
-        // Regular products track stock per weight variant (e.g. "225g").
+        // Regular products track stock per weight variant (e.g. "330g").
         updatedProduct = await Product.findOneAndUpdate(
           {
             _id: item._id,

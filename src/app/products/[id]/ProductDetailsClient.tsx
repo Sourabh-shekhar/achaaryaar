@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
-
+import Image from "next/image";
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 
 type Weight = {
@@ -30,7 +30,7 @@ type Product = {
   reviewsCount?: number;
 };
 
-const STANDARD_SIZES = ["125g", "225g", "425g"];
+const STANDARD_SIZES = ["220g", "330g", "430g"];
 
 export default function ProductDetailsClient({
   product,
@@ -272,13 +272,12 @@ export default function ProductDetailsClient({
             onMouseUp={endDrag}
             onMouseLeave={endDrag}
           >
-            <img
+            <Image
               src={gallery[activeImage]}
               alt={product.name}
               width={720}
               height={480}
-              loading="eager"
-              decoding="async"
+              priority
               draggable={false}
               className="w-full h-[480px] object-cover pointer-events-none"
             />
@@ -302,13 +301,11 @@ export default function ProductDetailsClient({
                     : "border-[#E8DDD1] hover:border-[#C18A42]/60"
                     }`}
                 >
-                  <img
+                  <Image
                     src={img}
                     alt={`${product.name} ${index + 1}`}
                     width={80}
                     height={80}
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                 </button>

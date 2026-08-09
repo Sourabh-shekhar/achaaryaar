@@ -6,6 +6,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { FiSearch, FiUser, FiShoppingCart, FiMenu, FiX } from "react-icons/fi";
+import Image from "next/image";
 
 // ─── Brand tokens (matches the rest of the site) ─────────────────────────────
 const FOREST = "#4F6B52";
@@ -71,7 +72,13 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="bihar-brand-lockup shrink-0" aria-label="AchaarYaar home">
             <span className="bihar-brand-mark" aria-hidden="true">
-              <img src="/image/logo.png" alt="" width={36} height={36} />
+              <Image
+                src="/image/logo.png"
+                alt="AchaarYaar Logo"
+                width={36}
+                height={36}
+                priority
+              />
             </span>
             <span className="hidden sm:block">
               <span className="bihar-brand-name">
@@ -237,7 +244,13 @@ export default function Navbar() {
             <div className="flex items-center justify-between mb-8">
               <Link href="/" className="bihar-brand-lockup" onClick={() => setIsOpen(false)}>
                 <span className="bihar-brand-mark" aria-hidden="true">
-                  <img src="/image/logo.png" alt="" width={36} height={36} />
+                  <Image
+                    src="/image/logo.png"
+                    alt="AchaarYaar Logo"
+                    width={36}
+                    height={36}
+                    priority
+                  />
                 </span>
                 <span>
                   <span className="bihar-brand-name">
@@ -408,7 +421,7 @@ function MobileSkylineStrip() {
           <path d="M500 90 Q512 68 524 90 Z" fill={CREAM} />
           <rect x="430" y="108" width="110" height="4" opacity="0.6" />
           <path d="M430 90 L440 84 L452 90 L462 82 L474 90 L486 85 L498 90 L510 83 L524 90 L540 90"
-                fill="none" stroke={SAND} strokeWidth="10" strokeLinejoin="round" />
+            fill="none" stroke={SAND} strokeWidth="10" strokeLinejoin="round" />
         </g>
 
         {/* 7 ── Munger Fort ── */}
@@ -511,7 +524,7 @@ function MobileSkylineStrip() {
           <path d="M1338 112 L1338 100 Q1345 94 1352 100 L1352 112 Z" fill={CREAM} />
           <rect x="1310" y="110" width="70" height="4" opacity="0.6" />
           <path d="M1310 98 L1320 92 L1332 98 L1345 90 L1358 98 L1370 92 L1380 98"
-                fill="none" stroke={SAND} strokeWidth="8" strokeLinejoin="round" />
+            fill="none" stroke={SAND} strokeWidth="8" strokeLinejoin="round" />
         </g>
 
       </g>

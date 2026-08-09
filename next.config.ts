@@ -7,14 +7,16 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["react-icons", "lucide-react"],
   },
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-      },
-    ],
-  },
+ images: {
+  formats: ["image/avif", "image/webp"],
+
+  remotePatterns: [
+    {
+      protocol: "https",
+      hostname: "res.cloudinary.com",
+    },
+  ],
+},
   async headers() {
     return [
       {

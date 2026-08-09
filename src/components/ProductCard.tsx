@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FiArrowUpRight, FiStar } from "react-icons/fi";
+import Image from "next/image";
 
 type ProductProps = {
   _id: string;
@@ -51,13 +52,11 @@ export default function ProductCard({
         </div>
 
         <div className="relative overflow-hidden bg-[#FBF7F1]">
-          <img
+          <Image
             src={image}
             alt={name}
             width={420}
             height={256}
-            loading="lazy"
-            decoding="async"
             className="h-64 w-full object-cover transition duration-500 group-hover:scale-105"
           />
         </div>
@@ -115,11 +114,10 @@ export default function ProductCard({
             </div>
 
             <span
-              className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-extrabold transition duration-300 ${
-                !hasVariants || isOutOfStock
+              className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-extrabold transition duration-300 ${!hasVariants || isOutOfStock
                   ? "bg-gray-300 text-gray-600"
                   : "bg-[#3D5640] text-white group-hover:bg-[#2F4533]"
-              }`}
+                }`}
             >
               {!hasVariants
                 ? "Out of Stock"

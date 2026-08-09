@@ -59,14 +59,29 @@ export async function generateMetadata({
       product.description?.substring(0, 160) ||
       `Buy ${product.name} online from AchaarYaar.`,
 
+    keywords: [
+      product.name,
+      `${product.name} pickle`,
+      `${product.name} achar`,
+      "Homemade Pickle",
+      "Bihar Pickle",
+      "Traditional Pickle",
+      "Buy Pickle Online",
+      "AchaarYaar",
+    ],
+
+    robots: {
+      index: true,
+      follow: true,
+    },
+
     alternates: {
       canonical: `https://www.achaaryaar.com/products/${id}`,
     },
 
     openGraph: {
       title: `${product.name} | AchaarYaar`,
-      description:
-        product.shortDescription || product.description,
+      description: product.shortDescription || product.description,
       url: `https://www.achaaryaar.com/products/${id}`,
       siteName: "AchaarYaar",
       locale: "en_IN",
@@ -134,6 +149,8 @@ export default async function ProductDetails({
 
     sku: product._id,
 
+    identifierExists: false,
+
     brand: {
       "@type": "Brand",
       name: "AchaarYaar",
@@ -146,6 +163,20 @@ export default async function ProductDetails({
     },
 
     category: product.category,
+
+    url: `https://www.achaaryaar.com/products/${id}`,
+
+    countryOfOrigin: {
+      "@type": "Country",
+      name: "India",
+    },
+
+    material: "Natural Ingredients",
+
+    weight: {
+      "@type": "QuantitativeValue",
+      value: product.weights?.[0]?.size ?? "",
+    },
 
     aggregateRating:
       product.reviewsCount > 0
@@ -167,6 +198,8 @@ export default async function ProductDetails({
 
       priceCurrency: "INR",
 
+      priceValidUntil: "2026-12-31",
+
       availability: product.isCombo
         ? product.comboStock > 0
           ? "https://schema.org/InStock"
@@ -180,6 +213,24 @@ export default async function ProductDetails({
       seller: {
         "@type": "Organization",
         name: "AchaarYaar",
+      },
+
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "IN",
+        },
+      },
+
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IN",
+        returnPolicyCategory:
+          "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 7,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/FreeReturn",
       },
     },
   };
@@ -210,23 +261,67 @@ export default async function ProductDetails({
     ],
   };
 
-  return (
-    <>
-      <Script
-        id="product-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify([
-            productSchema,
-            breadcrumbSchema,
-          ]),
-        }}
-      />
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
 
-      <ProductDetailsClient
-        product={product}
-        relatedProducts={relatedProducts}
-      />
-    </>
-  );
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: `What is ${product.name}?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text:
+            product.shortDescription || product.description,
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Is this pickle homemade?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text:
+            "Yes. AchaarYaar pickles are prepared using traditional homemade recipes with carefully selected ingredients.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Do you deliver across India?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text:
+            "Yes. AchaarYaar delivers authentic homemade pickles across India.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How should I store this pickle?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text:
+            "Store in a cool, dry place and always use a clean, dry spoon while serving.",
+        },
+      },
+    ],
+  };
+  return (
+  <>
+    <Script
+      id="product-schema"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify([
+          productSchema,
+          breadcrumbSchema,
+          faqSchema,
+        ]),
+      }}
+    />
+
+    <ProductDetailsClient
+      product={product}
+      relatedProducts={relatedProducts}
+    />
+  </>
+);
 }

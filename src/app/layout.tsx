@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata,Viewport} from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -87,7 +87,6 @@ export const metadata: Metadata = {
   publisher: "AchaarYaar",
   category: "Food",
   referrer: "origin-when-cross-origin",
-  themeColor: "#4F6B52",
   formatDetection: {
     email: false,
     address: false,
@@ -100,25 +99,27 @@ export const metadata: Metadata = {
   },
   generator: "Next.js",
 
-  openGraph: {
-    title: "Homemade Bihar Pickles Online | Authentic Traditional Achar | AchaarYaar",
-    description:
-      "Buy authentic homemade Bihar pickles online. Traditional recipes crafted with premium ingredients and rich homemade flavors. Order mango, lemon, chilli, garlic and more, delivered across India.",
-    url: "https://www.achaaryaar.com",
-    siteName: "AchaarYaar",
-    locale: "en_IN",
-    type: "website",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "AchaarYaar Homemade Bihar Pickles",
-      },
-    ],
-  },
+openGraph: {
+  title: "Homemade Bihar Pickles Online | Authentic Traditional Achar | AchaarYaar",
+  description:
+    "Buy authentic homemade Bihar pickles online. Traditional recipes crafted with premium ingredients and rich homemade flavors. Order mango, lemon, chilli, garlic and more, delivered across India.",
+  url: "https://www.achaaryaar.com",
+  siteName: "AchaarYaar",
+  locale: "en_IN",
+  type: "website",
+  images: [
+    {
+      url: "/og-image.jpg",
+      width: 1200,
+      height: 630,
+      alt: "AchaarYaar Homemade Bihar Pickles",
+    },
+  ],
+},
 };
-
+export const viewport: Viewport = {
+  themeColor: "#4F6B52",
+};
 export default function RootLayout({
   children,
 }: {
