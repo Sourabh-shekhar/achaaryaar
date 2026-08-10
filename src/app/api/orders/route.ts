@@ -6,7 +6,11 @@ import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 import { sendAdminOrderNotification, sendOrderConfirmation } from "@/lib/sendEmail";
-
+import { processShipmozoOrder } from "@/lib/processShipmozoOrder";
+import {
+  pushShipmozoOrder,
+  autoAssignShipmozoOrder,
+} from "@/lib/shipmozo";
 // Source of truth for coupons — the browser is never trusted for the
 // discount percentage or eligibility, only for which code the customer
 // typed in. Keep this in sync with any coupon codes shown in the UI
@@ -68,7 +72,10 @@ export async function POST(req: Request) {
 
     if (!session?.user?.email) {
       return NextResponse.json(
-        { success: false, message: "Please login before placing an order." },
+        {
+          success: false,
+          message: "Please login before placing an order.",
+        },
         { status: 401 }
       );
     }
@@ -76,24 +83,36 @@ export async function POST(req: Request) {
     const body = await req.json();
     const email = session.user.email;
 
-    // ---- STEP 0: Validate the coupon server-side before doing anything
-    // else. The discount % and eligibility never come from the client. ----
+    // ----------------------------------------------------
+    // STEP 0: VALIDATE COUPON SERVER-SIDE
+    // ----------------------------------------------------
+
     const coupon = await resolveCoupon(email, body.couponCode);
 
     if (coupon.error) {
       return NextResponse.json(
-        { success: false, message: coupon.error },
+        {
+          success: false,
+          message: coupon.error,
+        },
         { status: 400 }
       );
     }
 
-    // ---- STEP 1: Validate & reserve stock BEFORE creating the order ----
-    // We do this first, atomically per item, so an out-of-stock item
-    // blocks the order instead of silently going through.
-    const decrementedItems: { _id: string; selectedVariant?: string; quantity: number; isCombo?: boolean }[] = [];
+    // ----------------------------------------------------
+    // STEP 1: VALIDATE & RESERVE STOCK
+    // ----------------------------------------------------
+
+    const decrementedItems: {
+      _id: string;
+      selectedVariant?: string;
+      quantity: number;
+      isCombo?: boolean;
+    }[] = [];
+
     const outOfStockItems: string[] = [];
 
-    for (const item of body.items) {
+    for (const item of body.items || []) {
       if (!isValidObjectId(item._id)) {
         console.log("Skipped invalid _id:", item._id);
         continue;
@@ -102,31 +121,49 @@ export async function POST(req: Request) {
       let updatedProduct;
 
       if (item.isCombo) {
-        // Combo products track stock on comboStock, not weights[].
+        // Combo products use comboStock.
         updatedProduct = await Product.findOneAndUpdate(
           {
             _id: item._id,
             isCombo: true,
-            comboStock: { $gte: item.quantity },
+            comboStock: {
+              $gte: item.quantity,
+            },
           },
-          { $inc: { comboStock: -item.quantity } },
-          { new: true }
+          {
+            $inc: {
+              comboStock: -item.quantity,
+            },
+          },
+          {
+            new: true,
+          }
         );
       } else {
-        // Regular products track stock per weight variant (e.g. "330g").
+        // Normal products use stock inside weights[].
         updatedProduct = await Product.findOneAndUpdate(
           {
             _id: item._id,
             weights: {
               $elemMatch: {
                 size: item.selectedVariant,
-                stock: { $gte: item.quantity },
+                stock: {
+                  $gte: item.quantity,
+                },
               },
             },
           },
-          { $inc: { "weights.$[elem].stock": -item.quantity } },
           {
-            arrayFilters: [{ "elem.size": item.selectedVariant }],
+            $inc: {
+              "weights.$[elem].stock": -item.quantity,
+            },
+          },
+          {
+            arrayFilters: [
+              {
+                "elem.size": item.selectedVariant,
+              },
+            ],
             new: true,
           }
         );
@@ -139,19 +176,34 @@ export async function POST(req: Request) {
       }
     }
 
-    // If anything was out of stock, roll back everything we already
-    // decremented in this loop, and reject the whole order.
+    // ----------------------------------------------------
+    // ROLLBACK STOCK IF ANY ITEM IS OUT OF STOCK
+    // ----------------------------------------------------
+
     if (outOfStockItems.length > 0) {
       for (const item of decrementedItems) {
         if (item.isCombo) {
           await Product.updateOne(
-            { _id: item._id },
-            { $inc: { comboStock: item.quantity } }
+            {
+              _id: item._id,
+            },
+            {
+              $inc: {
+                comboStock: item.quantity,
+              },
+            }
           );
         } else {
           await Product.updateOne(
-            { _id: item._id, "weights.size": item.selectedVariant },
-            { $inc: { "weights.$.stock": item.quantity } }
+            {
+              _id: item._id,
+              "weights.size": item.selectedVariant,
+            },
+            {
+              $inc: {
+                "weights.$.stock": item.quantity,
+              },
+            }
           );
         }
       }
@@ -159,41 +211,72 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: false,
-          message: "Some items in your cart are no longer in stock.",
+          message:
+            "Some items in your cart are no longer in stock.",
           outOfStockItems,
         },
-        { status: 409 }
+        {
+          status: 409,
+        }
       );
     }
 
-    // ---- STEP 2: Recompute discount/total from the server-trusted
-    // coupon percent, ignoring whatever discount the client sent. The
-    // subtotal itself still comes from the client for now — verifying it
-    // against live product prices is a good next hardening step, but is
-    // separate from the coupon-abuse fix this endpoint focuses on. ----
+    // ----------------------------------------------------
+    // STEP 2: CALCULATE FINAL PRICE
+    // ----------------------------------------------------
+
     const subtotal = Number(body.subtotal) || 0;
     const shipping = Number(body.shipping) || 0;
-    const discount = Math.round((subtotal * coupon.percent) / 100);
-    const total = Math.max(0, subtotal - discount + shipping);
 
-    // ---- STEP 3: Stock is confirmed and reserved — now create the order ----
+    const discount = Math.round(
+      (subtotal * coupon.percent) / 100
+    );
+
+    const total = Math.max(
+      0,
+      subtotal - discount + shipping
+    );
+
+    // ----------------------------------------------------
+    // STEP 3: CREATE ORDER
+    // ----------------------------------------------------
+
     const order = await Order.create({
       ...body,
+
+      // NEVER trust email from browser.
       email,
+
+      // Server-calculated coupon information.
       couponCode: coupon.code,
       discount,
       total,
+
       paymentStatus:
-        body.paymentMethod === "cod" ? "Pending COD" : body.paymentStatus || "Pending",
+        body.paymentMethod === "cod"
+          ? "Pending COD"
+          : body.paymentStatus || "Pending",
+
+      // Shipmozo starts with no courier/AWB.
+      courierName: "",
+      trackingNumber: "",
+      estimatedDelivery: "",
+      shipmozoOrderId: "",
+
+      status: "Processing",
     });
 
-    // Email is "best effort" — if it fails, the order itself must still succeed.
+    // ----------------------------------------------------
+    // STEP 4: SEND CUSTOMER + ADMIN EMAIL
+    // ----------------------------------------------------
+
     try {
       await sendOrderConfirmation(
         email,
         body.fullName,
         order._id.toString()
       );
+
       await sendAdminOrderNotification({
         _id: order._id.toString(),
         fullName: body.fullName,
@@ -203,22 +286,158 @@ export async function POST(req: Request) {
         paymentMethod: body.paymentMethod,
       });
     } catch (emailError) {
-      console.error("Order email failed (order still placed):", emailError);
+      console.error(
+        "Order email failed. Order still placed:",
+        emailError
+      );
     }
+
+    // ----------------------------------------------------
+    // STEP 5: PUSH ORDER TO SHIPMOZO
+    // ----------------------------------------------------
+
+    let finalOrder = order;
+
+    try {
+      console.log(
+        "Sending order to Shipmozo:",
+        order._id.toString()
+      );
+
+      const shipmozoResponse =
+        await pushShipmozoOrder(order);
+
+      console.log(
+        "Shipmozo push successful:",
+        shipmozoResponse
+      );
+
+      // Shipmozo normally returns its order/reference data
+      // inside the response data object. We keep this flexible
+      // so the integration does not depend on one exact response shape.
+      const shipmozoData =
+        shipmozoResponse?.data || {};
+
+      const shipmozoOrderId =
+        shipmozoData?.order_id ||
+        shipmozoData?.shipmozo_order_id ||
+        shipmozoData?.id ||
+        order._id.toString();
+
+      // Save Shipmozo order ID immediately.
+      await Order.findByIdAndUpdate(
+        order._id,
+        {
+          shipmozoOrderId: String(shipmozoOrderId),
+          status: "Processing",
+        }
+      );
+
+      // --------------------------------------------------
+      // STEP 6: AUTO ASSIGN COURIER + GENERATE AWB
+      // --------------------------------------------------
+
+      try {
+        const assignResponse =
+          await autoAssignShipmozoOrder(
+            String(shipmozoOrderId)
+          );
+
+        console.log(
+          "Shipmozo auto-assignment successful:",
+          assignResponse
+        );
+
+        const assignData =
+          assignResponse?.data || {};
+
+        const courierName =
+          assignData?.courier_name ||
+          assignData?.courierName ||
+          assignData?.courier ||
+          "";
+
+        const trackingNumber =
+          assignData?.awb_number ||
+          assignData?.awb ||
+          assignData?.tracking_number ||
+          assignData?.trackingNumber ||
+          "";
+
+        const estimatedDelivery =
+          assignData?.estimated_delivery ||
+          assignData?.estimatedDelivery ||
+          "";
+
+        await Order.findByIdAndUpdate(
+          order._id,
+          {
+            courierName: String(courierName || ""),
+            trackingNumber: String(
+              trackingNumber || ""
+            ),
+            estimatedDelivery: String(
+              estimatedDelivery || ""
+            ),
+            shipmozoOrderId: String(
+              shipmozoOrderId
+            ),
+            status: trackingNumber
+              ? "Shipped"
+              : "Processing",
+          }
+        );
+      } catch (assignError) {
+        // Order is already successfully created.
+        // Do NOT cancel the customer's order just because
+        // courier assignment failed.
+        console.error(
+          "Shipmozo courier assignment failed:",
+          assignError
+        );
+      }
+
+      // Get the latest version from MongoDB.
+      finalOrder =
+        (await Order.findById(order._id)) || order;
+    } catch (shipmozoError) {
+      // Shipmozo failure must NOT destroy a successfully
+      // created customer order.
+      console.error(
+        "Shipmozo order push failed:",
+        shipmozoError
+      );
+
+      await Order.findByIdAndUpdate(
+        order._id,
+        {
+          status: "Processing",
+        }
+      );
+
+      finalOrder =
+        (await Order.findById(order._id)) || order;
+    }
+
+    // ----------------------------------------------------
+    // STEP 7: RETURN SUCCESS
+    // ----------------------------------------------------
 
     return NextResponse.json({
       success: true,
-      order,
+      order: finalOrder,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Create order error:", error);
 
     return NextResponse.json(
       {
         success: false,
         message: "Failed to create order",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

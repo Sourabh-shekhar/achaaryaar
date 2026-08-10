@@ -4,99 +4,194 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 
-// GET /api/addresses — list the logged-in user's saved addresses
+// GET /api/addresses
+// List the logged-in user's saved addresses
 export async function GET() {
-  const session = await getServerSession(authOptions);
+  try {
+    const session = await getServerSession(authOptions);
 
-  if (!session?.user?.id) {
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Not logged in",
+        },
+        { status: 401 }
+      );
+    }
+
+    await connectDB();
+
+    const user = await User.findById(session.user.id).select("addresses");
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      addresses: user.addresses,
+    });
+  } catch (error) {
+    console.error("GET /api/addresses error:", error);
+
     return NextResponse.json(
-      { success: false, message: "Not logged in" },
-      { status: 401 }
+      {
+        success: false,
+        message: "Failed to fetch addresses",
+      },
+      { status: 500 }
     );
   }
-
-  await connectDB();
-
-  const user = await User.findById(session.user.id).select("addresses");
-
-  if (!user) {
-    return NextResponse.json(
-      { success: false, message: "User not found" },
-      { status: 404 }
-    );
-  }
-
-  return NextResponse.json({ success: true, addresses: user.addresses });
 }
 
-// POST /api/addresses — add a new saved address
+// POST /api/addresses
+// Add a new saved address
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  try {
+    const session = await getServerSession(authOptions);
 
-  if (!session?.user?.id) {
-    return NextResponse.json(
-      { success: false, message: "Not logged in" },
-      { status: 401 }
-    );
-  }
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Not logged in",
+        },
+        { status: 401 }
+      );
+    }
 
-  const body = await req.json();
-  const { fullName, phone, addressLine, city, pincode, type, isDefault } =
-    body;
+    const body = await req.json();
 
-  if (!fullName || !phone || !addressLine || !city || !pincode) {
-    return NextResponse.json(
-      { success: false, message: "Missing required address fields" },
-      { status: 400 }
-    );
-  }
+    const {
+      fullName,
+      phone,
+      addressLine,
+      city,
+      state,
+      pincode,
+      type,
+      isDefault,
+    } = body;
 
-  if (!/^[0-9]{10}$/.test(phone)) {
-    return NextResponse.json(
-      { success: false, message: "Phone number must be 10 digits" },
-      { status: 400 }
-    );
-  }
+    // ----------------------------------------------------
+    // VALIDATION
+    // ----------------------------------------------------
 
-  if (!/^[0-9]{6}$/.test(pincode)) {
-    return NextResponse.json(
-      { success: false, message: "Pincode must be 6 digits" },
-      { status: 400 }
-    );
-  }
+    if (
+      !fullName?.trim() ||
+      !phone?.trim() ||
+      !addressLine?.trim() ||
+      !city?.trim() ||
+      !state?.trim() ||
+      !pincode?.trim()
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Missing required address fields",
+        },
+        { status: 400 }
+      );
+    }
 
-  await connectDB();
+    if (!/^[0-9]{10}$/.test(phone.trim())) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Phone number must be 10 digits",
+        },
+        { status: 400 }
+      );
+    }
 
-  const user = await User.findById(session.user.id);
+    if (!/^[0-9]{6}$/.test(pincode.trim())) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Pincode must be 6 digits",
+        },
+        { status: 400 }
+      );
+    }
 
-  if (!user) {
-    return NextResponse.json(
-      { success: false, message: "User not found" },
-      { status: 404 }
-    );
-  }
+    // Only allow the address types defined in User.ts
+    const allowedTypes = ["Home", "Work", "Other"] as const;
 
-  // If this is the first address, or explicitly marked default,
-  // unset isDefault on all existing addresses first.
-  const shouldBeDefault = isDefault || user.addresses.length === 0;
+    const addressType = allowedTypes.includes(type)
+      ? type
+      : "Home";
 
-  if (shouldBeDefault) {
-    user.addresses.forEach((addr: any) => {
-      addr.isDefault = false;
+    // ----------------------------------------------------
+    // CONNECT DATABASE
+    // ----------------------------------------------------
+
+    await connectDB();
+
+    const user = await User.findById(session.user.id);
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    // ----------------------------------------------------
+    // DEFAULT ADDRESS
+    // ----------------------------------------------------
+
+    // First address automatically becomes default.
+    // If user explicitly chooses default, existing default
+    // addresses are unset.
+    const shouldBeDefault =
+      Boolean(isDefault) || user.addresses.length === 0;
+
+    if (shouldBeDefault) {
+      user.addresses.forEach((addr: any) => {
+        addr.isDefault = false;
+      });
+    }
+
+    // ----------------------------------------------------
+    // SAVE ADDRESS
+    // ----------------------------------------------------
+
+    user.addresses.push({
+      fullName: fullName.trim(),
+      phone: phone.trim(),
+      addressLine: addressLine.trim(),
+      city: city.trim(),
+      state: state.trim(),
+      pincode: pincode.trim(),
+      type: addressType,
+      isDefault: shouldBeDefault,
     });
+
+    await user.save();
+
+    return NextResponse.json({
+      success: true,
+      addresses: user.addresses,
+    });
+  } catch (error) {
+    console.error("POST /api/addresses error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to save address",
+      },
+      { status: 500 }
+    );
   }
-
-  user.addresses.push({
-    fullName,
-    phone,
-    addressLine,
-    city,
-    pincode,
-    type: type || "Home",
-    isDefault: shouldBeDefault,
-  });
-
-  await user.save();
-
-  return NextResponse.json({ success: true, addresses: user.addresses });
 }

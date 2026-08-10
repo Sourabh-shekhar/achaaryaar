@@ -45,6 +45,7 @@ type SavedAddress = {
     phone: string;
     addressLine: string;
     city: string;
+    state: string;
     pincode: string;
     type: "Home" | "Work" | "Other";
     isDefault: boolean;
@@ -55,6 +56,7 @@ const emptyAddressForm = {
     phone: "",
     addressLine: "",
     city: "",
+    state: "",
     pincode: "",
     type: "Home" as SavedAddress["type"],
 };
@@ -171,6 +173,10 @@ export default function CheckoutPage() {
             setAddressError("Please enter your city");
             return;
         }
+        if (!addressForm.state.trim()) {
+            setAddressError("Please enter your state");
+            return;
+        }
         if (!/^[0-9]{6}$/.test(addressForm.pincode)) {
             setAddressError("Please enter a valid 6-digit pincode");
             return;
@@ -252,6 +258,7 @@ export default function CheckoutPage() {
             phone: selectedAddress.phone,
             address: selectedAddress.addressLine,
             city: selectedAddress.city,
+            state: selectedAddress.state || "",
             pincode: selectedAddress.pincode,
             email,
             paymentMethod,
@@ -501,7 +508,7 @@ export default function CheckoutPage() {
                                                     )}
                                                 </div>
                                                 <p className="text-sm text-[#5A5249] mt-1 leading-6">
-                                                    {addr.addressLine}, {addr.city} - {addr.pincode}
+                                                    {addr.addressLine}, {addr.city}, {addr.state} - {addr.pincode}
                                                 </p>
                                                 <p className="text-sm text-[#7A6F65] mt-1">
                                                     Phone: {addr.phone}
@@ -613,7 +620,7 @@ export default function CheckoutPage() {
                                     />
                                 </div>
 
-                                <div className="grid md:grid-cols-2 gap-4">
+                                <div className="grid md:grid-cols-3 gap-4">
                                     <div>
                                         <label className={labelClasses}>City</label>
                                         <input
@@ -628,13 +635,31 @@ export default function CheckoutPage() {
                                     </div>
 
                                     <div>
+                                        <label className={labelClasses}>State</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter state"
+                                            value={addressForm.state}
+                                            onChange={(e) =>
+                                                handleAddressFormChange("state", e.target.value)
+                                            }
+                                            className={inputClasses}
+                                        />
+                                    </div>
+
+                                    <div>
                                         <label className={labelClasses}>Pincode</label>
                                         <input
                                             type="text"
+                                            inputMode="numeric"
+                                            maxLength={6}
                                             placeholder="6-digit pincode"
                                             value={addressForm.pincode}
                                             onChange={(e) =>
-                                                handleAddressFormChange("pincode", e.target.value)
+                                                handleAddressFormChange(
+                                                    "pincode",
+                                                    e.target.value.replace(/\D/g, "").slice(0, 6)
+                                                )
                                             }
                                             className={inputClasses}
                                         />
@@ -769,7 +794,7 @@ export default function CheckoutPage() {
                                         <div
                                             key={`${item._id}-${item.selectedVariant}`}
                                             className="flex justify-between text-sm">
-                                        
+
                                             <span className="text-[#2D2A26]">
                                                 {item.name}
                                                 <span className="text-[#9C9388]">

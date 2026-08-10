@@ -135,6 +135,7 @@ export default function Navbar() {
             })}
 
             {/* Profile */}
+            {/* Profile */}
             <div className="relative group">
               <button
                 aria-label="Account"
@@ -145,50 +146,54 @@ export default function Navbar() {
               </button>
 
               <div
-                className="absolute right-0 top-11 w-56 rounded-xl shadow-xl hidden group-hover:block p-4 z-50"
-                style={{ background: "#FFFFFF", border: `1px solid ${SAND}` }}
+                className="absolute right-0 top-full pt-2 w-56 z-50"
               >
-                {!mounted ? null : session ? (
-                  <>
-                    <p className="text-center text-sm" style={{ color: INK }}>
-                      Welcome back
-                    </p>
-                    <p className="text-center font-bold mb-4" style={{ color: FOREST }}>
-                      {session.user?.name}
-                    </p>
-                    <Link
-                      href="/profile"
-                      className="block text-center py-2 rounded-lg text-sm font-semibold mb-2"
-                      style={{ border: `1px solid ${SAND}`, color: INK }}
-                    >
-                      Profile & Orders
-                    </Link>
-                    <button
-                      onClick={() => signOut()}
-                      className="w-full py-2 rounded-lg text-sm font-semibold text-white"
-                      style={{ background: "#6B1F1F" }}
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <div className="space-y-2.5">
-                    <Link
-                      href="/login"
-                      className="block text-center py-2.5 rounded-lg text-sm font-semibold transition-colors"
-                      style={{ border: `1px solid ${SAND}`, color: INK }}
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      href="/signup"
-                      className="block text-center py-2.5 rounded-lg text-sm font-semibold text-white"
-                      style={{ background: FOREST }}
-                    >
-                      Sign Up
-                    </Link>
-                  </div>
-                )}
+                <div
+                  className="hidden group-hover:block rounded-xl shadow-xl p-4"
+                  style={{ background: "#FFFFFF", border: `1px solid ${SAND}` }}
+                >
+                  {!mounted ? null : session ? (
+                    <>
+                      <p className="text-center text-sm" style={{ color: INK }}>
+                        Welcome back
+                      </p>
+                      <p className="text-center font-bold mb-4" style={{ color: FOREST }}>
+                        {session.user?.name}
+                      </p>
+                      <Link
+                        href="/profile"
+                        className="block text-center py-2 rounded-lg text-sm font-semibold mb-2"
+                        style={{ border: `1px solid ${SAND}`, color: INK }}
+                      >
+                        Profile & Orders
+                      </Link>
+                      <button
+                        onClick={() => signOut()}
+                        className="w-full py-2 rounded-lg text-sm font-semibold text-white"
+                        style={{ background: "#6B1F1F" }}
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <div className="space-y-2.5">
+                      <Link
+                        href="/login"
+                        className="block text-center py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                        style={{ border: `1px solid ${SAND}`, color: INK }}
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        href="/signup"
+                        className="block text-center py-2.5 rounded-lg text-sm font-semibold text-white"
+                        style={{ background: FOREST }}
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
