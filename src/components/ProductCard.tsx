@@ -104,7 +104,7 @@ export default function ProductCard({
                 </span>
               ) : typeof stock === "number" ? (
                 <span className="rounded-full bg-[#4F6B52]/10 px-3 py-1 text-xs font-bold text-[#4F6B52]">
-                  {stock} in stock
+                  In Stock
                 </span>
               ) : (
                 <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-600">

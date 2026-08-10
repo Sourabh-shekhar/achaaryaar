@@ -69,7 +69,7 @@ export default function CheckoutPage() {
     const [appliedCoupon, setAppliedCoupon] = useState("");
 
     const [email, setEmail] = useState("");
-    const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">("cod");
+    const paymentMethod = "razorpay" as const;
 
     // Saved addresses - Flipkart style
     const [addresses, setAddresses] = useState<SavedAddress[]>([]);
@@ -286,7 +286,8 @@ export default function CheckoutPage() {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        amount: total,
+                        items,
+                        couponCode: appliedCoupon,
                     }),
                 });
 
@@ -720,26 +721,6 @@ export default function CheckoutPage() {
 
                                 <div className="space-y-3">
 
-                                    <label
-                                        className={`flex items-center gap-3 border rounded-xl p-4 cursor-pointer transition ${paymentMethod === "cod"
-                                            ? "border-[#C18A42] bg-[#FBF3E7]"
-                                            : "border-[#E8DDD1] bg-white"
-                                            }`}
-                                    >
-                                        <input
-                                            type="radio"
-                                            name="payment"
-                                            value="cod"
-                                            checked={paymentMethod === "cod"}
-                                            onChange={(e) =>
-                                                setPaymentMethod(e.target.value as "cod" | "razorpay")
-                                            }
-                                            className="accent-[#C18A42]"
-                                        />
-                                        <span className="font-medium text-[#2D2A26]">
-                                            Cash on Delivery (COD)
-                                        </span>
-                                    </label>
 
                                     <label
                                         className={`flex items-center gap-3 border rounded-xl p-4 cursor-pointer transition ${paymentMethod === "razorpay"
@@ -752,9 +733,7 @@ export default function CheckoutPage() {
                                             name="payment"
                                             value="razorpay"
                                             checked={paymentMethod === "razorpay"}
-                                            onChange={(e) =>
-                                                setPaymentMethod(e.target.value as "cod" | "razorpay")
-                                            }
+                                            onChange={() => { }}
                                             className="accent-[#C18A42]"
                                         />
                                         <span className="font-medium text-[#2D2A26]">
@@ -856,11 +835,7 @@ export default function CheckoutPage() {
                                         disabled={items.length === 0 || isPlacingOrder || !selectedAddress}
                                         className="w-full bg-[#C18A42] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#A8742F] transition mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        {isPlacingOrder
-                                            ? "Processing..."
-                                            : paymentMethod === "razorpay"
-                                                ? "Pay Securely"
-                                                : "Place COD Order"}
+                                        {isPlacingOrder ? "Processing..." : "Pay Securely"}
                                     </button>
 
                                     {!selectedAddress && (

@@ -144,7 +144,7 @@ export default function ProfilePage() {
             href="/login"
             className="mt-6 inline-flex rounded-xl bg-[#C18A42] px-6 py-3 font-extrabold text-[#2D2A26]"
           >
-            Login first
+            Login First
           </Link>
         </div>
       </div>

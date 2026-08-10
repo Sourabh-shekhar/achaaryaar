@@ -11,33 +11,56 @@ import {
   pushShipmozoOrder,
   autoAssignShipmozoOrder,
 } from "@/lib/shipmozo";
+
 // Source of truth for coupons — the browser is never trusted for the
 // discount percentage or eligibility, only for which code the customer
 // typed in. Keep this in sync with any coupon codes shown in the UI
 // (currently in the checkout page's old client-side couponMap).
 const COUPONS: Record<string, { percent: number; firstOrderOnly?: boolean }> = {
   WELCOME10: { percent: 10, firstOrderOnly: true },
-  BIHAR10: { percent: 10 },
 };
 
 // Validates a coupon code for this specific customer. Returns the
 // discount percent to apply (0 if no/invalid coupon), and an error
 // message if the customer tried to use one they're not eligible for.
-async function resolveCoupon(email: string, rawCode: string | undefined) {
+async function resolveCoupon(
+  email: string,
+  phone: string,
+  rawCode: string | undefined
+) {
   const code = (rawCode || "").trim().toUpperCase();
 
   if (!code) {
-    return { code: "", percent: 0, error: null as string | null };
+    return {
+      code: "",
+      percent: 0,
+      error: null as string | null,
+    };
   }
 
   const coupon = COUPONS[code];
 
   if (!coupon) {
-    return { code: "", percent: 0, error: "That coupon code isn't valid." };
+    return {
+      code: "",
+      percent: 0,
+      error: "That coupon code isn't valid.",
+    };
   }
 
-  // Has this exact code been used by this customer before?
-  const alreadyUsed = await Order.findOne({ email, couponCode: code });
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedPhone = phone.replace(/\D/g, "").replace(/^91/, "");
+
+  // Check if this email OR phone has already used this coupon.
+  // Matches against `normalizedPhone` (not the raw, differently-formatted
+  // `phone` field) so re-typing the number with different spacing/prefix
+  // on a later order can't slip past this check.
+  const alreadyUsed = await Order.findOne({
+    $or: [
+      { email: normalizedEmail, couponCode: code },
+      { normalizedPhone, couponCode: code },
+    ],
+  });
 
   if (alreadyUsed) {
     return {
@@ -47,9 +70,11 @@ async function resolveCoupon(email: string, rawCode: string | undefined) {
     };
   }
 
-  // Codes like WELCOME10 only apply to a customer's very first order.
+  // WELCOME10 is only for the first order
   if (coupon.firstOrderOnly) {
-    const anyPriorOrder = await Order.findOne({ email });
+    const anyPriorOrder = await Order.findOne({
+      $or: [{ email: normalizedEmail }, { normalizedPhone }],
+    });
 
     if (anyPriorOrder) {
       return {
@@ -60,7 +85,11 @@ async function resolveCoupon(email: string, rawCode: string | undefined) {
     }
   }
 
-  return { code, percent: coupon.percent, error: null as string | null };
+  return {
+    code,
+    percent: coupon.percent,
+    error: null as string | null,
+  };
 }
 
 // Create Order
@@ -87,7 +116,7 @@ export async function POST(req: Request) {
     // STEP 0: VALIDATE COUPON SERVER-SIDE
     // ----------------------------------------------------
 
-    const coupon = await resolveCoupon(email, body.couponCode);
+    const coupon = await resolveCoupon(email, body.phone, body.couponCode);
 
     if (coupon.error) {
       return NextResponse.json(
@@ -211,8 +240,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Some items in your cart are no longer in stock.",
+          message: "Some items in your cart are no longer in stock.",
           outOfStockItems,
         },
         {
@@ -225,37 +253,37 @@ export async function POST(req: Request) {
     // STEP 2: CALCULATE FINAL PRICE
     // ----------------------------------------------------
 
-    const subtotal = Number(body.subtotal) || 0;
-    const shipping = Number(body.shipping) || 0;
+const subtotal = Number(body.subtotal) || 0;
+const shipping = subtotal >= 499 ? 0 : 50;
+    const discount = Math.round((subtotal * coupon.percent) / 100);
 
-    const discount = Math.round(
-      (subtotal * coupon.percent) / 100
-    );
-
-    const total = Math.max(
-      0,
-      subtotal - discount + shipping
-    );
+    const total = Math.max(0, subtotal - discount + shipping);
 
     // ----------------------------------------------------
     // STEP 3: CREATE ORDER
     // ----------------------------------------------------
 
+    // Same normalization used in resolveCoupon — stored alongside the
+    // raw `phone` (kept as-is for shipping/contact) so future coupon
+    // checks match reliably regardless of how the number was typed.
+    const normalizedPhone = String(body.phone || "")
+      .replace(/\D/g, "")
+      .replace(/^91/, "");
+
     const order = await Order.create({
       ...body,
 
       // NEVER trust email from browser.
-      email,
+       email: email.trim().toLowerCase(),
+
+      normalizedPhone,
 
       // Server-calculated coupon information.
       couponCode: coupon.code,
       discount,
       total,
 
-      paymentStatus:
-        body.paymentMethod === "cod"
-          ? "Pending COD"
-          : body.paymentStatus || "Pending",
+     paymentStatus: "Paid",
 
       // Shipmozo starts with no courier/AWB.
       courierName: "",
@@ -271,11 +299,7 @@ export async function POST(req: Request) {
     // ----------------------------------------------------
 
     try {
-      await sendOrderConfirmation(
-        email,
-        body.fullName,
-        order._id.toString()
-      );
+      await sendOrderConfirmation(email, body.fullName, order._id.toString());
 
       await sendAdminOrderNotification({
         _id: order._id.toString(),
@@ -286,10 +310,7 @@ export async function POST(req: Request) {
         paymentMethod: body.paymentMethod,
       });
     } catch (emailError) {
-      console.error(
-        "Order email failed. Order still placed:",
-        emailError
-      );
+      console.error("Order email failed. Order still placed:", emailError);
     }
 
     // ----------------------------------------------------
@@ -299,24 +320,16 @@ export async function POST(req: Request) {
     let finalOrder = order;
 
     try {
-      console.log(
-        "Sending order to Shipmozo:",
-        order._id.toString()
-      );
+      console.log("Sending order to Shipmozo:", order._id.toString());
 
-      const shipmozoResponse =
-        await pushShipmozoOrder(order);
+      const shipmozoResponse = await pushShipmozoOrder(order);
 
-      console.log(
-        "Shipmozo push successful:",
-        shipmozoResponse
-      );
+      console.log("Shipmozo push successful:", shipmozoResponse);
 
       // Shipmozo normally returns its order/reference data
       // inside the response data object. We keep this flexible
       // so the integration does not depend on one exact response shape.
-      const shipmozoData =
-        shipmozoResponse?.data || {};
+      const shipmozoData = shipmozoResponse?.data || {};
 
       const shipmozoOrderId =
         shipmozoData?.order_id ||
@@ -325,31 +338,23 @@ export async function POST(req: Request) {
         order._id.toString();
 
       // Save Shipmozo order ID immediately.
-      await Order.findByIdAndUpdate(
-        order._id,
-        {
-          shipmozoOrderId: String(shipmozoOrderId),
-          status: "Processing",
-        }
-      );
+      await Order.findByIdAndUpdate(order._id, {
+        shipmozoOrderId: String(shipmozoOrderId),
+        status: "Processing",
+      });
 
       // --------------------------------------------------
       // STEP 6: AUTO ASSIGN COURIER + GENERATE AWB
       // --------------------------------------------------
 
       try {
-        const assignResponse =
-          await autoAssignShipmozoOrder(
-            String(shipmozoOrderId)
-          );
-
-        console.log(
-          "Shipmozo auto-assignment successful:",
-          assignResponse
+        const assignResponse = await autoAssignShipmozoOrder(
+          String(shipmozoOrderId)
         );
 
-        const assignData =
-          assignResponse?.data || {};
+        console.log("Shipmozo auto-assignment successful:", assignResponse);
+
+        const assignData = assignResponse?.data || {};
 
         const courierName =
           assignData?.courier_name ||
@@ -365,58 +370,34 @@ export async function POST(req: Request) {
           "";
 
         const estimatedDelivery =
-          assignData?.estimated_delivery ||
-          assignData?.estimatedDelivery ||
-          "";
+          assignData?.estimated_delivery || assignData?.estimatedDelivery || "";
 
-        await Order.findByIdAndUpdate(
-          order._id,
-          {
-            courierName: String(courierName || ""),
-            trackingNumber: String(
-              trackingNumber || ""
-            ),
-            estimatedDelivery: String(
-              estimatedDelivery || ""
-            ),
-            shipmozoOrderId: String(
-              shipmozoOrderId
-            ),
-            status: trackingNumber
-              ? "Shipped"
-              : "Processing",
-          }
-        );
+        await Order.findByIdAndUpdate(order._id, {
+          courierName: String(courierName || ""),
+          trackingNumber: String(trackingNumber || ""),
+          estimatedDelivery: String(estimatedDelivery || ""),
+          shipmozoOrderId: String(shipmozoOrderId),
+          status: trackingNumber ? "Shipped" : "Processing",
+        });
       } catch (assignError) {
         // Order is already successfully created.
         // Do NOT cancel the customer's order just because
         // courier assignment failed.
-        console.error(
-          "Shipmozo courier assignment failed:",
-          assignError
-        );
+        console.error("Shipmozo courier assignment failed:", assignError);
       }
 
       // Get the latest version from MongoDB.
-      finalOrder =
-        (await Order.findById(order._id)) || order;
+      finalOrder = (await Order.findById(order._id)) || order;
     } catch (shipmozoError) {
       // Shipmozo failure must NOT destroy a successfully
       // created customer order.
-      console.error(
-        "Shipmozo order push failed:",
-        shipmozoError
-      );
+      console.error("Shipmozo order push failed:", shipmozoError);
 
-      await Order.findByIdAndUpdate(
-        order._id,
-        {
-          status: "Processing",
-        }
-      );
+      await Order.findByIdAndUpdate(order._id, {
+        status: "Processing",
+      });
 
-      finalOrder =
-        (await Order.findById(order._id)) || order;
+      finalOrder = (await Order.findById(order._id)) || order;
     }
 
     // ----------------------------------------------------
