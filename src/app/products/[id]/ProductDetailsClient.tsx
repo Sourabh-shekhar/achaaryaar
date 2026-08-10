@@ -650,7 +650,7 @@ export default function ProductDetailsClient({
               {/* Description */}
               <div className="max-w-5xl mx-auto">
 
-                <p className="text-[#3B342D] text-base leading-7 sm:text-lg sm:leading-8 md:text-xl md:leading-10 mb-8 font-medium">
+                <p className="text-[#3B342D] text-base leading-7 sm:text-lg sm:leading-8 md:text-xl md:leading-10 mb-8 font-medium whitespace-pre-line">
                   {product.description}
                 </p>
 
@@ -721,7 +721,7 @@ export default function ProductDetailsClient({
                     Manufacturer Name &amp; Address
                   </p>
                   <p className="sm:col-span-2 font-medium text-[#2D2A26]">
-                    AchaarYaar, Siwan, Bihar, India
+                    Arkvon Group , Siwan, Bihar, India
                   </p>
                 </div>
 
@@ -730,7 +730,7 @@ export default function ProductDetailsClient({
                     Packer Name &amp; Address
                   </p>
                   <p className="sm:col-span-2 font-medium text-[#2D2A26]">
-                    AchaarYaar, Siwan, Bihar, India
+                    AchaarYaar , Siwan, Bihar, India
                   </p>
                 </div>
 

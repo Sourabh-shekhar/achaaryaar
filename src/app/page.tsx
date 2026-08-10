@@ -599,7 +599,7 @@ function OfferBanner() {
               margin: "0 auto",
             }}>
               <Image
-                src="/image/discount.png"
+                src="/image/secondbanner.png"
                 alt="AchaarYaar jars - your first order, 10% off"
                 fill
                 sizes="(max-width: 768px) 60vw, 240px"
