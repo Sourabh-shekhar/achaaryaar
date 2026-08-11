@@ -7,17 +7,13 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import { getCoupon } from "@/lib/coupons";
 import Order from "@/models/Order";
-import Product from "@/models/Product";
 
 import {
   sendAdminOrderNotification,
   sendOrderConfirmation,
 } from "@/lib/sendEmail";
 
-import {
-  pushShipmozoOrder,
-  autoAssignShipmozoOrder,
-} from "@/lib/shipmozo";
+import { processShipmozoOrder } from "@/lib/processShipmozoOrder";
 
 type CartItem = {
   _id: string;
@@ -26,6 +22,11 @@ type CartItem = {
   isCombo?: boolean;
 };
 
+/**
+ * --------------------------------------------------------
+ * COUPON VALIDATION
+ * --------------------------------------------------------
+ */
 async function resolveCoupon(
   email: string,
   rawCode: string | undefined
@@ -85,10 +86,9 @@ async function resolveCoupon(
 }
 
 /**
- * Reserve stock atomically.
- *
- * Returns the items successfully decremented so that
- * they can be rolled back if another item is unavailable.
+ * --------------------------------------------------------
+ * RESERVE STOCK ATOMICALLY
+ * --------------------------------------------------------
  */
 async function reserveStock(items: CartItem[]) {
   const decrementedItems: CartItem[] = [];
@@ -107,56 +107,75 @@ async function reserveStock(items: CartItem[]) {
 
     let updatedProduct;
 
+    /**
+     * COMBO
+     */
     if (item.isCombo) {
-      updatedProduct = await Product.findOneAndUpdate(
-        {
-          _id: item._id,
-          isCombo: true,
-          comboStock: {
-            $gte: quantity,
+      const Product = (
+        await import("@/models/Product")
+      ).default;
+
+      updatedProduct =
+        await Product.findOneAndUpdate(
+          {
+            _id: item._id,
+            isCombo: true,
+            comboStock: {
+              $gte: quantity,
+            },
           },
-        },
-        {
-          $inc: {
-            comboStock: -quantity,
+          {
+            $inc: {
+              comboStock: -quantity,
+            },
           },
-        },
-        {
-          new: true,
-        }
-      );
-    } else {
+          {
+            new: true,
+          }
+        );
+    }
+
+    /**
+     * NORMAL PRODUCT
+     */
+    else {
       if (!item.selectedVariant) {
         outOfStockItems.push(item._id);
         continue;
       }
 
-      updatedProduct = await Product.findOneAndUpdate(
-        {
-          _id: item._id,
-          weights: {
-            $elemMatch: {
-              size: item.selectedVariant,
-              stock: {
-                $gte: quantity,
+      const Product = (
+        await import("@/models/Product")
+      ).default;
+
+      updatedProduct =
+        await Product.findOneAndUpdate(
+          {
+            _id: item._id,
+            weights: {
+              $elemMatch: {
+                size: item.selectedVariant,
+                stock: {
+                  $gte: quantity,
+                },
               },
             },
           },
-        },
-        {
-          $inc: {
-            "weights.$[elem].stock": -quantity,
-          },
-        },
-        {
-          arrayFilters: [
-            {
-              "elem.size": item.selectedVariant,
+          {
+            $inc: {
+              "weights.$[elem].stock": -quantity,
             },
-          ],
-          new: true,
-        }
-      );
+          },
+          {
+            arrayFilters: [
+              {
+                "elem.size":
+                  item.selectedVariant,
+              },
+            ],
+            new: true,
+          }
+        );
     }
 
     if (!updatedProduct) {
@@ -176,15 +195,26 @@ async function reserveStock(items: CartItem[]) {
 }
 
 /**
- * Roll back stock if order creation cannot continue.
+ * --------------------------------------------------------
+ * ROLLBACK STOCK
+ * --------------------------------------------------------
  */
-async function rollbackStock(items: CartItem[]) {
+async function rollbackStock(
+  items: CartItem[]
+) {
+  const Product = (
+    await import("@/models/Product")
+  ).default;
+
   for (const item of items) {
     const quantity = Math.max(
       1,
       Number(item.quantity) || 1
     );
 
+    /**
+     * COMBO
+     */
     if (item.isCombo) {
       await Product.updateOne(
         {
@@ -196,11 +226,17 @@ async function rollbackStock(items: CartItem[]) {
           },
         }
       );
-    } else if (item.selectedVariant) {
+    }
+
+    /**
+     * NORMAL PRODUCT
+     */
+    else if (item.selectedVariant) {
       await Product.updateOne(
         {
           _id: item._id,
-          "weights.size": item.selectedVariant,
+          "weights.size":
+            item.selectedVariant,
         },
         {
           $inc: {
@@ -213,51 +249,20 @@ async function rollbackStock(items: CartItem[]) {
 }
 
 /**
- * Extract Shipmozo order ID from different possible
- * response structures.
+ * --------------------------------------------------------
+ * POST
+ * --------------------------------------------------------
  */
-function extractShipmozoOrderId(data: any) {
-  return (
-    data?.order_id ||
-    data?.shipmozo_order_id ||
-    data?.id ||
-    data?.orderId ||
-    ""
-  );
-}
-
-/**
- * Extract courier/AWB information from Shipmozo response.
- */
-function extractShipmozoShipment(data: any) {
-  return {
-    courierName:
-      data?.courier_name ||
-      data?.courierName ||
-      data?.courier ||
-      "",
-
-    trackingNumber:
-      data?.awb_number ||
-      data?.awb ||
-      data?.tracking_number ||
-      data?.trackingNumber ||
-      "",
-
-    estimatedDelivery:
-      data?.estimated_delivery ||
-      data?.estimatedDelivery ||
-      "",
-  };
-}
-
-export async function POST(req: Request) {
+export async function POST(
+  req: Request
+) {
   try {
     // ----------------------------------------------------
     // 1. REQUIRE LOGIN
     // ----------------------------------------------------
 
-    const session = await getServerSession(authOptions);
+    const session =
+      await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json(
@@ -272,7 +277,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const email = session.user.email;
+    const email =
+      session.user.email;
 
     // ----------------------------------------------------
     // 2. RAZORPAY SECRET
@@ -298,7 +304,8 @@ export async function POST(req: Request) {
     // 3. READ REQUEST
     // ----------------------------------------------------
 
-    const body = await req.json();
+    const body =
+      await req.json();
 
     const {
       razorpay_order_id,
@@ -329,15 +336,20 @@ export async function POST(req: Request) {
     // 4. VERIFY RAZORPAY SIGNATURE
     // ----------------------------------------------------
 
-    const expectedSignature = crypto
-      .createHmac("sha256", keySecret)
-      .update(
-        `${razorpay_order_id}|${razorpay_payment_id}`
-      )
-      .digest("hex");
+    const expectedSignature =
+      crypto
+        .createHmac(
+          "sha256",
+          keySecret
+        )
+        .update(
+          `${razorpay_order_id}|${razorpay_payment_id}`
+        )
+        .digest("hex");
 
     if (
-      expectedSignature !== razorpay_signature
+      expectedSignature !==
+      razorpay_signature
     ) {
       return NextResponse.json(
         {
@@ -351,15 +363,21 @@ export async function POST(req: Request) {
       );
     }
 
+    // ----------------------------------------------------
+    // 5. CONNECT DATABASE
+    // ----------------------------------------------------
+
     await connectDB();
 
     // ----------------------------------------------------
-    // 5. PREVENT DUPLICATE PAYMENT ORDERS
+    // 6. PREVENT DUPLICATE ORDER
     // ----------------------------------------------------
 
-    const existingOrder = await Order.findOne({
-      paymentId: razorpay_payment_id,
-    });
+    const existingOrder =
+      await Order.findOne({
+        paymentId:
+          razorpay_payment_id,
+      });
 
     if (existingOrder) {
       return NextResponse.json({
@@ -370,13 +388,14 @@ export async function POST(req: Request) {
     }
 
     // ----------------------------------------------------
-    // 6. VALIDATE COUPON
+    // 7. VALIDATE COUPON
     // ----------------------------------------------------
 
-    const coupon = await resolveCoupon(
-      email,
-      orderPayload.couponCode
-    );
+    const coupon =
+      await resolveCoupon(
+        email,
+        orderPayload.couponCode
+      );
 
     if (coupon.error) {
       return NextResponse.json(
@@ -391,29 +410,50 @@ export async function POST(req: Request) {
     }
 
     // ----------------------------------------------------
-    // 7. CALCULATE FINAL TOTAL
+    // 8. GET SERVER TOTAL
+    // ----------------------------------------------------
+    //
+    // The checkout route already calculates the real
+    // price from the database.
+    //
+    // We use the values returned in orderPayload here
+    // to keep this route compatible with your current
+    // frontend payment flow.
+    //
+    // UPI / Razorpay ONLY.
     // ----------------------------------------------------
 
     const subtotal =
-      Number(orderPayload.subtotal) || 0;
+      Number(
+        orderPayload.subtotal
+      ) || 0;
 
     const shipping =
-      Number(orderPayload.shipping) || 0;
+      Number(
+        orderPayload.shipping
+      ) || 0;
 
-    const discount = Math.round(
-      (subtotal * coupon.percent) / 100
-    );
+    const discount =
+      Math.round(
+        (subtotal *
+          coupon.percent) /
+          100
+      );
 
-    const total = Math.max(
-      0,
-      subtotal - discount + shipping
-    );
+    const total =
+      Math.max(
+        0,
+        subtotal -
+          discount +
+          shipping
+      );
 
     if (total <= 0) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid order total.",
+          message:
+            "Invalid order total.",
         },
         {
           status: 400,
@@ -422,18 +462,23 @@ export async function POST(req: Request) {
     }
 
     // ----------------------------------------------------
-    // 8. RESERVE STOCK
+    // 9. RESERVE STOCK
     // ----------------------------------------------------
 
     const {
       decrementedItems,
       outOfStockItems,
-    } = await reserveStock(
-      orderPayload.items || []
-    );
+    } =
+      await reserveStock(
+        orderPayload.items || []
+      );
 
-    if (outOfStockItems.length > 0) {
-      await rollbackStock(decrementedItems);
+    if (
+      outOfStockItems.length > 0
+    ) {
+      await rollbackStock(
+        decrementedItems
+      );
 
       return NextResponse.json(
         {
@@ -441,7 +486,8 @@ export async function POST(req: Request) {
           message:
             "Some items in your cart are no longer in stock. Your payment may require refund processing.",
           outOfStockItems,
-          paymentId: razorpay_payment_id,
+          paymentId:
+            razorpay_payment_id,
         },
         {
           status: 409,
@@ -450,42 +496,57 @@ export async function POST(req: Request) {
     }
 
     // ----------------------------------------------------
-    // 9. CREATE PAID ORDER
+    // 10. CREATE PAID ORDER
     // ----------------------------------------------------
 
     let order;
 
     try {
-      order = await Order.create({
-        ...orderPayload,
+      order =
+        await Order.create({
+          ...orderPayload,
 
-        // Never trust email from browser.
-        email,
+          // NEVER trust browser email
+          email,
 
-        couponCode: coupon.code,
-        discount,
-        total,
+          // NEVER allow COD from browser
+          paymentMethod:
+            "razorpay",
 
-        paymentMethod: "razorpay",
-        paymentStatus: "Paid",
+          paymentStatus:
+            "Paid",
 
-        paymentId:
-          razorpay_payment_id,
+          paymentId:
+            razorpay_payment_id,
 
-        gatewayOrderId:
-          razorpay_order_id,
+          gatewayOrderId:
+            razorpay_order_id,
 
-        status: "Processing",
+          couponCode:
+            coupon.code,
 
-        // Shipmozo starts empty.
-        courierName: "",
-        trackingNumber: "",
-        estimatedDelivery: "",
-        shipmozoOrderId: "",
-      });
+          discount,
+
+          subtotal,
+
+          shipping,
+
+          total,
+
+          status:
+            "Processing",
+
+          // SHIPMOZO
+          courierName: "",
+          trackingNumber: "",
+          estimatedDelivery: "",
+          shipmozoOrderId: "",
+          shippingStatus:
+            "Pending",
+          trackingUrl: "",
+        });
     } catch (orderError) {
-      // Order creation failed after stock reservation.
-      // Restore stock.
+      // Restore stock if database order creation fails
       await rollbackStock(
         decrementedItems
       );
@@ -494,7 +555,7 @@ export async function POST(req: Request) {
     }
 
     // ----------------------------------------------------
-    // 10. SEND EMAILS
+    // 11. SEND CUSTOMER + ADMIN EMAILS
     // ----------------------------------------------------
 
     try {
@@ -505,12 +566,20 @@ export async function POST(req: Request) {
       );
 
       await sendAdminOrderNotification({
-        _id: order._id.toString(),
+        _id:
+          order._id.toString(),
+
         fullName:
           orderPayload.fullName,
+
         email,
-        phone: orderPayload.phone,
+
+        phone:
+          orderPayload.phone,
+
         total,
+
+        // UPI / RAZORPAY ONLY
         paymentMethod:
           "razorpay",
       });
@@ -522,7 +591,20 @@ export async function POST(req: Request) {
     }
 
     // ----------------------------------------------------
-    // 11. PUSH ORDER TO SHIPMOZO
+    // 12. PROCESS SHIPMOZO
+    // ----------------------------------------------------
+    //
+    // This calls:
+    //
+    // pushShipmozoOrder()
+    //        ↓
+    // save Shipmozo order ID
+    //        ↓
+    // autoAssignShipmozoOrder()
+    //        ↓
+    // save courier + AWB
+    //
+    // If Shipmozo fails, the paid order remains valid.
     // ----------------------------------------------------
 
     try {
@@ -531,94 +613,33 @@ export async function POST(req: Request) {
         order._id.toString()
       );
 
-      const shipmozoResponse =
-        await pushShipmozoOrder(order);
+      const updatedOrder =
+        await processShipmozoOrder(
+          order
+        );
+
+      order =
+        updatedOrder;
 
       console.log(
-        "Shipmozo push successful:",
-        shipmozoResponse
-      );
+        "Shipmozo processing completed:",
+        {
+          shipmozoOrderId:
+            order.shipmozoOrderId,
 
-      const shipmozoData =
-        shipmozoResponse?.data || {};
+          courierName:
+            order.courierName,
 
-      const shipmozoOrderId =
-        extractShipmozoOrderId(
-          shipmozoData
-        );
+          trackingNumber:
+            order.trackingNumber,
 
-      if (shipmozoOrderId) {
-        await Order.findByIdAndUpdate(
-          order._id,
-          {
-            shipmozoOrderId:
-              String(shipmozoOrderId),
-          }
-        );
-      }
-
-      // --------------------------------------------------
-      // 12. AUTO ASSIGN COURIER
-      // --------------------------------------------------
-
-      if (shipmozoOrderId) {
-        try {
-          const assignResponse =
-            await autoAssignShipmozoOrder(
-              String(shipmozoOrderId)
-            );
-
-          console.log(
-            "Shipmozo courier assignment successful:",
-            assignResponse
-          );
-
-          const assignData =
-            assignResponse?.data || {};
-
-          const shipment =
-            extractShipmozoShipment(
-              assignData
-            );
-
-          await Order.findByIdAndUpdate(
-            order._id,
-            {
-              shipmozoOrderId:
-                String(shipmozoOrderId),
-
-              courierName:
-                String(
-                  shipment.courierName || ""
-                ),
-
-              trackingNumber:
-                String(
-                  shipment.trackingNumber || ""
-                ),
-
-              estimatedDelivery:
-                String(
-                  shipment.estimatedDelivery ||
-                    ""
-                ),
-
-              status:
-                shipment.trackingNumber
-                  ? "Shipped"
-                  : "Processing",
-            }
-          );
-        } catch (assignError) {
-          console.error(
-            "Shipmozo courier assignment failed. Order remains valid:",
-            assignError
-          );
+          status:
+            order.status,
         }
-      }
+      );
     } catch (shipmozoError) {
       console.error(
-        "Shipmozo push failed. Order remains valid:",
+        "Shipmozo processing failed. Paid order remains valid:",
         shipmozoError
       );
     }
@@ -628,8 +649,9 @@ export async function POST(req: Request) {
     // ----------------------------------------------------
 
     const finalOrder =
-      (await Order.findById(order._id)) ||
-      order;
+      (await Order.findById(
+        order._id
+      )) || order;
 
     // ----------------------------------------------------
     // 14. SUCCESS

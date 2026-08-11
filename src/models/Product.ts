@@ -90,7 +90,7 @@ const ProductSchema = new Schema(
 
     comboSize: {
       type: Number,
-      enum: [2, 3, 4],
+      enum: [2,  4],
     },
 
     comboUnitWeight: {

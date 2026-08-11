@@ -5,6 +5,7 @@ const OrderSchema = new mongoose.Schema(
     // ----------------------------------------------------
     // CUSTOMER
     // ----------------------------------------------------
+
     email: {
       type: String,
       required: true,
@@ -52,9 +53,10 @@ const OrderSchema = new mongoose.Schema(
     // ----------------------------------------------------
     // PAYMENT
     // ----------------------------------------------------
+
     paymentMethod: {
       type: String,
-      enum: ["cod", "razorpay"],
+      enum: ["razorpay"],
       required: true,
     },
 
@@ -80,6 +82,7 @@ const OrderSchema = new mongoose.Schema(
     // ----------------------------------------------------
     // PRODUCTS
     // ----------------------------------------------------
+
     items: {
       type: Array,
       required: true,
@@ -100,6 +103,7 @@ const OrderSchema = new mongoose.Schema(
     // ----------------------------------------------------
     // COUPON
     // ----------------------------------------------------
+
     couponCode: {
       type: String,
       default: "",
@@ -120,6 +124,7 @@ const OrderSchema = new mongoose.Schema(
     // ----------------------------------------------------
     // ORDER STATUS
     // ----------------------------------------------------
+
     status: {
       type: String,
       default: "Pending",
@@ -173,25 +178,25 @@ const OrderSchema = new mongoose.Schema(
     // SHIPMENT DIMENSIONS
     // ----------------------------------------------------
 
-    // Weight in grams
+    // Actual packed shipping weight in grams
     shipmentWeight: {
       type: Number,
       default: 500,
     },
 
-    // Length in cm
+    // Carton length in inches
     shipmentLength: {
       type: Number,
       default: 20,
     },
 
-    // Width in cm
+    // Carton width in inches
     shipmentWidth: {
       type: Number,
       default: 15,
     },
 
-    // Height in cm
+    // Carton height in inches
     shipmentHeight: {
       type: Number,
       default: 10,

@@ -5,6 +5,12 @@ import {
 
 import Order from "@/models/Order";
 
+/*
+|--------------------------------------------------------------------------
+| EXTRACT SHIPMOZO ORDER ID
+|--------------------------------------------------------------------------
+*/
+
 function extractShipmozoOrderId(data: any) {
   return (
     data?.order_id ||
@@ -14,6 +20,12 @@ function extractShipmozoOrderId(data: any) {
     ""
   );
 }
+
+/*
+|--------------------------------------------------------------------------
+| EXTRACT SHIPMENT DATA
+|--------------------------------------------------------------------------
+*/
 
 function extractShipmentData(data: any) {
   return {
@@ -39,28 +51,60 @@ function extractShipmentData(data: any) {
   };
 }
 
-export async function processShipmozoOrder(order: any) {
-  // -----------------------------------------
-  // 1. PUSH ORDER TO SHIPMOZO
-  // -----------------------------------------
+/*
+|--------------------------------------------------------------------------
+| PROCESS SHIPMOZO ORDER
+|--------------------------------------------------------------------------
+*/
 
-  const pushResponse = await pushShipmozoOrder(order);
+export async function processShipmozoOrder(
+  order: any
+) {
+  /*
+  |--------------------------------------------------------------------------
+  | 1. PUSH ORDER
+  |--------------------------------------------------------------------------
+  */
 
-  const shipmozoData = pushResponse?.data || {};
+  const pushResponse =
+    await pushShipmozoOrder(order);
+
+  const shipmozoData =
+    pushResponse?.data || {};
 
   const shipmozoOrderId =
-    extractShipmozoOrderId(shipmozoData) ||
-    order._id.toString();
+    extractShipmozoOrderId(
+      shipmozoData
+    );
 
-  // Save Shipmozo order ID
-  await Order.findByIdAndUpdate(order._id, {
-    shipmozoOrderId: String(shipmozoOrderId),
-    status: "Processing",
-  });
+  if (!shipmozoOrderId) {
+    throw new Error(
+      "Shipmozo did not return a valid Shipmozo order ID."
+    );
+  }
 
-  // -----------------------------------------
-  // 2. AUTO ASSIGN COURIER
-  // -----------------------------------------
+  /*
+  |--------------------------------------------------------------------------
+  | 2. SAVE SHIPMOZO ORDER ID
+  |--------------------------------------------------------------------------
+  */
+
+  await Order.findByIdAndUpdate(
+    order._id,
+    {
+      shipmozoOrderId:
+        String(shipmozoOrderId),
+
+      status:
+        "Processing",
+    }
+  );
+
+  /*
+  |--------------------------------------------------------------------------
+  | 3. AUTO ASSIGN COURIER
+  |--------------------------------------------------------------------------
+  */
 
   try {
     const assignResponse =
@@ -68,13 +112,25 @@ export async function processShipmozoOrder(order: any) {
         String(shipmozoOrderId)
       );
 
+    console.log(
+      "Shipmozo courier assignment response:",
+      assignResponse
+    );
+
     const assignData =
       assignResponse?.data || {};
 
     const shipment =
-      extractShipmentData(assignData);
+      extractShipmentData(
+        assignData
+      );
 
-    // Save courier + AWB
+    /*
+    |--------------------------------------------------------------------------
+    | 4. SAVE AWB + COURIER
+    |--------------------------------------------------------------------------
+    */
+
     await Order.findByIdAndUpdate(
       order._id,
       {
@@ -82,10 +138,14 @@ export async function processShipmozoOrder(order: any) {
           String(shipmozoOrderId),
 
         trackingNumber:
-          String(shipment.trackingNumber || ""),
+          String(
+            shipment.trackingNumber || ""
+          ),
 
         courierName:
-          String(shipment.courierName || ""),
+          String(
+            shipment.courierName || ""
+          ),
 
         estimatedDelivery:
           String(
@@ -96,20 +156,36 @@ export async function processShipmozoOrder(order: any) {
           shipment.trackingNumber
             ? "Shipped"
             : "Processing",
+
+        shippingStatus:
+          shipment.trackingNumber
+            ? "Shipped"
+            : "Pending",
       }
     );
   } catch (error) {
-    // Order is already created.
-    // Courier failure should not cancel the order.
+    /*
+    |--------------------------------------------------------------------------
+    | IMPORTANT
+    |--------------------------------------------------------------------------
+    |
+    | Order is already successfully created.
+    | Courier assignment failure must NOT
+    | cancel the customer's paid order.
+    |
+    */
+
     console.error(
       "Shipmozo courier assignment failed:",
       error
     );
   }
 
-  // -----------------------------------------
-  // 3. RETURN UPDATED ORDER
-  // -----------------------------------------
+  /*
+  |--------------------------------------------------------------------------
+  | 5. RETURN UPDATED ORDER
+  |--------------------------------------------------------------------------
+  */
 
   const updatedOrder =
     (await Order.findById(order._id)) ||
