@@ -583,8 +583,8 @@ export default function ProductDetailsClient({
 
       {/* Product Information Tabs */}
 
-      <section className="max-w-7xl mx-auto px-6 mt-24">
-        <div className="bg-white rounded-3xl shadow-lg border border-[#E8DDD1] p-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-16 sm:mt-24">
+        <div className="bg-white rounded-3xl shadow-lg border border-[#E8DDD1] p-4 sm:p-8">
 
           {/* Tabs */}
 
@@ -689,35 +689,35 @@ export default function ProductDetailsClient({
           )}
           {/* Description Tab */}
           {activeTab === "description" && (
-            <div className="bg-[#FFFDF8] rounded-3xl p-10">
+            <div className="bg-[#FFFDF8] rounded-2xl sm:rounded-3xl p-5 sm:p-10">
 
               {/* Heading */}
               <h2
-                className="text-4xl md:text-5xl font-bold text-[#2D2A26] text-center"
+                className="mx-auto max-w-4xl text-3xl leading-tight sm:text-4xl md:text-5xl font-bold text-[#2D2A26] text-center"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 About {product.name}
               </h2>
 
               {/* Decorative Divider */}
-              <div className="flex items-center justify-center my-8">
-                <div className="h-[1px] w-1/3 bg-[#D6C5AE]"></div>
+              <div className="flex items-center justify-center my-6 sm:my-8">
+                <div className="h-[1px] flex-1 bg-[#D6C5AE]"></div>
 
-                <span className="mx-4 text-3xl text-[#C18A42]">
+                <span className="mx-3 sm:mx-4 text-2xl sm:text-3xl text-[#C18A42]">
                   ~
                 </span>
 
-                <div className="h-[1px] w-1/3 bg-[#D6C5AE]"></div>
+                <div className="h-[1px] flex-1 bg-[#D6C5AE]"></div>
               </div>
 
               {/* Description */}
               <div className="max-w-5xl mx-auto">
 
-                <p className="text-[#3B342D] text-base leading-7 sm:text-lg sm:leading-8 md:text-xl md:leading-10 mb-8 font-medium whitespace-pre-line">
+                <p className="text-[#3B342D] text-[15px] leading-7 sm:text-lg sm:leading-8 md:text-xl md:leading-10 mb-7 sm:mb-8 font-medium whitespace-pre-line break-words">
                   {product.description}
                 </p>
 
-                <div className="space-y-6 text-base leading-7 sm:text-lg sm:leading-8 md:text-xl md:leading-10 text-[#3B342D]">
+                <div className="space-y-5 sm:space-y-6 text-[15px] leading-7 sm:text-lg sm:leading-8 md:text-xl md:leading-10 text-[#3B342D]">
 
                   <div>
                     <span
