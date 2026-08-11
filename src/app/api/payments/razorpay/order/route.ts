@@ -3,21 +3,9 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
+import { getCoupon } from "@/lib/coupons";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
-
-const COUPONS: Record<
-    string,
-    { percent: number; firstOrderOnly?: boolean }
-> = {
-    WELCOME10: {
-        percent: 10,
-        firstOrderOnly: true,
-    },
-    BIHAR10: {
-        percent: 10,
-    },
-};
 
 type CartItem = {
     _id: string;
@@ -234,7 +222,7 @@ export async function POST(req: Request) {
         let validCouponCode = "";
 
         if (couponCode) {
-            const coupon = COUPONS[couponCode];
+            const coupon = await getCoupon(couponCode);
 
             if (!coupon) {
                 return NextResponse.json(

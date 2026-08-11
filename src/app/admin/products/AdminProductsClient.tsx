@@ -293,9 +293,14 @@ export default function AdminProductsClient() {
 
     return (
         <div className="min-h-screen bg-gray-100 p-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-8">
-                Product Management
-            </h1>
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+                <h1 className="text-4xl font-bold text-gray-900">
+                    Product Management
+                </h1>
+                <Link href="/admin/coupons" className="rounded-xl bg-[#3D5640] px-5 py-3 font-bold text-white">
+                    Manage Coupons
+                </Link>
+            </div>
 
             <div className="bg-white p-8 rounded-2xl shadow-lg max-w-3xl">
 

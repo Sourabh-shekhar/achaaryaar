@@ -67,6 +67,7 @@ export default function CheckoutPage() {
 
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [appliedCoupon, setAppliedCoupon] = useState("");
+    const [couponMap, setCouponMap] = useState<Record<string, number>>({});
 
     const [email, setEmail] = useState("");
     const paymentMethod = "razorpay" as const;
@@ -131,13 +132,20 @@ export default function CheckoutPage() {
 
     // Free delivery on orders of ₹499 or more
     const shipping = items.length === 0 ? 0 : subtotal >= 499 ? 0 : 50;
-    const couponMap: Record<string, number> = {
-        WELCOME10: 10,
-        BIHAR10: 10,
-    };
     const discountPercent = appliedCoupon ? couponMap[appliedCoupon] || 0 : 0;
     const discount = Math.round((subtotal * discountPercent) / 100);
     const total = Math.max(0, subtotal - discount + shipping);
+
+    useEffect(() => {
+        fetch("/api/coupons", { cache: "no-store" })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    setCouponMap(Object.fromEntries(data.coupons.map((coupon: { code: string; percent: number }) => [coupon.code, coupon.percent])));
+                }
+            })
+            .catch(() => setCouponMap({}));
+    }, []);
 
     useEffect(() => {
         const savedCoupon = localStorage.getItem("achaaryaar_coupon") || "";

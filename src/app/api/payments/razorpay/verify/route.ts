@@ -5,6 +5,7 @@ import { isValidObjectId } from "mongoose";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
+import { getCoupon } from "@/lib/coupons";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 
@@ -25,19 +26,6 @@ type CartItem = {
   isCombo?: boolean;
 };
 
-const COUPONS: Record<
-  string,
-  { percent: number; firstOrderOnly?: boolean }
-> = {
-  WELCOME10: {
-    percent: 10,
-    firstOrderOnly: true,
-  },
-  BIHAR10: {
-    percent: 10,
-  },
-};
-
 async function resolveCoupon(
   email: string,
   rawCode: string | undefined
@@ -52,7 +40,7 @@ async function resolveCoupon(
     };
   }
 
-  const coupon = COUPONS[code];
+  const coupon = await getCoupon(code);
 
   if (!coupon) {
     return {

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { isValidObjectId } from "mongoose";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
+import { getCoupon } from "@/lib/coupons";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 import { sendAdminOrderNotification, sendOrderConfirmation } from "@/lib/sendEmail";
@@ -16,10 +17,6 @@ import {
 // discount percentage or eligibility, only for which code the customer
 // typed in. Keep this in sync with any coupon codes shown in the UI
 // (currently in the checkout page's old client-side couponMap).
-const COUPONS: Record<string, { percent: number; firstOrderOnly?: boolean }> = {
-  WELCOME10: { percent: 10, firstOrderOnly: true },
-};
-
 // Validates a coupon code for this specific customer. Returns the
 // discount percent to apply (0 if no/invalid coupon), and an error
 // message if the customer tried to use one they're not eligible for.
@@ -38,7 +35,7 @@ async function resolveCoupon(
     };
   }
 
-  const coupon = COUPONS[code];
+  const coupon = await getCoupon(code);
 
   if (!coupon) {
     return {

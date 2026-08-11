@@ -14,6 +14,7 @@ export default function CartPage() {
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
   const [couponMessage, setCouponMessage] = useState("");
+  const [couponMap, setCouponMap] = useState<Record<string, number>>({});
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const increaseQuantity = useCartStore(
@@ -87,13 +88,20 @@ export default function CartPage() {
   }, 0);
 
   const shipping = items.length > 0 ? 50 : 0;
-  const couponMap: Record<string, number> = {
-    WELCOME10: 10,
-    BIHAR10: 10,
-  };
   const discountPercent = appliedCoupon ? couponMap[appliedCoupon] || 0 : 0;
   const discount = Math.round((subtotal * discountPercent) / 100);
   const total = Math.max(0, subtotal - discount + shipping);
+
+  useEffect(() => {
+    fetch("/api/coupons", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          setCouponMap(Object.fromEntries(data.coupons.map((coupon: { code: string; percent: number }) => [coupon.code, coupon.percent])));
+        }
+      })
+      .catch(() => setCouponMap({}));
+  }, []);
 
   useEffect(() => {
     const savedCoupon = localStorage.getItem("achaaryaar_coupon") || "";
