@@ -100,7 +100,26 @@ const ProductSchema = new Schema(
       // the per-jar-size field existed.
       enum: ["120g", "220g", "330g", "430g"],
     },
-
+comboVariants: {
+      type: [
+        {
+          unitWeight: {
+            type: String,
+            enum: ["120g", "220g", "330g", "430g"],
+            required: true,
+          },
+          price: {
+            type: Number,
+            required: true,
+          },
+          stock: {
+            type: Number,
+            default: 0,
+          },
+        },
+      ],
+      default: undefined,
+    },
     comboItems: {
       type: [ComboItemSchema],
       default: undefined,

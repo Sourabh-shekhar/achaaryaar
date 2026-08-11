@@ -45,11 +45,16 @@ export default function AdminProductsClient() {
     const [isCombo, setIsCombo] = useState(false);
     const [comboSize, setComboSize] = useState<2 | 3 | 4>(3);
     const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
-    const [comboPrice, setComboPrice] = useState("");
-    const [comboStock, setComboStock] = useState("");
-    // Keep the established 220g default.  120g is an additional choice,
-    // not a replacement for the existing combo sizes.
-    const [comboUnitWeight, setComboUnitWeight] = useState("220g");
+
+    // One row per weight option. Admin fills in a price for whichever
+    // weights this combo should offer — customers will then be able to
+    // pick between all the ones that have a price set.
+    const [comboVariants, setComboVariants] = useState([
+        { unitWeight: "120g", price: "", stock: "" },
+        { unitWeight: "220g", price: "", stock: "" },
+        { unitWeight: "330g", price: "", stock: "" },
+        { unitWeight: "430g", price: "", stock: "" },
+    ]);
 
     const [products, setProducts] = useState<any[]>([]);
     useEffect(() => {
@@ -186,9 +191,12 @@ export default function AdminProductsClient() {
         setIsCombo(false);
         setComboSize(3);
         setSelectedProductIds([]);
-        setComboPrice("");
-        setComboStock("");
-        setComboUnitWeight("220g");
+        setComboVariants([
+            { unitWeight: "120g", price: "", stock: "" },
+            { unitWeight: "220g", price: "", stock: "" },
+            { unitWeight: "330g", price: "", stock: "" },
+            { unitWeight: "430g", price: "", stock: "" },
+        ]);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -208,8 +216,16 @@ export default function AdminProductsClient() {
                 return;
             }
 
-            if (!comboPrice || Number(comboPrice) <= 0) {
-                alert("Please enter a valid combo price");
+            const validComboVariants = comboVariants
+                .filter((v) => v.price !== "" && Number(v.price) > 0)
+                .map((v) => ({
+                    unitWeight: v.unitWeight,
+                    price: Number(v.price),
+                    stock: Number(v.stock || 0),
+                }));
+
+            if (validComboVariants.length === 0) {
+                alert("Please enter a price for at least one weight option");
                 return;
             }
 
@@ -235,10 +251,13 @@ export default function AdminProductsClient() {
                         category: formData.category,
                         isCombo: true,
                         comboSize,
-                        comboUnitWeight,
+                        comboVariants: validComboVariants,
+                        // legacy single-value fields kept in sync with the first
+                        // variant, so any older code still reading them works fine
+                        comboUnitWeight: validComboVariants[0].unitWeight,
+                        comboPrice: validComboVariants[0].price,
+                        comboStock: validComboVariants[0].stock,
                         comboItems,
-                        comboPrice: Number(comboPrice),
-                        comboStock: Number(comboStock || 0),
                     }),
                 });
 
@@ -439,23 +458,54 @@ export default function AdminProductsClient() {
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Weight per Jar
-                                </label>
-                                <select
-                                    value={comboUnitWeight}
-                                    onChange={(e) => setComboUnitWeight(e.target.value)}
-                                    className="w-full border rounded-xl p-3 text-gray-900"
-                                >
-                                    <option value="120g">120g per jar</option>
-                                    <option value="220g">220g per jar</option>
-                                    <option value="330g">330g per jar</option>
-                                    <option value="430g">430g per jar</option>
-                                </select>
-                                <p className="mt-2 text-xs text-gray-500">
-                                    The pack will be shown as {comboUnitWeight} × {comboSize} jars.
+                            {/* Combo weight options — one row per weight,
+                                admin fills a price for whichever ones this
+                                combo should offer. */}
+                            <div className="space-y-4">
+                                <h3 className="text-xl font-bold text-gray-900">
+                                    Combo Weight Options
+                                </h3>
+                                <p className="text-sm text-gray-500">
+                                    Set a price for each weight you want to offer for
+                                    this combo. Leave a price blank to skip that
+                                    option — customers will be able to choose between
+                                    whichever ones you fill in.
                                 </p>
+
+                                {comboVariants.map((variant, index) => (
+                                    <div
+                                        key={variant.unitWeight}
+                                        className="border p-4 rounded-xl bg-white"
+                                    >
+                                        <h4 className="font-semibold mb-2 text-gray-900">
+                                            {variant.unitWeight} per jar × {comboSize} jars
+                                        </h4>
+
+                                        <input
+                                            type="number"
+                                            placeholder="Combo Price"
+                                            value={variant.price}
+                                            onChange={(e) => {
+                                                const updated = [...comboVariants];
+                                                updated[index].price = e.target.value;
+                                                setComboVariants(updated);
+                                            }}
+                                            className="w-full border rounded-xl p-3 mb-3 text-gray-900"
+                                        />
+
+                                        <input
+                                            type="number"
+                                            placeholder="Combo Stock"
+                                            value={variant.stock}
+                                            onChange={(e) => {
+                                                const updated = [...comboVariants];
+                                                updated[index].stock = e.target.value;
+                                                setComboVariants(updated);
+                                            }}
+                                            className="w-full border rounded-xl p-3 text-gray-900"
+                                        />
+                                    </div>
+                                ))}
                             </div>
 
                             {/* Product checklist */}
@@ -501,35 +551,6 @@ export default function AdminProductsClient() {
                                                 </label>
                                             );
                                         })}
-                                </div>
-                            </div>
-
-                            {/* Combo price + stock */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Combo Price (₹)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        placeholder="e.g. 499"
-                                        value={comboPrice}
-                                        onChange={(e) => setComboPrice(e.target.value)}
-                                        className="w-full border rounded-xl p-3 text-gray-900"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Combo Stock
-                                    </label>
-                                    <input
-                                        type="number"
-                                        placeholder="e.g. 50"
-                                        value={comboStock}
-                                        onChange={(e) => setComboStock(e.target.value)}
-                                        className="w-full border rounded-xl p-3 text-gray-900"
-                                    />
                                 </div>
                             </div>
                         </div>
@@ -613,94 +634,144 @@ export default function AdminProductsClient() {
                 </h2>
 
                 <div className="grid md:grid-cols-3 gap-6">
-                    {products.map((product) => (
-                        <div
-                            key={product._id}
-                            className="bg-white p-6 rounded-2xl shadow-lg"
-                        >
-                            <Image
-                                src={product.image}
-                                alt={product.name}
-                                width={500}
-                                height={300}
-                                className="h-48 w-full object-cover rounded-xl mb-4"
-                                loading="lazy"
-                            />
+                    {products.map((product) => {
+                        // Combo products may have several weight variants now,
+                        // or (for older records) just the single legacy fields.
+                        const comboDisplayVariants =
+                            product.isCombo
+                                ? (product.comboVariants && product.comboVariants.length > 0
+                                    ? product.comboVariants
+                                    : [
+                                        {
+                                            unitWeight: product.comboUnitWeight,
+                                            price: product.comboPrice,
+                                            stock: product.comboStock,
+                                        },
+                                    ])
+                                : [];
 
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-xl font-bold text-gray-900">
-                                    {product.name}
-                                </h3>
-                                {product.isCombo && (
-                                    <span className="text-[10px] font-bold uppercase tracking-wide bg-orange-600 text-white px-2 py-0.5 rounded-full">
-                                        {product.comboSize}-Pack Combo
-                                    </span>
-                                )}
-                            </div>
+                        const comboTotalStock = comboDisplayVariants.reduce(
+                            (sum: number, v: any) => sum + Number(v.stock || 0),
+                            0
+                        );
+                        const comboHasLowStock = comboDisplayVariants.some(
+                            (v: any) => Number(v.stock || 0) > 0 && Number(v.stock || 0) <= 10
+                        );
 
-                            {product.isCombo ? (
-                                <div className="mt-2">
-                                    <p className="text-orange-600 font-bold text-lg">
-                                        ₹{product.comboPrice}
-                                    </p>
-                                    <p className="text-gray-700 text-sm">
-                                        Stock: {product.comboStock}
-                                    </p>
-                                    <div className="mt-2 space-y-1">
-                                        {product.comboItems?.map((item: any, i: number) => (
-                                            <p key={i} className="text-sm text-gray-600">
-                                                • {item.name} x{item.quantity}
-                                            </p>
+                        return (
+                            <div
+                                key={product._id}
+                                className="bg-white p-6 rounded-2xl shadow-lg"
+                            >
+                                <Image
+                                    src={product.image}
+                                    alt={product.name}
+                                    width={500}
+                                    height={300}
+                                    className="h-48 w-full object-cover rounded-xl mb-4"
+                                    loading="lazy"
+                                />
+
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <h3 className="text-xl font-bold text-gray-900">
+                                        {product.name}
+                                    </h3>
+                                    {product.isCombo && (
+                                        <span className="text-[10px] font-bold uppercase tracking-wide bg-orange-600 text-white px-2 py-0.5 rounded-full">
+                                            {product.comboSize}-Pack Combo
+                                        </span>
+                                    )}
+                                </div>
+
+                                {product.isCombo ? (
+                                    <div className="mt-2">
+                                        {comboDisplayVariants.map((variant: any, index: number) => (
+                                            <div key={index} className="border-b py-1">
+                                                <p className="font-semibold">
+                                                    {variant.unitWeight
+                                                        ? `${variant.unitWeight} × ${product.comboSize} jars`
+                                                        : `${product.comboSize}-Pack Combo`}
+                                                </p>
+                                                <p className="text-orange-600">
+                                                    ₹{variant.price}
+                                                </p>
+                                                <p className="text-gray-700">
+                                                    Stock: {variant.stock}
+                                                </p>
+                                            </div>
+                                        ))}
+                                        <div className="mt-2 space-y-1">
+                                            {product.comboItems?.map((item: any, i: number) => (
+                                                <p key={i} className="text-sm text-gray-600">
+                                                    • {item.name} x{item.quantity}
+                                                </p>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="mt-2">
+                                        {product.weights?.map((variant: any, index: number) => (
+                                            <div key={index} className="border-b py-1">
+                                                <p className="font-semibold">
+                                                    {variant.size || variant.quantity}
+                                                </p>
+
+                                                <p className="text-orange-600">
+                                                    ₹{variant.price}
+                                                </p>
+
+                                                <p className="text-gray-700">
+                                                    Stock: {variant.stock}
+                                                </p>
+                                            </div>
                                         ))}
                                     </div>
+                                )}
+                                <div className="flex gap-3 mt-4">
+                                    <Link
+                                        href={`/admin/products/edit/${product._id}`}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-xl"
+                                    >
+                                        Edit
+                                    </Link>
                                 </div>
-                            ) : (
-                                <div className="mt-2">
-                                    {product.weights?.map((variant: any, index: number) => (
-                                        <div key={index} className="border-b py-1">
-                                            <p className="font-semibold">
-                                                {variant.size || variant.quantity}
-                                            </p>
-
-                                            <p className="text-orange-600">
-                                                ₹{variant.price}
-                                            </p>
-
-                                            <p className="text-gray-700">
-                                                Stock: {variant.stock}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            <div className="flex gap-3 mt-4">
-                                <Link
-                                    href={`/admin/products/edit/${product._id}`}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-xl"
+                                <button
+                                    onClick={() => deleteProduct(product._id)}
+                                    className="mt-4 w-full bg-red-600 text-white py-2 rounded-xl hover:bg-red-700"
                                 >
-                                    Edit
-                                </Link>
-                            </div>
-                            <button
-                                onClick={() => deleteProduct(product._id)}
-                                className="mt-4 w-full bg-red-600 text-white py-2 rounded-xl hover:bg-red-700"
-                            >
-                                Delete Product
-                            </button>
-                            <button
-                                onClick={() =>
-                                    router.push(`/admin/products/edit/${product._id}`)
-                                }
-                                className="mt-2 w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700"
-                            >
-                                Edit Product
-                            </button>
-                            {product.isCombo ? (
-                                Number(product.comboStock || 0) <= 0 ? (
+                                    Delete Product
+                                </button>
+                                <button
+                                    onClick={() =>
+                                        router.push(`/admin/products/edit/${product._id}`)
+                                    }
+                                    className="mt-2 w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700"
+                                >
+                                    Edit Product
+                                </button>
+                                {product.isCombo ? (
+                                    comboTotalStock <= 0 ? (
+                                        <p className="text-red-600 font-bold mt-2">
+                                            ❌ Out of Stock
+                                        </p>
+                                    ) : comboHasLowStock ? (
+                                        <p className="text-yellow-600 font-bold mt-2">
+                                            ⚠️ Low Stock
+                                        </p>
+                                    ) : (
+                                        <p className="text-green-600 font-bold mt-2">
+                                            ✅ In Stock
+                                        </p>
+                                    )
+                                ) : !product.weights?.some(
+                                    (v: any) => Number(v.stock || 0) > 0
+                                ) ? (
                                     <p className="text-red-600 font-bold mt-2">
                                         ❌ Out of Stock
                                     </p>
-                                ) : Number(product.comboStock || 0) <= 10 ? (
+                                ) : product.weights?.some(
+                                    (v: any) => v.stock <= 10
+                                ) ? (
                                     <p className="text-yellow-600 font-bold mt-2">
                                         ⚠️ Low Stock
                                     </p>
@@ -708,26 +779,10 @@ export default function AdminProductsClient() {
                                     <p className="text-green-600 font-bold mt-2">
                                         ✅ In Stock
                                     </p>
-                                )
-                            ) : !product.weights?.some(
-                                (v: any) => Number(v.stock || 0) > 0
-                            ) ? (
-                                <p className="text-red-600 font-bold mt-2">
-                                    ❌ Out of Stock
-                                </p>
-                            ) : product.weights?.some(
-                                (v: any) => v.stock <= 10
-                            ) ? (
-                                <p className="text-yellow-600 font-bold mt-2">
-                                    ⚠️ Low Stock
-                                </p>
-                            ) : (
-                                <p className="text-green-600 font-bold mt-2">
-                                    ✅ In Stock
-                                </p>
-                            )}
-                        </div>
-                    ))}
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>

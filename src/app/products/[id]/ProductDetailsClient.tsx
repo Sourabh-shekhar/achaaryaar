@@ -33,6 +33,7 @@ type Product = {
   comboUnitWeight?: string;
   comboPrice?: number;
   comboStock?: number;
+  comboVariants?: { unitWeight: string; price: number; stock: number }[]; 
 };
 
 const STANDARD_SIZES = ["120g", "220g", "330g", "430g"];
@@ -63,15 +64,21 @@ export default function ProductDetailsClient({
     product.category?.toLowerCase().includes("combo") ||
     product._id.startsWith("combo-");
 
-  const displayWeights: Weight[] = isCombo
-    ? [{
-      size: product.comboUnitWeight && product.comboSize
-        ? `${product.comboUnitWeight} × ${product.comboSize} jars`
-        : `${product.comboSize || 2}-Pack Combo`,
-      price: Number(product.comboPrice || 0),
-      stock: Number(product.comboStock || 0),
-    }]
-    : (product.weights || []).filter((weight) => {
+ const displayWeights: Weight[] = isCombo
+  ? (product.comboVariants && product.comboVariants.length > 0
+      ? product.comboVariants.map((v) => ({
+          size: `${v.unitWeight} × ${product.comboSize || 2} jars`,
+          price: Number(v.price || 0),
+          stock: Number(v.stock || 0),
+        }))
+      : [{
+          size: product.comboUnitWeight && product.comboSize
+            ? `${product.comboUnitWeight} × ${product.comboSize} jars`
+            : `${product.comboSize || 2}-Pack Combo`,
+          price: Number(product.comboPrice || 0),
+          stock: Number(product.comboStock || 0),
+        }])
+  : (product.weights || []).filter((weight) => {
       const size = weight.size || weight.quantity || weight.weight;
       return STANDARD_SIZES.includes(size || "") && Number(weight.price) > 0;
     });

@@ -54,6 +54,30 @@ const CATEGORY_LINKS = [
   { label: "Combo", value: "combo" },
 ];
 
+// Older products were saved with the broad "Pickle" category. The category
+// links should still find those products, so also match their name and
+// description until their category is updated in the admin panel.
+function productMatchesCategory(product: Product, category: string) {
+  if (!category) return true;
+  if (category === "combo") return product.isCombo === true;
+
+  const searchableText = [product.category, product.name, product.description]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  const categoryTerms: Record<string, string[]> = {
+    mango: ["mango", "aam"],
+    lemon: ["lemon", "nimbu", "lime"],
+    garlic: ["garlic", "lahsun"],
+    spicy: ["spicy", "chilli", "chili", "mirchi", "hot"],
+  };
+
+  return (categoryTerms[category] || [category]).some((term) =>
+    searchableText.includes(term)
+  );
+}
+
 async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${baseUrl}/api/products`, {
     next: { revalidate },
@@ -96,8 +120,7 @@ export default async function ProductsPage({
       product.name.toLowerCase().includes(search) ||
       product.description.toLowerCase().includes(search);
 
-    const matchesCategory =
-      !category || product.category?.toLowerCase().includes(category);
+    const matchesCategory = productMatchesCategory(product, category);
 
     return matchesSearch && matchesCategory;
   });

@@ -20,6 +20,39 @@ function normalizeEditableWeights(weights: any[] = []) {
     });
 }
 
+// Same idea as normalizeEditableWeights, but for combo weight options.
+// If the product already has a comboVariants array (new-style), each row
+// is pre-filled from it. If not — an older combo saved before this field
+// existed — the single legacy comboUnitWeight/comboPrice/comboStock value
+// is placed into whichever row matches it, so nothing gets lost.
+function normalizeComboVariants(
+    comboVariants: any[] = [],
+    legacyUnitWeight?: string,
+    legacyPrice?: any,
+    legacyStock?: any
+) {
+    return PRODUCT_SIZES.map((size) => {
+        const existing = comboVariants.find((v) => v.unitWeight === size);
+        if (existing) {
+            return {
+                unitWeight: size,
+                price: existing.price ?? "",
+                stock: existing.stock ?? "",
+            };
+        }
+
+        if (comboVariants.length === 0 && legacyUnitWeight === size) {
+            return {
+                unitWeight: size,
+                price: legacyPrice ?? "",
+                stock: legacyStock ?? "",
+            };
+        }
+
+        return { unitWeight: size, price: "", stock: "" };
+    });
+}
+
 export default function EditProductPage() {
     const params = useParams<{ id: string }>();
     const router = useRouter();
@@ -38,9 +71,7 @@ export default function EditProductPage() {
         shortDescription: "",
         isCombo: false,
         comboSize: 2,
-        comboUnitWeight: "",
-        comboPrice: "",
-        comboStock: "",
+        comboVariants: [] as { unitWeight: string; price: any; stock: any }[],
         weights: [],
     });
 
@@ -67,9 +98,14 @@ export default function EditProductPage() {
                     shortDescription: data.product.shortDescription || "",
                     isCombo: data.product.isCombo === true,
                     comboSize: data.product.comboSize || 2,
-                    comboUnitWeight: data.product.comboUnitWeight || "",
-                    comboPrice: data.product.comboPrice ?? "",
-                    comboStock: data.product.comboStock ?? "",
+                    comboVariants: data.product.isCombo
+                        ? normalizeComboVariants(
+                              data.product.comboVariants,
+                              data.product.comboUnitWeight,
+                              data.product.comboPrice,
+                              data.product.comboStock
+                          )
+                        : [],
                     weights: data.product.isCombo ? [] : normalizeEditableWeights(data.product.weights),
                 });
 
@@ -107,6 +143,16 @@ export default function EditProductPage() {
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (
+            formData.isCombo &&
+            !formData.comboVariants.some(
+                (v: any) => v.price !== "" && Number(v.price) > 0
+            )
+        ) {
+            alert("Please enter a price for at least one weight option");
+            return;
+        }
+
         try {
             // Upload any newly-added photos first.
             const uploadedUrls: string[] = [];
@@ -137,6 +183,16 @@ export default function EditProductPage() {
                 return;
             }
 
+            const validComboVariants = formData.isCombo
+                ? formData.comboVariants
+                      .filter((v: any) => v.price !== "" && Number(v.price) > 0)
+                      .map((v: any) => ({
+                          unitWeight: v.unitWeight,
+                          price: Number(v.price),
+                          stock: Number(v.stock || 0),
+                      }))
+                : [];
+
             const res = await fetch(
                 `/api/products/${id}`,
                 {
@@ -152,9 +208,13 @@ export default function EditProductPage() {
                             ? {
                                 isCombo: true,
                                 comboSize: Number(formData.comboSize),
-                                comboUnitWeight: formData.comboUnitWeight,
-                                comboPrice: Number(formData.comboPrice),
-                                comboStock: Number(formData.comboStock || 0),
+                                comboVariants: validComboVariants,
+                                // legacy single-value fields kept in sync with the
+                                // first variant, so any older code reading them
+                                // directly still works
+                                comboUnitWeight: validComboVariants[0]?.unitWeight || "",
+                                comboPrice: validComboVariants[0]?.price || 0,
+                                comboStock: validComboVariants[0]?.stock || 0,
                                 weights: [],
                               }
                             : {
@@ -211,50 +271,46 @@ export default function EditProductPage() {
                     />
 
                     {formData.isCombo ? (
-                        <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
-                            <p className="mb-3 font-bold text-orange-900">
-                                {formData.comboUnitWeight
-                                    ? `${formData.comboUnitWeight} × ${formData.comboSize} jars combo`
-                                    : `${formData.comboSize}-Pack Combo (existing size details kept)`}
+                        <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 space-y-4">
+                            <p className="font-bold text-orange-900">
+                                Combo Weight Options ({formData.comboSize}-Pack)
                             </p>
-                            <label className="mb-3 block text-sm font-semibold text-gray-700">
-                                Weight per Jar
-                                <select
-                                    value={formData.comboUnitWeight}
-                                    onChange={(e) => setFormData({ ...formData, comboUnitWeight: e.target.value })}
-                                    className="mt-1 w-full rounded-xl border p-3 text-gray-900"
-                                >
-                                    <option value="">Keep existing combo size details</option>
-                                    <option value="120g">120g per jar</option>
-                                    <option value="220g">220g per jar</option>
-                                    <option value="330g">330g per jar</option>
-                                    <option value="430g">430g per jar</option>
-                                </select>
-                            </label>
-                            <label className="mb-3 block text-sm font-semibold text-gray-700">
-                                Combo Price
-                                <input
-                                    type="number"
-                                    min="1"
-                                    required
-                                    placeholder="Price"
-                                    value={formData.comboPrice}
-                                    onChange={(e) => setFormData({ ...formData, comboPrice: e.target.value })}
-                                    className="mt-1 w-full rounded-xl border p-3 text-gray-900"
-                                />
-                            </label>
-                            <label className="block text-sm font-semibold text-gray-700">
-                                Combo Stock
-                                <input
-                                    type="number"
-                                    min="0"
-                                    required
-                                    placeholder="Stock"
-                                    value={formData.comboStock}
-                                    onChange={(e) => setFormData({ ...formData, comboStock: e.target.value })}
-                                    className="mt-1 w-full rounded-xl border p-3 text-gray-900"
-                                />
-                            </label>
+                            <p className="text-sm text-gray-600">
+                                Set a price for each weight you want to offer for this
+                                combo. Leave a price blank to skip that option.
+                            </p>
+
+                            {formData.comboVariants.map((variant: any, index: number) => (
+                                <div key={variant.unitWeight} className="border p-4 rounded-xl bg-white">
+                                    <h4 className="font-semibold mb-2 text-gray-900">
+                                        {variant.unitWeight} per jar × {formData.comboSize} jars
+                                    </h4>
+
+                                    <input
+                                        type="number"
+                                        placeholder="Combo Price"
+                                        value={variant.price}
+                                        onChange={(e) => {
+                                            const updated = [...formData.comboVariants];
+                                            updated[index].price = e.target.value;
+                                            setFormData({ ...formData, comboVariants: updated });
+                                        }}
+                                        className="w-full border rounded-xl p-3 mb-3 text-gray-900"
+                                    />
+
+                                    <input
+                                        type="number"
+                                        placeholder="Combo Stock"
+                                        value={variant.stock}
+                                        onChange={(e) => {
+                                            const updated = [...formData.comboVariants];
+                                            updated[index].stock = e.target.value;
+                                            setFormData({ ...formData, comboVariants: updated });
+                                        }}
+                                        className="w-full border rounded-xl p-3 text-gray-900"
+                                    />
+                                </div>
+                            ))}
                         </div>
                     ) : formData.weights.map((variant: any, index: number) => (
                         <div key={index} className="border p-4 rounded-xl">
