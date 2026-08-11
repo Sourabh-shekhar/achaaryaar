@@ -36,6 +36,11 @@ export default function EditProductPage() {
         image: "",
         description: "",
         shortDescription: "",
+        isCombo: false,
+        comboSize: 2,
+        comboUnitWeight: "120g",
+        comboPrice: "",
+        comboStock: "",
         weights: [],
     });
 
@@ -60,7 +65,12 @@ export default function EditProductPage() {
                     image: data.product.image || "",
                     description: data.product.description || "",
                     shortDescription: data.product.shortDescription || "",
-                    weights: normalizeEditableWeights(data.product.weights),
+                    isCombo: data.product.isCombo === true,
+                    comboSize: data.product.comboSize || 2,
+                    comboUnitWeight: data.product.comboUnitWeight || "120g",
+                    comboPrice: data.product.comboPrice ?? "",
+                    comboStock: data.product.comboStock ?? "",
+                    weights: data.product.isCombo ? [] : normalizeEditableWeights(data.product.weights),
                 });
 
                 // Fall back to the single `image` field for older products
@@ -138,13 +148,25 @@ export default function EditProductPage() {
                         ...formData,
                         image: allImages[0],
                         images: allImages,
-                        weights: formData.weights
-                            .filter((v: any) => v.price !== "" && Number(v.price) > 0)
-                            .map((v: any) => ({
-                                size: v.size || v.quantity,
-                                price: Number(v.price),
-                                stock: Number(v.stock || 0),
-                            })),
+                        ...(formData.isCombo
+                            ? {
+                                isCombo: true,
+                                comboSize: Number(formData.comboSize),
+                                comboUnitWeight: formData.comboUnitWeight,
+                                comboPrice: Number(formData.comboPrice),
+                                comboStock: Number(formData.comboStock || 0),
+                                weights: [],
+                              }
+                            : {
+                                isCombo: false,
+                                weights: formData.weights
+                                  .filter((v: any) => v.price !== "" && Number(v.price) > 0)
+                                  .map((v: any) => ({
+                                    size: v.size || v.quantity,
+                                    price: Number(v.price),
+                                    stock: Number(v.stock || 0),
+                                  })),
+                              }),
                     }),
                 }
             );
@@ -188,7 +210,37 @@ export default function EditProductPage() {
                         required
                     />
 
-                    {formData.weights.map((variant: any, index: number) => (
+                    {formData.isCombo ? (
+                        <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
+                            <p className="mb-3 font-bold text-orange-900">
+                                {formData.comboUnitWeight} × {formData.comboSize} jars combo
+                            </p>
+                            <label className="mb-3 block text-sm font-semibold text-gray-700">
+                                Combo Price
+                                <input
+                                    type="number"
+                                    min="1"
+                                    required
+                                    placeholder="Price"
+                                    value={formData.comboPrice}
+                                    onChange={(e) => setFormData({ ...formData, comboPrice: e.target.value })}
+                                    className="mt-1 w-full rounded-xl border p-3 text-gray-900"
+                                />
+                            </label>
+                            <label className="block text-sm font-semibold text-gray-700">
+                                Combo Stock
+                                <input
+                                    type="number"
+                                    min="0"
+                                    required
+                                    placeholder="Stock"
+                                    value={formData.comboStock}
+                                    onChange={(e) => setFormData({ ...formData, comboStock: e.target.value })}
+                                    className="mt-1 w-full rounded-xl border p-3 text-gray-900"
+                                />
+                            </label>
+                        </div>
+                    ) : formData.weights.map((variant: any, index: number) => (
                         <div key={index} className="border p-4 rounded-xl">
 
                             <h3 className="font-bold mb-2">
