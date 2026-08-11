@@ -155,7 +155,8 @@ export default function ProductDetailsClient({
   const selectedWeight = displayWeights[selectedIndex];
   const selectedWeightLabel =
     selectedWeight?.size || selectedWeight?.quantity || selectedWeight?.weight || "Size";
-  const outOfStock = !selectedWeight || selectedWeight.stock <= 0;
+  const selectedStock = Number(selectedWeight?.stock || 0);
+  const outOfStock = !selectedWeight || selectedStock <= 0;
 
   const handleAddToCart = () => {
     if (added) {
@@ -451,9 +452,9 @@ export default function ProductDetailsClient({
                 <span className="rounded-full bg-[#6B1F1F]/10 px-3 py-1 text-[#6B1F1F]">
                   Out of Stock
                 </span>
-              ) : selectedWeight && selectedWeight.stock <= 5 ? (
+              ) : selectedWeight && selectedStock <= 5 ? (
                 <span className="rounded-full bg-[#6B1F1F]/10 px-3 py-1 text-[#6B1F1F]">
-                  Only {selectedWeight.stock} left
+                  Only {selectedStock} left
                 </span>
               ) : (
                 <span className="rounded-full bg-[#4F6B52]/10 px-3 py-1 text-[#4F6B52]">

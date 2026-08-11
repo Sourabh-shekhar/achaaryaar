@@ -50,8 +50,8 @@ export default function ProductCard({
     : defaultVariant;
   const isAvailable = isCombo ? selectedData.price > 0 : hasVariants;
 
-  const stock = selectedData?.stock;
-  const isOutOfStock = isAvailable && stock === 0;
+  const stock = Number(selectedData?.stock || 0);
+  const isOutOfStock = isAvailable && stock <= 0;
   const isLowStock = typeof stock === "number" && stock > 0 && stock <= 5;
 
   return (

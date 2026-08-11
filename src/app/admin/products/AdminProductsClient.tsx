@@ -691,11 +691,11 @@ export default function AdminProductsClient() {
                                 Edit Product
                             </button>
                             {product.isCombo ? (
-                                product.comboStock === 0 ? (
+                                Number(product.comboStock || 0) <= 0 ? (
                                     <p className="text-red-600 font-bold mt-2">
                                         ❌ Out of Stock
                                     </p>
-                                ) : product.comboStock <= 10 ? (
+                                ) : Number(product.comboStock || 0) <= 10 ? (
                                     <p className="text-yellow-600 font-bold mt-2">
                                         ⚠️ Low Stock
                                     </p>
@@ -704,8 +704,8 @@ export default function AdminProductsClient() {
                                         ✅ In Stock
                                     </p>
                                 )
-                            ) : product.weights?.every(
-                                (v: any) => v.stock === 0
+                            ) : !product.weights?.some(
+                                (v: any) => Number(v.stock || 0) > 0
                             ) ? (
                                 <p className="text-red-600 font-bold mt-2">
                                     ❌ Out of Stock
