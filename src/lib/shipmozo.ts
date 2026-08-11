@@ -162,28 +162,39 @@ async function parseResponse(
 ): Promise<ShipmozoResponse> {
   const text = await response.text();
 
+  console.log("=================================");
+  console.log("SHIPMOZO RESPONSE STATUS:", response.status);
+  console.log("SHIPMOZO RESPONSE TEXT:", text);
+  console.log("=================================");
+
   let data: ShipmozoResponse;
 
   try {
     data = JSON.parse(text);
   } catch {
     console.error(
-      "Shipmozo invalid response:",
+      "Shipmozo returned non-JSON response:",
       text
     );
 
     throw new Error(
-      "Shipmozo returned an invalid response."
+      `Shipmozo returned invalid response. HTTP ${response.status}: ${text}`
     );
   }
+
+  console.log(
+    "SHIPMOZO PARSED RESPONSE:",
+    JSON.stringify(data, null, 2)
+  );
 
   if (
     !response.ok ||
     data.result !== "1"
   ) {
     throw new Error(
-      data.message ||
-        "Shipmozo request failed."
+      `Shipmozo API failed (${response.status}): ${
+        data.message || "Unknown Shipmozo error"
+      }`
     );
   }
 
