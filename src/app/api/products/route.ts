@@ -90,7 +90,8 @@ export async function GET() {
         // isCombo flag. Treat both formats as combo packs for customers.
         const isCombo =
           product.isCombo === true ||
-          (Array.isArray(product.comboItems) && product.comboItems.length > 0);
+          (Array.isArray(product.comboItems) && product.comboItems.length > 0) ||
+          (Number.isFinite(Number(product.comboPrice)) && Number(product.comboPrice) > 0);
 
         return {
           ...product,

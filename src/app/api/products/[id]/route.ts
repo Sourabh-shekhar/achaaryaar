@@ -84,7 +84,8 @@ export async function GET(
     const productData = product as any;
     const isCombo =
       productData.isCombo === true ||
-      (Array.isArray(productData.comboItems) && productData.comboItems.length > 0);
+      (Array.isArray(productData.comboItems) && productData.comboItems.length > 0) ||
+      (Number.isFinite(Number(productData.comboPrice)) && Number(productData.comboPrice) > 0);
 
     return NextResponse.json({
       success: true,
