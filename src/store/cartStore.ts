@@ -9,6 +9,7 @@ type CartItem = {
   price: number;
   quantity: number;
   selectedVariant: string;
+  isCombo?: boolean;
 };
 
 type CartStore = {
@@ -46,14 +47,14 @@ export const useCartStore = create<CartStore>()(
         set((state) => {
           const existing = state.items.find(
             (cartItem) =>
-              cartItem.name === item.name &&
+              cartItem._id === item._id &&
               cartItem.selectedVariant === item.selectedVariant
           );
 
           if (existing) {
             return {
               items: state.items.map((cartItem) =>
-                cartItem.name === item.name &&
+                cartItem._id === item._id &&
                 cartItem.selectedVariant === item.selectedVariant
                   ? {
                       ...cartItem,
@@ -80,7 +81,10 @@ export const useCartStore = create<CartStore>()(
           items: state.items.map((item) =>
             item.name === name &&
             item.selectedVariant === selectedVariant
-              ? { ...item, quantity: item.quantity + 1 }
+              ? {
+                  ...item,
+                  quantity: item.quantity + 1,
+                }
               : item
           ),
         })),
@@ -91,7 +95,10 @@ export const useCartStore = create<CartStore>()(
             .map((item) =>
               item.name === name &&
               item.selectedVariant === selectedVariant
-                ? { ...item, quantity: item.quantity - 1 }
+                ? {
+                    ...item,
+                    quantity: item.quantity - 1,
+                  }
                 : item
             )
             .filter((item) => item.quantity > 0),
@@ -112,7 +119,9 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "achaaryaar-cart",
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({
+        items: state.items,
+      }),
     }
   )
 );

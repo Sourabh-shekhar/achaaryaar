@@ -84,13 +84,8 @@ export async function POST(req: Request) {
     await connectDB();
 
     // ------------------------------------------------
-    // 5. CALCULATE SUBTOTAL FROM DATABASE
+    // 5. SERVER-SIDE SUBTOTAL
     // ------------------------------------------------
-    //
-    // IMPORTANT:
-    // Never trust the product prices sent by browser.
-    // We read the current prices from MongoDB.
-    //
 
     let subtotal = 0;
 
@@ -116,7 +111,7 @@ export async function POST(req: Request) {
       }
 
       // ------------------------------------------------
-      // COMBO PRODUCT
+      // COMBO
       // ------------------------------------------------
 
       if (item.isCombo) {
@@ -131,9 +126,7 @@ export async function POST(req: Request) {
           );
         }
 
-        if (
-          typeof product.comboPrice !== "number"
-        ) {
+        if (typeof product.comboPrice !== "number") {
           return NextResponse.json(
             {
               success: false,
@@ -144,9 +137,7 @@ export async function POST(req: Request) {
           );
         }
 
-        if (
-          (product.comboStock ?? 0) < quantity
-        ) {
+        if ((product.comboStock ?? 0) < quantity) {
           return NextResponse.json(
             {
               success: false,
@@ -157,8 +148,7 @@ export async function POST(req: Request) {
           );
         }
 
-        subtotal +=
-          product.comboPrice * quantity;
+        subtotal += product.comboPrice * quantity;
 
         continue;
       }
@@ -180,8 +170,7 @@ export async function POST(req: Request) {
 
       const variant = product.weights?.find(
         (weight: any) =>
-          weight.size ===
-          item.selectedVariant
+          weight.size === item.selectedVariant
       );
 
       if (!variant) {
@@ -195,9 +184,7 @@ export async function POST(req: Request) {
         );
       }
 
-      if (
-        (variant.stock ?? 0) < quantity
-      ) {
+      if ((variant.stock ?? 0) < quantity) {
         return NextResponse.json(
           {
             success: false,
@@ -208,9 +195,7 @@ export async function POST(req: Request) {
         );
       }
 
-      if (
-        typeof variant.price !== "number"
-      ) {
+      if (typeof variant.price !== "number") {
         return NextResponse.json(
           {
             success: false,
@@ -221,90 +206,86 @@ export async function POST(req: Request) {
         );
       }
 
-      subtotal +=
-        variant.price * quantity;
+      subtotal += variant.price * quantity;
     }
 
     // ------------------------------------------------
     // 6. SHIPPING
     // ------------------------------------------------
-    //
-    // ₹50 shipping below ₹499
-    // FREE shipping at ₹499+
-    //
 
-    const shipping =
-      subtotal >= 499 ? 0 : 50;
+    const shipping = subtotal >= 499 ? 0 : 50;
 
     // ------------------------------------------------
-    // 7. VALIDATE COUPON
+    // 7. COUPON
     // ------------------------------------------------
 
     let discountPercent = 0;
     let validCouponCode = "";
 
     if (couponCode) {
-      const coupon =
-        await getCoupon(couponCode);
+      const coupon = await getCoupon(couponCode);
 
       if (!coupon) {
         return NextResponse.json(
           {
             success: false,
-            message:
-              "That coupon code isn't valid.",
+            message: "That coupon code isn't valid.",
           },
           { status: 400 }
         );
       }
 
-      // Check whether this customer already used
-      // this coupon.
-      const alreadyUsed =
-        await Order.findOne({
-          email,
-          couponCode,
-        });
+      // Coupon already used?
+      const alreadyUsed = await Order.findOne({
+        email,
+        couponCode: coupon.code,
+        status: {
+          $nin: ["Cancelled"],
+        },
+      })
+        .select("_id")
+        .lean();
 
       if (alreadyUsed) {
         return NextResponse.json(
           {
             success: false,
             message:
-              `You've already used ${couponCode} on a previous order.`,
+              `You've already used ${coupon.code} on a previous order.`,
           },
           { status: 400 }
         );
       }
 
-      // First-order coupon
+      // First order only
       if (coupon.firstOrderOnly) {
-        const previousOrder =
-          await Order.findOne({
-            email,
-          });
+        const previousOrder = await Order.findOne({
+          email,
+          status: {
+            $nin: ["Cancelled"],
+          },
+        })
+          .select("_id")
+          .lean();
 
         if (previousOrder) {
           return NextResponse.json(
             {
               success: false,
               message:
-                `${couponCode} is only valid on your first order.`,
+                `${coupon.code} is only valid on your first order.`,
             },
             { status: 400 }
           );
         }
       }
 
-      discountPercent =
-        coupon.percent;
-
-      validCouponCode =
-        couponCode;
+      discountPercent = coupon.percent;
+      validCouponCode = coupon.code;
     }
 
     // ------------------------------------------------
-    // 8. FINAL SERVER-SIDE TOTAL
+    // 8. FINAL TOTAL
     // ------------------------------------------------
 
     const discount = Math.round(
@@ -334,43 +315,29 @@ export async function POST(req: Request) {
       `${keyId}:${keySecret}`
     ).toString("base64");
 
-    const receipt =
-      `AY-${Date.now()}`;
+    const receipt = `AY-${Date.now()}`;
 
-    const razorpayResponse =
-      await fetch(
-        "https://api.razorpay.com/v1/orders",
-        {
-          method: "POST",
-
-          headers: {
-            Authorization:
-              `Basic ${auth}`,
-            "Content-Type":
-              "application/json",
+    const razorpayResponse = await fetch(
+      "https://api.razorpay.com/v1/orders",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${auth}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: Math.round(total * 100),
+          currency: "INR",
+          receipt,
+          notes: {
+            brand: "AchaarYaar",
+            email,
+            coupon: validCouponCode || "NONE",
           },
-
-          body: JSON.stringify({
-            amount:
-              Math.round(total * 100),
-
-            currency: "INR",
-
-            receipt,
-
-            notes: {
-              brand: "AchaarYaar",
-              email,
-              coupon:
-                validCouponCode || "NONE",
-              payment_method:
-                "UPI",
-            },
-          }),
-
-          cache: "no-store",
-        }
-      );
+        }),
+        cache: "no-store",
+      }
+    );
 
     const razorpayOrder =
       await razorpayResponse.json();
@@ -385,8 +352,7 @@ export async function POST(req: Request) {
         {
           success: false,
           message:
-            razorpayOrder?.error
-              ?.description ||
+            razorpayOrder?.error?.description ||
             "Failed to create Razorpay order.",
         },
         { status: 500 }
@@ -394,30 +360,21 @@ export async function POST(req: Request) {
     }
 
     // ------------------------------------------------
-    // 10. RETURN SERVER-CALCULATED VALUES
+    // 10. RETURN SERVER PRICING
     // ------------------------------------------------
 
     return NextResponse.json({
       success: true,
-
-      // Razorpay public key
       keyId,
-
-      // Razorpay order
       order: razorpayOrder,
 
-      // Payment method
-      paymentMethod: "razorpay",
-
-      // Your checkout can use these values
-      // instead of browser-calculated values.
       pricing: {
         subtotal,
         shipping,
         discount,
         total,
-        couponCode:
-          validCouponCode,
+        couponCode: validCouponCode,
+        discountPercent,
       },
     });
   } catch (error) {
@@ -429,8 +386,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         success: false,
-        message:
-          "Failed to start payment.",
+        message: "Failed to start payment.",
       },
       { status: 500 }
     );
