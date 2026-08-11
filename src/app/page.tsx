@@ -642,28 +642,27 @@ function OfferBanner() {
         }}
       >
         <div
-          className="offer-card"
           style={{
-            position: "relative",
             width: "100%",
-            aspectRatio: "16 / 9",
             borderRadius: RADIUS.xxl,
             overflow: "hidden",
             boxShadow: SHADOW.lg,
-            border: "1px solid rgba(255,255,255,0.08)",
+            lineHeight: 0,
           }}
         >
-         <Image
-  src="/image/secondbanner.png"
-  alt="AchaarYaar promotional banner"
-  width={1320}
-  height={680}
-  style={{
-    width: "100%",
-    height: "auto",
-    display: "block",
-  }}
-/>
+          <Image
+            src="/image/banner/promotion.png"
+            alt="AchaarYaar promotional banner"
+            width={1254}
+            height={650}
+            priority
+            sizes="(max-width: 768px) 100vw, 1320px"
+            style={{
+              width: "100%",
+              height: "auto",
+              display: "block",
+            }}
+          />
         </div>
       </div>
     </section>
@@ -1250,7 +1249,7 @@ export default function HomePage() {
   const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
-fetch(`/api/products`, { cache: "no-store" })
+    fetch(`/api/products`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (data.success) setProducts(data.products);
@@ -1480,4 +1479,4 @@ fetch(`/api/products`, { cache: "no-store" })
     </div>
   );
 }
- 
+
