@@ -457,20 +457,176 @@ function Hero() {
 // --- OFFER BANNER ---
 // Contained card-style banner (matches the Hero's rounded-card treatment)
 // instead of a full-bleed, edge-to-edge section.
+// function OfferBanner() {
+//   const [copied, setCopied] = useState(false);
+
+//   const copyCode = useCallback(async () => {
+//     try {
+//       await navigator.clipboard.writeText("WELCOME10");
+//       setCopied(true);
+//       setTimeout(() => setCopied(false), 2000);
+//     } catch {
+//       // Clipboard API unavailable (older browser / insecure context) - fall back silently,
+//       // the code is already visible on-screen for the person to type manually.
+//     }
+//   }, []);
+
+//   return (
+//     <section
+//       className="section-pad"
+//       style={{
+//         background: COLORS.cream,
+//         padding: "clamp(2rem, 5vw, 3rem) clamp(1.25rem, 5vw, 2rem) 0",
+//       }}
+//     >
+//       <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+//         <div
+//           className="offer-card"
+//           style={{
+//             position: "relative",
+//             borderRadius: RADIUS.xxl,
+//             overflow: "hidden",
+//             boxShadow: SHADOW.lg,
+//             border: "1px solid rgba(255,255,255,0.08)",
+//             minHeight: "clamp(340px, 42vw, 440px)",
+//           }}
+//         >
+//           {/* Full-bleed background photo */}
+//           <Image
+//             src="/image/secondbanner.png"
+//             alt="AchaarYaar jars - mango, lemon and mixed pickle with fresh ingredients"
+//             fill
+//             sizes="100vw"
+//             style={{ objectFit: "cover", objectPosition: "center" }}
+//           />
+
+//           {/* Gradient overlay so text stays readable over the photo */}
+//           <div
+//             className="offer-overlay"
+//             style={{
+//               position: "absolute",
+//               inset: 0,
+//               background: `linear-gradient(90deg, ${COLORS.forest} 0%, rgba(61,86,64,0.92) 30%, rgba(61,86,64,0.55) 52%, rgba(61,86,64,0.1) 75%)`,
+//               pointerEvents: "none",
+//             }}
+//             aria-hidden="true"
+//           />
+
+//           <div
+//             className="offer-banner-inner"
+//             style={{
+//               position: "relative",
+//               zIndex: 1,
+//               minHeight: "clamp(340px, 42vw, 440px)",
+//               padding: "clamp(1.75rem, 4vw, 2.75rem) clamp(1.5rem, 4vw, 2.75rem)",
+//               display: "flex",
+//               alignItems: "center",
+//             }}
+//           >
+//             <div style={{ maxWidth: 480 }}>
+//               <div style={{
+//                 display: "inline-flex", alignItems: "center", gap: "0.4rem",
+//                 background: `linear-gradient(135deg, ${COLORS.goldLight} 0%, ${COLORS.gold} 100%)`,
+//                 border: "1px solid rgba(255,255,255,0.3)",
+//                 borderRadius: 999,
+//                 padding: "0.4rem 1rem",
+//                 fontSize: "0.7rem",
+//                 letterSpacing: "1.5px",
+//                 textTransform: "uppercase",
+//                 color: COLORS.forest,
+//                 fontWeight: 800,
+//                 marginBottom: "1rem",
+//                 boxShadow: "0 6px 16px rgba(0,0,0,0.2)",
+//               }}>
+//                 New Customers · First Batch On Us
+//               </div>
+
+//               {/* <h2 className="offer-heading" style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(1.5rem, 4vw, 2.4rem)", lineHeight: 1.15, color: COLORS.white, marginBottom: "0.5rem", fontWeight: 900 }}>
+//                 10% Off On <span style={{ color: COLORS.gold }}>First Order</span>
+//               </h2>
+//               <p className="offer-sub" style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.9rem", marginBottom: "1.4rem", lineHeight: 1.55 }}>
+//                 Small-batch, slow-fermented, shipped fresh from the brine. New customers save automatically with the code below.
+//               </p> */}
+
+//               {/* ticket-stub coupon */}
+//               <div className="coupon-stub" style={{
+//                 display: "flex",
+//                 alignItems: "stretch",
+//                 marginBottom: "1.4rem",
+//                 filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.25))",
+//               }}>
+//                 <div style={{
+//                   background: COLORS.cream,
+//                   borderRadius: "10px 0 0 10px",
+//                   padding: "0.8rem 1.25rem",
+//                   display: "flex",
+//                   flexDirection: "column",
+//                   justifyContent: "center",
+//                 }}>
+//                   <span style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "2px", color: "rgba(28,40,30,0.6)", fontWeight: 700 }}>Code</span>
+//                   <span className="coupon-code" style={{ fontSize: "1.1rem", fontWeight: 900, color: COLORS.forest, letterSpacing: "2px" }}>WELCOME10</span>
+//                 </div>
+//                 <div style={{
+//                   position: "relative",
+//                   width: 0,
+//                   borderTop: "23px solid transparent",
+//                   borderBottom: "23px solid transparent",
+//                   borderLeft: `14px solid ${COLORS.gold}`,
+//                 }} aria-hidden="true" />
+//                 <button
+//                   type="button"
+//                   onClick={copyCode}
+//                   className="coupon-copy-btn"
+//                   aria-label="Copy discount code WELCOME10"
+//                   style={{
+//                     background: copied ? COLORS.forestLight : COLORS.gold,
+//                     borderRadius: "0 10px 10px 0",
+//                     padding: "0.8rem 1.1rem",
+//                     display: "flex",
+//                     alignItems: "center",
+//                     gap: "0.4rem",
+//                     fontSize: "0.75rem",
+//                     fontWeight: 800,
+//                     color: COLORS.forest,
+//                     border: "none",
+//                     cursor: "pointer",
+//                   }}
+//                 >
+//                   {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+//                   {copied ? "Copied" : "Copy"}
+//                 </button>
+//               </div>
+
+//               <Link href="/products" className="btn-outline-gold">Shop the batch →</Link>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       <style>{`
+//         .offer-banner-inner { text-align: left; }
+//         @media (max-width: 768px) {
+//           .offer-overlay {
+//             background: linear-gradient(180deg, rgba(61,86,64,0.35) 0%, rgba(61,86,64,0.9) 50%, ${COLORS.forest} 100%) !important;
+//           }
+//           .offer-banner-inner { align-items: flex-end !important; text-align: left !important; }
+//         }
+//         @media (max-width: 480px) {
+//           .offer-heading { font-size: 1.35rem !important; }
+//           .offer-sub { font-size: 0.8rem !important; }
+//           .coupon-code { font-size: 1rem !important; letterSpacing: 1px !important; }
+//         }
+//         @media (max-width: 380px) {
+//           .coupon-stub { flex-direction: column !important; filter: none !important; }
+//           .coupon-stub > div:first-child { border-radius: 10px 10px 0 0 !important; align-items: center !important; text-align: center !important; }
+//           .coupon-stub > div:nth-child(2) { display: none !important; }
+//           .coupon-copy-btn { border-radius: 0 0 10px 10px !important; justify-content: center !important; }
+//         }
+//       `}</style>
+//     </section>
+//   );
+// }
 function OfferBanner() {
-  const [copied, setCopied] = useState(false);
-
-  const copyCode = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText("WELCOME10");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard API unavailable (older browser / insecure context) - fall back silently,
-      // the code is already visible on-screen for the person to type manually.
-    }
-  }, []);
-
   return (
     <section
       className="section-pad"
@@ -479,160 +635,40 @@ function OfferBanner() {
         padding: "clamp(2rem, 5vw, 3rem) clamp(1.25rem, 5vw, 2rem) 0",
       }}
     >
-      <div style={{ maxWidth: 1320, margin: "0 auto" }}>
+      <div
+        style={{
+          maxWidth: 1320,
+          margin: "0 auto",
+        }}
+      >
         <div
           className="offer-card"
           style={{
-            background: `linear-gradient(130deg, ${COLORS.forest} 0%, #3D5640 100%)`,
+            position: "relative",
+            width: "100%",
+            aspectRatio: "16 / 9",
             borderRadius: RADIUS.xxl,
             overflow: "hidden",
-            position: "relative",
             boxShadow: SHADOW.lg,
             border: "1px solid rgba(255,255,255,0.08)",
           }}
         >
-          {/* subtle brine-jar texture */}
-          <div style={{
-            position: "absolute", inset: 0,
-            backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)",
-            backgroundSize: "18px 18px",
-            pointerEvents: "none",
-          }} aria-hidden="true" />
-
-          <div className="offer-banner-inner" style={{
-            padding: "clamp(1.75rem, 4vw, 2.75rem) clamp(1.5rem, 4vw, 2.75rem)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "2rem",
-            position: "relative",
-            zIndex: 1,
-          }}>
-            <div style={{ position: "relative", zIndex: 1, maxWidth: 500, flex: "1 1 320px" }}>
-              <div style={{
-                display: "inline-flex", alignItems: "center", gap: "0.4rem",
-                background: `linear-gradient(135deg, ${COLORS.goldLight} 0%, ${COLORS.gold} 100%)`,
-                border: "1px solid rgba(255,255,255,0.3)",
-                borderRadius: 999,
-                padding: "0.4rem 1rem",
-                fontSize: "0.7rem",
-                letterSpacing: "1.5px",
-                textTransform: "uppercase",
-                color: COLORS.forest,
-                fontWeight: 800,
-                marginBottom: "1rem",
-                boxShadow: "0 6px 16px rgba(0,0,0,0.2)",
-              }}>
-                New Customers · First Batch On Us
-              </div>
-
-              <h2 className="offer-heading" style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(1.3rem, 3.6vw, 2rem)", lineHeight: 1.15, color: COLORS.white, marginBottom: "0.5rem", fontWeight: 900 }}>
-                10% Off On First Order
-              </h2>
-              <p className="offer-sub" style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.87rem", marginBottom: "1.4rem", lineHeight: 1.5 }}>
-                Small-batch, slow-fermented, shipped fresh from the brine. New customers save automatically with the code below.
-              </p>
-
-              {/* ticket-stub coupon */}
-              <div className="coupon-stub" style={{
-                display: "flex",
-                alignItems: "stretch",
-                marginBottom: "1.4rem",
-                filter: "drop-shadow(0 8px 20px rgba(0,0,0,0.25))",
-              }}>
-                <div style={{
-                  background: COLORS.cream,
-                  borderRadius: "10px 0 0 10px",
-                  padding: "0.8rem 1.25rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                }}>
-                  <span style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "2px", color: "rgba(28,40,30,0.6)", fontWeight: 700 }}>Code</span>
-                  <span className="coupon-code" style={{ fontSize: "1.1rem", fontWeight: 900, color: COLORS.forest, letterSpacing: "2px" }}>WELCOME10</span>
-                </div>
-                <div style={{
-                  position: "relative",
-                  width: 0,
-                  borderTop: "23px solid transparent",
-                  borderBottom: "23px solid transparent",
-                  borderLeft: `14px solid ${COLORS.gold}`,
-                }} aria-hidden="true" />
-                <button
-                  type="button"
-                  onClick={copyCode}
-                  className="coupon-copy-btn"
-                  aria-label="Copy discount code WELCOME10"
-                  style={{
-                    background: copied ? COLORS.forestLight : COLORS.gold,
-                    borderRadius: "0 10px 10px 0",
-                    padding: "0.8rem 1.1rem",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.4rem",
-                    fontSize: "0.75rem",
-                    fontWeight: 800,
-                    color: COLORS.forest,
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
-                  {copied ? "Copied" : "Copy"}
-                </button>
-              </div>
-
-              <Link href="/products" className="btn-outline-gold">Shop the batch →</Link>
-            </div>
-
-            {/* real product photo on the right */}
-            <div className="offer-photo" style={{
-              position: "relative", zIndex: 1,
-              flex: "0 1 240px",
-              width: "100%",
-              maxWidth: 240,
-              aspectRatio: "1 / 1",
-              borderRadius: RADIUS.lg,
-              overflow: "hidden",
-              boxShadow: "0 16px 32px -12px rgba(0,0,0,0.45)",
-              margin: "0 auto",
-            }}>
-              <Image
-                src="/image/secondbanner.png"
-                alt="AchaarYaar jars - your first order, 10% off"
-                fill
-                sizes="(max-width: 768px) 60vw, 240px"
-                style={{ objectFit: "cover", objectPosition: "center" }}
-              />
-            </div>
-          </div>
+         <Image
+  src="/image/secondbanner.png"
+  alt="AchaarYaar promotional banner"
+  width={1320}
+  height={680}
+  style={{
+    width: "100%",
+    height: "auto",
+    display: "block",
+  }}
+/>
         </div>
       </div>
-
-      <style>{`
-        .offer-banner-inner { text-align: left; }
-        @media (max-width: 768px) {
-          .offer-banner-inner { justify-content: center !important; text-align: center !important; }
-          .offer-photo { max-width: 200px !important; }
-        }
-        @media (max-width: 480px) {
-          .offer-heading { font-size: 1.35rem !important; }
-          .offer-sub { font-size: 0.8rem !important; }
-          .coupon-code { font-size: 1rem !important; letterSpacing: 1px !important; }
-          .offer-photo { max-width: 170px !important; }
-        }
-        @media (max-width: 380px) {
-          .coupon-stub { flex-direction: column !important; filter: none !important; }
-          .coupon-stub > div:first-child { border-radius: 10px 10px 0 0 !important; align-items: center !important; text-align: center !important; }
-          .coupon-stub > div:nth-child(2) { display: none !important; }
-          .coupon-copy-btn { border-radius: 0 0 10px 10px !important; justify-content: center !important; }
-        }
-      `}</style>
     </section>
   );
 }
-
 // --- CATEGORY GRID ---
 // NOTE: these tiles use curated photos/copy, but link to /products?category=<slug>.
 // For that filter to return real results, make sure products saved in the
