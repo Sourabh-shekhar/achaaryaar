@@ -56,9 +56,8 @@ export default function ProductDetailsClient({
       ? product.images
       : [product.image];
 
-  // Combo packs have one fixed, clearly-labelled option. Every other product
-  // always shows all standard sizes - real ones with
-  // their actual price/stock, and any missing ones shown as "Not Available".
+  // Combo packs have one fixed, clearly-labelled option. Regular products
+  // show only the sizes that are actually configured by the admin.
   const isCombo =
     product.isCombo === true ||
     product.category?.toLowerCase().includes("combo") ||
@@ -72,11 +71,9 @@ export default function ProductDetailsClient({
       price: Number(product.comboPrice || 0),
       stock: Number(product.comboStock || 0),
     }]
-    : STANDARD_SIZES.map((size) => {
-      const existing = product.weights?.find(
-        (w) => (w.size || w.quantity || w.weight) === size
-      );
-      return existing ? { ...existing } : { size, price: 0, stock: 0, unavailable: true };
+    : (product.weights || []).filter((weight) => {
+      const size = weight.size || weight.quantity || weight.weight;
+      return STANDARD_SIZES.includes(size || "") && Number(weight.price) > 0;
     });
 
   const [activeImage, setActiveImage] = useState(0);
@@ -156,10 +153,9 @@ export default function ProductDetailsClient({
   };
 
   const selectedWeight = displayWeights[selectedIndex];
-  const isUnavailable = selectedWeight?.unavailable === true;
   const selectedWeightLabel =
     selectedWeight?.size || selectedWeight?.quantity || selectedWeight?.weight || "Size";
-  const outOfStock = !selectedWeight || selectedWeight.stock <= 0 || isUnavailable;
+  const outOfStock = !selectedWeight || selectedWeight.stock <= 0;
 
   const handleAddToCart = () => {
     if (added) {
@@ -435,12 +431,9 @@ export default function ProductDetailsClient({
               >
                 {displayWeights.map((weight, index) => {
                   const label = weight.size || weight.quantity || weight.weight || "Size";
-                  const unavailable = weight.unavailable === true;
                   return (
-                    <option key={`${label}-${index}`} value={index} disabled={unavailable}>
-                      {unavailable
-                        ? `${label} - Not Available`
-                        : `${label} - ₹${weight.price}${weight.stock <= 0 ? " - Out of Stock" : ""}`}
+                    <option key={`${label}-${index}`} value={index}>
+                      {`${label} - ₹${weight.price}${weight.stock <= 0 ? " - Out of Stock" : ""}`}
                     </option>
                   );
                 })}
@@ -454,11 +447,7 @@ export default function ProductDetailsClient({
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-semibold">
-              {isUnavailable ? (
-                <span className="rounded-full bg-gray-200 px-3 py-1 text-gray-600">
-                  Not Available
-                </span>
-              ) : outOfStock ? (
+              {outOfStock ? (
                 <span className="rounded-full bg-[#6B1F1F]/10 px-3 py-1 text-[#6B1F1F]">
                   Out of Stock
                 </span>
@@ -494,15 +483,13 @@ export default function ProductDetailsClient({
           {outOfStock ? (
             <div className="mt-8 bg-white border border-[#E8DDD1] rounded-2xl p-6">
               <p className="text-[#6B1F1F] font-bold text-lg mb-1">
-                {isUnavailable ? "This Size Isn't Offered" : "Currently Out of Stock"}
+                Currently Out of Stock
               </p>
               <p className="text-[#7A6F65] text-sm mb-4">
-                {isUnavailable
-                  ? "Please choose a different size above."
-                  : "Leave your email and we'll let you know the moment it's back."}
+                Leave your email and we'll let you know the moment it's back.
               </p>
 
-              {!isUnavailable && (notifySubmitted ? (
+              {notifySubmitted ? (
                 <p className="text-[#4F6B52] font-semibold">
                   ✓ You're on the list - we'll notify you!
                 </p>
@@ -526,7 +513,7 @@ export default function ProductDetailsClient({
                     Notify Me
                   </button>
                 </form>
-              ))}
+              )}
             </div>
           ) : (
             // Desktop-only inline buttons. Mobile uses the fixed bottom bar instead.
