@@ -17,6 +17,11 @@ export default function AdminProductsClient() {
 
         weights: [
             {
+                size: "120g",
+                price: "",
+                stock: "",
+            },
+            {
                 size: "220g",
                 price: "",
                 stock: "",
@@ -42,6 +47,7 @@ export default function AdminProductsClient() {
     const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
     const [comboPrice, setComboPrice] = useState("");
     const [comboStock, setComboStock] = useState("");
+    const [comboUnitWeight, setComboUnitWeight] = useState("120g");
 
     const [products, setProducts] = useState<any[]>([]);
     useEffect(() => {
@@ -168,6 +174,7 @@ export default function AdminProductsClient() {
             shortDescription: "",
             category: "Pickle",
             weights: [
+                { size: "120g", price: "", stock: "" },
                 { size: "220g", price: "", stock: "" },
                 { size: "330g", price: "", stock: "" },
                 { size: "430g", price: "", stock: "" },
@@ -179,6 +186,7 @@ export default function AdminProductsClient() {
         setSelectedProductIds([]);
         setComboPrice("");
         setComboStock("");
+        setComboUnitWeight("120g");
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -225,6 +233,7 @@ export default function AdminProductsClient() {
                         category: formData.category,
                         isCombo: true,
                         comboSize,
+                        comboUnitWeight,
                         comboItems,
                         comboPrice: Number(comboPrice),
                         comboStock: Number(comboStock || 0),
@@ -421,6 +430,22 @@ export default function AdminProductsClient() {
                                         </button>
                                     ))}
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Weight per Jar
+                                </label>
+                                <select
+                                    value={comboUnitWeight}
+                                    onChange={(e) => setComboUnitWeight(e.target.value)}
+                                    className="w-full border rounded-xl p-3 text-gray-900"
+                                >
+                                    <option value="120g">120g per jar</option>
+                                </select>
+                                <p className="mt-2 text-xs text-gray-500">
+                                    The pack will be shown as {comboUnitWeight} × {comboSize} jars.
+                                </p>
                             </div>
 
                             {/* Product checklist */}

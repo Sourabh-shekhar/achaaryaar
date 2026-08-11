@@ -4,8 +4,9 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
-const ALLOWED_SIZES = ["220g", "330g", "430g"];
+const ALLOWED_SIZES = ["120g", "220g", "330g", "430g"];
 const ALLOWED_COMBO_SIZES = [2, 3, 4];
+const ALLOWED_COMBO_UNIT_WEIGHTS = ["120g"];
 const ALLOWED_ORIGIN = "https://www.achaaryaar.com";
 
 function normalizeWeights(weights: any[] = []) {
@@ -129,6 +130,7 @@ export async function POST(req: Request) {
     // Combo pack — fixed set of existing products bundled at one price.
     if (body.isCombo) {
       const comboSize = Number(body.comboSize);
+      const comboUnitWeight = String(body.comboUnitWeight || "").trim();
 
       if (!ALLOWED_COMBO_SIZES.includes(comboSize)) {
         return NextResponse.json(
@@ -136,6 +138,13 @@ export async function POST(req: Request) {
             success: false,
             message: "Combo size must be 2, 3, or 4",
           },
+          { status: 400, headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
+        );
+      }
+
+      if (!ALLOWED_COMBO_UNIT_WEIGHTS.includes(comboUnitWeight)) {
+        return NextResponse.json(
+          { success: false, message: "Select a valid weight for each combo jar" },
           { status: 400, headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN } }
         );
       }
@@ -175,6 +184,7 @@ export async function POST(req: Request) {
         featured: body.featured || false,
         isCombo: true,
         comboSize,
+        comboUnitWeight,
         comboItems,
         comboPrice,
         comboStock: Number.isFinite(comboStock) ? Math.max(0, comboStock) : 0,

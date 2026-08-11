@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
    
 
-const PRODUCT_SIZES = ["220g", "330g", "430g"];
+const PRODUCT_SIZES = ["120g", "220g", "330g", "430g"];
 
 function normalizeEditableWeights(weights: any[] = []) {
     return PRODUCT_SIZES.map((size) => {

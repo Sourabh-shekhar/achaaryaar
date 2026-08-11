@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
@@ -28,9 +28,14 @@ type Product = {
   featured?: boolean;
   rating?: number;
   reviewsCount?: number;
+  isCombo?: boolean;
+  comboSize?: number;
+  comboUnitWeight?: string;
+  comboPrice?: number;
+  comboStock?: number;
 };
 
-const STANDARD_SIZES = ["220g", "330g", "430g"];
+const STANDARD_SIZES = ["120g", "220g", "330g", "430g"];
 
 export default function ProductDetailsClient({
   product,
@@ -51,15 +56,22 @@ export default function ProductDetailsClient({
       ? product.images
       : [product.image];
 
-  // Combo packs keep their own custom sizes (e.g. "3 items", "4 items").
-  // Every other product always shows all 3 standard sizes - real ones with
+  // Combo packs have one fixed, clearly-labelled option. Every other product
+  // always shows all standard sizes - real ones with
   // their actual price/stock, and any missing ones shown as "Not Available".
   const isCombo =
+    product.isCombo === true ||
     product.category?.toLowerCase().includes("combo") ||
     product._id.startsWith("combo-");
 
   const displayWeights: Weight[] = isCombo
-    ? product.weights || []
+    ? [{
+      size: product.comboUnitWeight && product.comboSize
+        ? `${product.comboUnitWeight} × ${product.comboSize} jars`
+        : `${product.comboSize || 2}-Pack Combo`,
+      price: Number(product.comboPrice || 0),
+      stock: Number(product.comboStock || 0),
+    }]
     : STANDARD_SIZES.map((size) => {
       const existing = product.weights?.find(
         (w) => (w.size || w.quantity || w.weight) === size
@@ -68,8 +80,18 @@ export default function ProductDetailsClient({
     });
 
   const [activeImage, setActiveImage] = useState(0);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifySubmitted, setNotifySubmitted] = useState(false);
+
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsImageModalOpen(false);
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, []);
 
   // --- Swipe navigation for the main product image (mobile-style, no buttons) ---
   const touchStartX = useRef<number | null>(null);
@@ -224,6 +246,33 @@ export default function ProductDetailsClient({
           <span className="font-semibold">{toast}</span>
         </div>
       )}
+      {isImageModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Full-size ${product.name} photo`}
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setIsImageModalOpen(false)}
+        >
+          <button
+            type="button"
+            aria-label="Close full-size image"
+            className="absolute right-5 top-5 z-10 rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/25"
+            onClick={() => setIsImageModalOpen(false)}
+          >
+            Close ×
+          </button>
+          <Image
+            src={gallery[activeImage]}
+            alt={`${product.name} full-size photo ${activeImage + 1}`}
+            width={1600}
+            height={1600}
+            sizes="100vw"
+            className="max-h-[88vh] w-auto max-w-full rounded-xl object-contain"
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>
+      )}
       {/* Mobile Sticky Cart Bar — Flipkart-style: Add to Cart | Buy at ₹price */}
       {!outOfStock && selectedWeight && (
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#E8DDD1] bg-white px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] sm:hidden">
@@ -271,6 +320,16 @@ export default function ProductDetailsClient({
             onMouseMove={handleMouseMove}
             onMouseUp={endDrag}
             onMouseLeave={endDrag}
+            onClick={() => setIsImageModalOpen(true)}
+            role="button"
+            tabIndex={0}
+            aria-label="Open full-size product photo"
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setIsImageModalOpen(true);
+              }
+            }}
           >
             <Image
               src={gallery[activeImage]}
@@ -281,6 +340,10 @@ export default function ProductDetailsClient({
               draggable={false}
               className="w-full h-[480px] object-cover pointer-events-none"
             />
+
+            <span className="absolute right-4 top-4 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white">
+              Click to enlarge
+            </span>
 
             {/* Non-interactive page counter — just feedback, not a control */}
             {gallery.length > 1 && (

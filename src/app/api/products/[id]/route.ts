@@ -4,7 +4,9 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
-const ALLOWED_SIZES = ["220g", "330g", "430g"];
+const ALLOWED_SIZES = ["120g", "220g", "330g", "430g"];
+const ALLOWED_COMBO_SIZES = [2, 3, 4];
+const ALLOWED_COMBO_UNIT_WEIGHTS = ["120g"];
 
 function normalizeWeights(weights: any[] = []) {
   const seen = new Set<string>();
@@ -134,24 +136,60 @@ export async function PATCH(
       );
     }
 
-    const nextBody = {
-      ...body,
-      images,
-      // Cover image always mirrors the first photo so anything still
-      // reading the single `image` field stays in sync.
-      image: images[0],
-      weights: normalizeWeights(body.weights),
-    };
+    const isCombo = body.isCombo === true;
+    const normalizedWeights = normalizeWeights(body.weights);
 
-    if (nextBody.weights.length === 0) {
+    if (!isCombo && normalizedWeights.length === 0) {
       return NextResponse.json(
         {
           success: false,
-          message: "Add at least one valid variant: 220g, 330g, or 430g",
+          message: "Add at least one valid variant: 120g, 220g, 330g, or 430g",
         },
         { status: 400 }
       );
     }
+
+    const comboSize = Number(body.comboSize);
+    const comboUnitWeight = String(body.comboUnitWeight || "").trim();
+    const comboPrice = Number(body.comboPrice);
+    const comboStock = Number(body.comboStock);
+
+    if (
+      isCombo &&
+      (!ALLOWED_COMBO_SIZES.includes(comboSize) ||
+        !ALLOWED_COMBO_UNIT_WEIGHTS.includes(comboUnitWeight) ||
+        !Number.isFinite(comboPrice) ||
+        comboPrice <= 0 ||
+        !Number.isFinite(comboStock) ||
+        comboStock < 0)
+    ) {
+      return NextResponse.json(
+        { success: false, message: "Enter valid combo pack details" },
+        { status: 400 }
+      );
+    }
+
+    const nextBody = {
+      ...body,
+      images,
+      image: images[0],
+      isCombo,
+      weights: isCombo ? [] : normalizedWeights,
+      ...(isCombo
+        ? {
+            comboSize,
+            comboUnitWeight,
+            comboPrice,
+            comboStock: Math.max(0, Math.floor(comboStock)),
+          }
+        : {
+            comboSize: undefined,
+            comboUnitWeight: undefined,
+            comboItems: [],
+            comboPrice: undefined,
+            comboStock: undefined,
+          }),
+    };
 
     const updatedProduct = await Product.findByIdAndUpdate(
       id,

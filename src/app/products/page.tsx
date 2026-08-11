@@ -33,6 +33,11 @@ type Product = {
   category?: string;
   image: string;
   featured?: boolean;
+  isCombo?: boolean;
+  comboSize?: number;
+  comboUnitWeight?: string;
+  comboPrice?: number;
+  comboStock?: number;
   weights: {
     size: string;
     price: number;
@@ -63,6 +68,11 @@ async function getProducts(): Promise<Product[]> {
 }
 
 function getLowestPrice(product: Product) {
+  if (product.isCombo) {
+    const comboPrice = Number(product.comboPrice);
+    return Number.isFinite(comboPrice) && comboPrice > 0 ? comboPrice : null;
+  }
+
   const prices = (product.weights || [])
     .map((weight) => Number(weight.price))
     .filter((price) => Number.isFinite(price) && price > 0);
@@ -94,7 +104,9 @@ export default async function ProductsPage({
 
   const featuredCount = allProducts.filter((product) => product.featured).length;
   const inStockCount = allProducts.filter((product) =>
-    product.weights?.some((weight) => weight.stock > 0)
+    product.isCombo
+      ? Number(product.comboStock) > 0
+      : product.weights?.some((weight) => weight.stock > 0)
   ).length;
   const validStartingPrices = allProducts
     .map((product) => getLowestPrice(product))
@@ -375,6 +387,11 @@ export default async function ProductsPage({
                 description={product.description}
                 image={product.image}
                 weights={product.weights}
+                isCombo={product.isCombo}
+                comboSize={product.comboSize}
+                comboUnitWeight={product.comboUnitWeight}
+                comboPrice={product.comboPrice}
+                comboStock={product.comboStock}
               />
             ))}
           </div>

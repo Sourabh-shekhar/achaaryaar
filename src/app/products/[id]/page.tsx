@@ -175,7 +175,9 @@ export default async function ProductDetails({
 
     weight: {
       "@type": "QuantitativeValue",
-      value: product.weights?.[0]?.size ?? "",
+      value: product.isCombo
+        ? product.comboUnitWeight || "120g"
+        : product.weights?.[0]?.size ?? "",
     },
 
     aggregateRating:

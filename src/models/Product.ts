@@ -63,7 +63,7 @@ const ProductSchema = new Schema(
       {
         size: {
           type: String,
-          enum: ["220g", "330g", "430g"],
+          enum: ["120g", "220g", "330g", "430g"],
           required: true,
         },
 
@@ -91,6 +91,11 @@ const ProductSchema = new Schema(
     comboSize: {
       type: Number,
       enum: [2, 3, 4],
+    },
+
+    comboUnitWeight: {
+      type: String,
+      enum: ["120g"],
     },
 
     comboItems: {

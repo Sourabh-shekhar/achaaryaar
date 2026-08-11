@@ -10,6 +10,11 @@ type ProductProps = {
   description: string;
   image: string;
   href?: string;
+  isCombo?: boolean;
+  comboSize?: number;
+  comboUnitWeight?: string;
+  comboPrice?: number;
+  comboStock?: number;
   weights: {
     size?: string;
     quantity?: string;
@@ -26,11 +31,13 @@ export default function ProductCard({
   image,
   href,
   weights,
+  isCombo = false,
+  comboSize,
+  comboUnitWeight,
+  comboPrice,
+  comboStock,
 }: ProductProps) {
   const hasVariants = Array.isArray(weights) && weights.length > 0;
-  const getVariantLabel = (weight?: ProductProps["weights"][number]) =>
-    weight?.size || weight?.quantity || weight?.weight || "Size";
-
   // The card no longer lets you pick a weight or add to cart directly —
   // that happens on the product page. Here we just default to the first
   // in-stock variant (or, if everything's out of stock, the first variant)
@@ -38,10 +45,13 @@ export default function ProductCard({
   const defaultVariant =
     weights?.find((w) => w.stock > 0) ?? weights?.[0] ?? null;
 
-  const selectedData = defaultVariant;
+  const selectedData = isCombo
+    ? { price: Number(comboPrice || 0), stock: Number(comboStock || 0) }
+    : defaultVariant;
+  const isAvailable = isCombo ? selectedData.price > 0 : hasVariants;
 
   const stock = selectedData?.stock;
-  const isOutOfStock = hasVariants && stock === 0;
+  const isOutOfStock = isAvailable && stock === 0;
   const isLowStock = typeof stock === "number" && stock > 0 && stock <= 5;
 
   return (
@@ -83,14 +93,19 @@ export default function ProductCard({
             <div className="mb-4 flex items-end justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#7A9678]">
-                  Starts at
+                  {isCombo ? "Combo price" : "Starts at"}
                 </p>
                 <p className="text-3xl font-black text-[#6B1F1F]">
-                  {selectedData ? `₹${selectedData.price}` : "Out of Stock"}
+                  {isAvailable ? `₹${selectedData?.price}` : "Out of Stock"}
                 </p>
+                {isCombo && comboSize && (
+                  <p className="mt-1 text-xs font-bold text-[#7A9678]">
+                    {comboUnitWeight || "120g"} × {comboSize} jars
+                  </p>
+                )}
               </div>
 
-              {!hasVariants ? (
+              {!isAvailable ? (
                 <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-600">
                   Out of Stock
                 </span>
@@ -114,12 +129,12 @@ export default function ProductCard({
             </div>
 
             <span
-              className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-extrabold transition duration-300 ${!hasVariants || isOutOfStock
+              className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-base font-extrabold transition duration-300 ${!isAvailable || isOutOfStock
                   ? "bg-gray-300 text-gray-600"
                   : "bg-[#3D5640] text-white group-hover:bg-[#2F4533]"
                 }`}
             >
-              {!hasVariants
+              {!isAvailable
                 ? "Out of Stock"
                 : isOutOfStock
                   ? "Out of Stock"
