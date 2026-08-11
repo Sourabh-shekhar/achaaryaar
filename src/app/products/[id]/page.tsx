@@ -176,7 +176,7 @@ export default async function ProductDetails({
     weight: {
       "@type": "QuantitativeValue",
       value: product.isCombo
-        ? product.comboUnitWeight || "120g"
+        ? product.comboUnitWeight || "Mixed jar sizes"
         : product.weights?.[0]?.size ?? "",
     },
 

@@ -38,7 +38,7 @@ export default function EditProductPage() {
         shortDescription: "",
         isCombo: false,
         comboSize: 2,
-        comboUnitWeight: "120g",
+        comboUnitWeight: "",
         comboPrice: "",
         comboStock: "",
         weights: [],
@@ -67,7 +67,7 @@ export default function EditProductPage() {
                     shortDescription: data.product.shortDescription || "",
                     isCombo: data.product.isCombo === true,
                     comboSize: data.product.comboSize || 2,
-                    comboUnitWeight: data.product.comboUnitWeight || "120g",
+                    comboUnitWeight: data.product.comboUnitWeight || "",
                     comboPrice: data.product.comboPrice ?? "",
                     comboStock: data.product.comboStock ?? "",
                     weights: data.product.isCombo ? [] : normalizeEditableWeights(data.product.weights),
@@ -213,8 +213,24 @@ export default function EditProductPage() {
                     {formData.isCombo ? (
                         <div className="rounded-xl border border-orange-200 bg-orange-50 p-4">
                             <p className="mb-3 font-bold text-orange-900">
-                                {formData.comboUnitWeight} × {formData.comboSize} jars combo
+                                {formData.comboUnitWeight
+                                    ? `${formData.comboUnitWeight} × ${formData.comboSize} jars combo`
+                                    : `${formData.comboSize}-Pack Combo (existing size details kept)`}
                             </p>
+                            <label className="mb-3 block text-sm font-semibold text-gray-700">
+                                Weight per Jar
+                                <select
+                                    value={formData.comboUnitWeight}
+                                    onChange={(e) => setFormData({ ...formData, comboUnitWeight: e.target.value })}
+                                    className="mt-1 w-full rounded-xl border p-3 text-gray-900"
+                                >
+                                    <option value="">Keep existing combo size details</option>
+                                    <option value="120g">120g per jar</option>
+                                    <option value="220g">220g per jar</option>
+                                    <option value="330g">330g per jar</option>
+                                    <option value="430g">430g per jar</option>
+                                </select>
+                            </label>
                             <label className="mb-3 block text-sm font-semibold text-gray-700">
                                 Combo Price
                                 <input

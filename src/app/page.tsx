@@ -768,7 +768,11 @@ function FeaturedProducts({ products }: { products: any[] }) {
                         ₹{p.isCombo ? p.comboPrice : p.weights?.[0]?.price}
                       </span>
                       <span style={{ color: COLORS.muted, fontSize: "0.78rem", marginLeft: 4 }}>
-                        / {p.isCombo ? `${p.comboUnitWeight || "120g"} × ${p.comboSize} jars` : p.weights?.[0]?.size}
+                        / {p.isCombo
+                          ? p.comboUnitWeight
+                            ? `${p.comboUnitWeight} × ${p.comboSize} jars`
+                            : `${p.comboSize || 2}-Pack Combo`
+                          : p.weights?.[0]?.size}
                       </span>
                     </div>
                     <span

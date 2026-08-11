@@ -100,7 +100,9 @@ export default function ProductCard({
                 </p>
                 {isCombo && comboSize && (
                   <p className="mt-1 text-xs font-bold text-[#7A9678]">
-                    {comboUnitWeight || "120g"} × {comboSize} jars
+                    {comboUnitWeight
+                      ? `${comboUnitWeight} × ${comboSize} jars`
+                      : `${comboSize}-Pack Combo`}
                   </p>
                 )}
               </div>

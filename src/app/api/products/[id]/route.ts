@@ -6,7 +6,7 @@ import Product from "@/models/Product";
 
 const ALLOWED_SIZES = ["120g", "220g", "330g", "430g"];
 const ALLOWED_COMBO_SIZES = [2, 3, 4];
-const ALLOWED_COMBO_UNIT_WEIGHTS = ["120g"];
+const ALLOWED_COMBO_UNIT_WEIGHTS = ["120g", "220g", "330g", "430g"];
 
 function normalizeWeights(weights: any[] = []) {
   const seen = new Set<string>();
@@ -156,15 +156,27 @@ export async function PATCH(
       );
     }
 
+    const existingProduct = await Product.findById(id).lean();
+    if (!existingProduct) {
+      return NextResponse.json(
+        { success: false, message: "Product not found" },
+        { status: 404 }
+      );
+    }
+
     const comboSize = Number(body.comboSize);
-    const comboUnitWeight = String(body.comboUnitWeight || "").trim();
+    // Older combo products had no saved per-jar weight.  Do not turn them
+    // into 120g packs merely because another field is edited.
+    const requestedComboUnitWeight = String(body.comboUnitWeight || "").trim();
+    const comboUnitWeight =
+      requestedComboUnitWeight || String((existingProduct as any).comboUnitWeight || "").trim();
     const comboPrice = Number(body.comboPrice);
     const comboStock = Number(body.comboStock);
 
     if (
       isCombo &&
       (!ALLOWED_COMBO_SIZES.includes(comboSize) ||
-        !ALLOWED_COMBO_UNIT_WEIGHTS.includes(comboUnitWeight) ||
+        (comboUnitWeight.length > 0 && !ALLOWED_COMBO_UNIT_WEIGHTS.includes(comboUnitWeight)) ||
         !Number.isFinite(comboPrice) ||
         comboPrice <= 0 ||
         !Number.isFinite(comboStock) ||
@@ -176,8 +188,13 @@ export async function PATCH(
       );
     }
 
+    // Do not let an empty value sent by the edit form overwrite the
+    // missing/previous value of an older combo product.
+    const bodyWithoutComboUnitWeight = { ...body };
+    delete bodyWithoutComboUnitWeight.comboUnitWeight;
+
     const nextBody = {
-      ...body,
+      ...bodyWithoutComboUnitWeight,
       images,
       image: images[0],
       isCombo,
@@ -185,7 +202,7 @@ export async function PATCH(
       ...(isCombo
         ? {
             comboSize,
-            comboUnitWeight,
+            ...(comboUnitWeight ? { comboUnitWeight } : {}),
             comboPrice,
             comboStock: Math.max(0, Math.floor(comboStock)),
           }

@@ -95,7 +95,10 @@ const ProductSchema = new Schema(
 
     comboUnitWeight: {
       type: String,
-      enum: ["120g"],
+      // A combo can use any of the jar sizes sold on the site.  Keeping this
+      // optional also preserves older combo records that were created before
+      // the per-jar-size field existed.
+      enum: ["120g", "220g", "330g", "430g"],
     },
 
     comboItems: {
