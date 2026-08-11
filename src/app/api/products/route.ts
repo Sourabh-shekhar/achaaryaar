@@ -85,10 +85,19 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      products: products.map((product: any) => ({
-        ...product,
-        weights: product.isCombo ? [] : normalizeWeights(product.weights),
-      })),
+      products: products.map((product: any) => {
+        // Older combo records were saved with comboItems but without the
+        // isCombo flag. Treat both formats as combo packs for customers.
+        const isCombo =
+          product.isCombo === true ||
+          (Array.isArray(product.comboItems) && product.comboItems.length > 0);
+
+        return {
+          ...product,
+          isCombo,
+          weights: isCombo ? [] : normalizeWeights(product.weights),
+        };
+      }),
     }, {
       headers: {
         "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",

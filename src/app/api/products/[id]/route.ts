@@ -81,11 +81,17 @@ export async function GET(
       );
     }
 
+    const productData = product as any;
+    const isCombo =
+      productData.isCombo === true ||
+      (Array.isArray(productData.comboItems) && productData.comboItems.length > 0);
+
     return NextResponse.json({
       success: true,
       product: {
         ...product,
-        weights: normalizeWeights((product as any).weights),
+        isCombo,
+        weights: isCombo ? [] : normalizeWeights(productData.weights),
       },
     }, {
       headers: {
