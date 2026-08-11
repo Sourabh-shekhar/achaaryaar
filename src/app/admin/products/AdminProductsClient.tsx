@@ -61,6 +61,38 @@ export default function AdminProductsClient() {
         fetchProducts();
     }, []);
 
+    // Flat list of every in-stock item, one row per weight/combo-variant,
+    // used to render the "In Stock Summary" panel. Out-of-stock rows are
+    // filtered out entirely rather than shown with a zero quantity.
+    const inStockSummary = products.flatMap((product) => {
+        if (product.isCombo) {
+            const variants =
+                product.comboVariants && product.comboVariants.length > 0
+                    ? product.comboVariants
+                    : [{ unitWeight: product.comboUnitWeight, stock: product.comboStock }];
+
+            return variants
+                .filter((v: any) => Number(v.stock || 0) > 0)
+                .map((v: any) => ({
+                    id: `${product._id}-${v.unitWeight || "combo"}`,
+                    name: product.name,
+                    variantLabel: v.unitWeight
+                        ? `${v.unitWeight} × ${product.comboSize} jars`
+                        : `${product.comboSize}-Pack Combo`,
+                    stock: Number(v.stock || 0),
+                }));
+        }
+
+        return (product.weights || [])
+            .filter((w: any) => Number(w.stock || 0) > 0)
+            .map((w: any) => ({
+                id: `${product._id}-${w.size || w.quantity}`,
+                name: product.name,
+                variantLabel: w.size || w.quantity || "—",
+                stock: Number(w.stock || 0),
+            }));
+    });
+
     const fetchProducts = async () => {
         try {
             const res = await fetch(`/api/products`, {
@@ -322,6 +354,9 @@ export default function AdminProductsClient() {
                     Manage Coupons
                 </Link>
             </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
+            <div>
 
             <div className="bg-white p-8 rounded-2xl shadow-lg max-w-3xl">
 
@@ -784,6 +819,51 @@ export default function AdminProductsClient() {
                         );
                     })}
                 </div>
+            </div>
+
+            </div>
+
+            {/* In Stock Summary — sticky sidebar, right of the form and
+                product list. Shows only items that currently have stock,
+                one row per weight/combo-variant, with quantity. */}
+            <aside className="lg:sticky lg:top-8">
+                <div className="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 className="text-lg font-bold text-gray-900 mb-1">
+                        In Stock Summary
+                    </h2>
+                    <p className="text-xs text-gray-500 mb-4">
+                        {inStockSummary.length} item{inStockSummary.length === 1 ? "" : "s"} in stock
+                    </p>
+
+                    {inStockSummary.length === 0 ? (
+                        <p className="text-sm text-gray-500">
+                            Nothing in stock right now.
+                        </p>
+                    ) : (
+                        <div className="max-h-[70vh] overflow-y-auto divide-y">
+                            {inStockSummary.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="flex items-center justify-between py-2.5 gap-3"
+                                >
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-semibold text-gray-900 truncate">
+                                            {item.name}
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                            {item.variantLabel}
+                                        </p>
+                                    </div>
+                                    <span className="shrink-0 text-sm font-bold text-green-700 bg-green-50 px-2.5 py-1 rounded-lg">
+                                        {item.stock}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </aside>
+
             </div>
         </div>
 
