@@ -6,36 +6,45 @@ import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
   const router = useRouter();
+
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const result = await signIn("admin-credentials", {
-      password,
-      redirect: false,
-    });
+  setError(null);
+  setIsSubmitting(true);
 
-    setIsSubmitting(false);
+  const result = await signIn("admin-credentials", {
+    password,
+    redirect: false,
+  });
 
-    if (result?.error) {
-      setError("Incorrect password. Please try again.");
-      return;
-    }
+  setIsSubmitting(false);
 
-    router.push("/admin/products");
-  };
+  if (result?.error) {
+    setError("Incorrect password. Please try again.");
+    return;
+  }
+
+  // Important: your existing admin pages check this
+  localStorage.setItem("isAdmin", "true");
+
+  router.push("/admin/dashboard");
+  router.refresh();
+};
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
       <div className="w-full max-w-sm bg-white p-8 rounded-2xl shadow-lg">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Admin Login</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">
+          Admin Login
+        </h1>
+
         <p className="text-sm text-gray-500 mb-6">
-          Enter the admin password to manage products.
+          Enter the admin password to access your dashboard.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -50,7 +59,9 @@ export default function AdminLoginPage() {
           />
 
           {error && (
-            <p className="text-red-600 text-sm font-semibold">{error}</p>
+            <p className="text-red-600 text-sm font-semibold">
+              {error}
+            </p>
           )}
 
           <button

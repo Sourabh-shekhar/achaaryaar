@@ -1,12 +1,20 @@
 /**
  * src/lib/intentHandler.ts
  *
- * Keyword-based intent detection, adjusted for your actual Order schema:
- * there's no custom "ORD1234" code — orders are identified by Mongo's
- * _id. Customers can paste either:
- *   - the full 24-char Mongo ObjectId, or
- *   - the last 8 characters of it (a friendlier "reference code" you
- *     can also show them on the order-success / profile page)
+ * Intent detection for AchaarYaar Support Chatbot.
+ *
+ * Supports:
+ * - Greeting
+ * - Current order
+ * - Previous orders
+ * - Order status
+ * - Tracking
+ * - Delivery
+ * - Payment
+ * - Cancellation
+ * - Returns / refunds
+ * - Human support
+ * - General order questions
  */
 
 export type Intent =
@@ -14,6 +22,9 @@ export type Intent =
   | "current_order"
   | "previous_orders"
   | "order_status_by_id"
+  | "tracking"
+  | "delivery"
+  | "payment"
   | "cancel_order"
   | "return_order"
   | "human_handoff"
@@ -21,48 +32,242 @@ export type Intent =
 
 export interface IntentResult {
   intent: Intent;
-  orderIdQuery?: string; // full ObjectId OR 8-char suffix, as typed by the user
+  orderIdQuery?: string;
 }
 
-const fullObjectIdPattern = /\b[a-f0-9]{24}\b/i;
-const shortRefPattern = /\b[a-f0-9]{8}\b/i;
+/**
+ * --------------------------------------------------------
+ * ORDER REFERENCE PATTERNS
+ * --------------------------------------------------------
+ */
 
-export function detectIntent(message: string): IntentResult {
-  const text = message.toLowerCase().trim();
+const fullObjectIdPattern =
+  /\b[a-f0-9]{24}\b/i;
 
-  const fullIdMatch = message.match(fullObjectIdPattern);
-  const shortRefMatch = !fullIdMatch ? message.match(shortRefPattern) : null;
+const shortRefPattern =
+  /\b[a-f0-9]{8}\b/i;
 
-  if (/\b(hi|hello|hey)\b/.test(text)) {
-    return { intent: "greeting" };
-  }
+/**
+ * --------------------------------------------------------
+ * INTENT DETECTION
+ * --------------------------------------------------------
+ */
 
-  if (fullIdMatch || shortRefMatch) {
+export function detectIntent(
+  message: string
+): IntentResult {
+  const text =
+    message
+      .toLowerCase()
+      .trim();
+
+  /**
+   * ------------------------------------------------------
+   * ORDER ID / REFERENCE
+   * ------------------------------------------------------
+   */
+
+  const fullIdMatch =
+    message.match(
+      fullObjectIdPattern
+    );
+
+  const shortRefMatch =
+    !fullIdMatch
+      ? message.match(
+          shortRefPattern
+        )
+      : null;
+
+  const orderIdQuery =
+    fullIdMatch?.[0] ||
+    shortRefMatch?.[0];
+
+  /**
+   * ------------------------------------------------------
+   * GREETING
+   * ------------------------------------------------------
+   */
+
+  if (
+    /\b(hi|hello|hey|hii|helo|namaste|good morning|good afternoon|good evening)\b/.test(
+      text
+    )
+  ) {
     return {
-      intent: "order_status_by_id",
-      orderIdQuery: (fullIdMatch?.[0] || shortRefMatch?.[0])!.toLowerCase(),
+      intent: "greeting",
     };
   }
 
-  if (/(current|latest|active|track).*order/.test(text) || /where.*order/.test(text)) {
-    return { intent: "current_order" };
+  /**
+   * ------------------------------------------------------
+   * CANCEL ORDER
+   * ------------------------------------------------------
+   */
+
+  if (
+    /(cancel|cancellation|stop|don't want|do not want)/.test(
+      text
+    ) &&
+    /(order|purchase|item)/.test(
+      text
+    )
+  ) {
+    return {
+      intent: "cancel_order",
+      orderIdQuery,
+    };
   }
 
-  if (/(previous|past|old|history).*order/.test(text) || /order.*(history|list)/.test(text)) {
-    return { intent: "previous_orders" };
+  /**
+   * ------------------------------------------------------
+   * TRACKING
+   * ------------------------------------------------------
+   */
+
+  if (
+    /(track|tracking|awb|shipment|shipped|shipping|courier|where is my package|where is my parcel|location of my order)/.test(
+      text
+    )
+  ) {
+    return {
+      intent: "tracking",
+      orderIdQuery,
+    };
   }
 
-  if (/cancel/.test(text) && /order/.test(text)) {
-    return { intent: "cancel_order" };
+  /**
+   * ------------------------------------------------------
+   * DELIVERY
+   * ------------------------------------------------------
+   */
+
+  if (
+    /(delivery|deliver|arrive|arrival|when will.*come|when.*receive|how long.*take|eta|estimated delivery)/.test(
+      text
+    )
+  ) {
+    return {
+      intent: "delivery",
+      orderIdQuery,
+    };
   }
 
-  if (/(return|refund)/.test(text)) {
-    return { intent: "return_order" };
+  /**
+   * ------------------------------------------------------
+   * PAYMENT
+   * ------------------------------------------------------
+   */
+
+  if (
+    /(payment|paid|pay|razorpay|upi|transaction|transaction id|payment id|amount paid|money|price paid)/.test(
+      text
+    )
+  ) {
+    return {
+      intent: "payment",
+      orderIdQuery,
+    };
   }
 
-  if (/(human|agent|representative|support person)/.test(text)) {
-    return { intent: "human_handoff" };
+  /**
+   * ------------------------------------------------------
+   * PREVIOUS ORDERS
+   * ------------------------------------------------------
+   */
+
+  if (
+    /(previous|past|old|history|completed|delivered|cancelled).*order/.test(
+      text
+    ) ||
+    /order.*(history|list|past)/.test(
+      text
+    )
+  ) {
+    return {
+      intent: "previous_orders",
+    };
   }
 
-  return { intent: "fallback" };
+  /**
+   * ------------------------------------------------------
+   * CURRENT ORDER
+   * ------------------------------------------------------
+   */
+
+  if (
+    /(current|latest|active|recent).*order/.test(
+      text
+    ) ||
+    /(my order|my latest order|my current order)/.test(
+      text
+    ) ||
+    /(where.*order|order.*where)/.test(
+      text
+    )
+  ) {
+    return {
+      intent: "current_order",
+    };
+  }
+
+  /**
+   * ------------------------------------------------------
+   * RETURN / REFUND
+   * ------------------------------------------------------
+   */
+
+  if (
+    /(return|refund|replace|replacement|damaged|wrong item|wrong product)/.test(
+      text
+    )
+  ) {
+    return {
+      intent: "return_order",
+      orderIdQuery,
+    };
+  }
+
+  /**
+   * ------------------------------------------------------
+   * HUMAN SUPPORT
+   * ------------------------------------------------------
+   */
+
+  if (
+    /(human|agent|representative|support person|customer care|customer service|talk to someone|speak to someone|contact support|contact team)/.test(
+      text
+    )
+  ) {
+    return {
+      intent: "human_handoff",
+    };
+  }
+
+  /**
+   * ------------------------------------------------------
+   * ORDER REFERENCE
+   *
+   * If user simply pastes an order reference,
+   * show its status.
+   * ------------------------------------------------------
+   */
+
+  if (orderIdQuery) {
+    return {
+      intent: "order_status_by_id",
+      orderIdQuery:
+        orderIdQuery.toLowerCase(),
+    };
+  }
+
+  /**
+   * ------------------------------------------------------
+   * FALLBACK
+   * ------------------------------------------------------
+   */
+
+  return {
+    intent: "fallback",
+  };
 }

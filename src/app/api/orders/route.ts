@@ -420,37 +420,86 @@ const shipping = subtotal >= 499 ? 0 : 50;
   }
 }
 
-// Fetch Orders — scoped to the logged-in user only.
+// ----------------------------------------------------
+// FETCH ORDERS
+// ----------------------------------------------------
+// Admin sees ALL orders.
+// Customer sees only their own orders.
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
+    if (!session?.user) {
       return NextResponse.json(
-        { success: false, message: "Please login first." },
-        { status: 401 }
+        {
+          success: false,
+          message: "Please login first.",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
     await connectDB();
 
-    const orders = await Order.find({ email: session.user.email }).sort({
-      createdAt: -1,
-    });
+    // Get the role added by your NextAuth session callback.
+    const user = session.user as typeof session.user & {
+      role?: string;
+    };
+
+    let orders;
+
+    // ADMIN: Fetch every customer's order.
+    if (user.role === "admin") {
+      orders = await Order.find({})
+        .sort({
+          createdAt: -1,
+        })
+        .lean();
+    }
+
+    // CUSTOMER: Fetch only their own orders.
+    else {
+      if (!session.user.email) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "User email not found.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      orders = await Order.find({
+        email: session.user.email
+          .trim()
+          .toLowerCase(),
+      })
+        .sort({
+          createdAt: -1,
+        })
+        .lean();
+    }
 
     return NextResponse.json({
       success: true,
       orders,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Fetch orders error:", error);
 
     return NextResponse.json(
       {
         success: false,
         message: "Failed to fetch orders",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

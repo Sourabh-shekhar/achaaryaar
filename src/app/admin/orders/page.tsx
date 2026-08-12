@@ -2,7 +2,7 @@
 import AdminAnalytics from "@/components/AdminAnalytics";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-   
+import { signOut } from "next-auth/react";
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState<any[]>([]);
@@ -14,17 +14,12 @@ export default function AdminOrdersPage() {
     const router = useRouter();
 
     useEffect(() => {
-        const isAdmin = localStorage.getItem("isAdmin");
+    fetchOrders();
 
-        if (!isAdmin) {
-            router.push("/admin/login");
-            return;
-        }
+    const timer = setInterval(fetchOrders, 30000);
 
-        fetchOrders();
-        const timer = setInterval(fetchOrders, 30000);
-        return () => clearInterval(timer);
-    }, []);
+    return () => clearInterval(timer);
+}, []);
 
     const fetchOrders = async () => {
         try {

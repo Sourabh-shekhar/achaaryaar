@@ -1,15 +1,3 @@
-/**
- * src/components/ChatWidget.tsx
- *
- * Order-support chat as a slide-in sidebar (not a popup, not a new page).
- * Trigger icon sits bottom-right; clicking it slides a panel in from the
- * right edge of the viewport, over a soft backdrop, on the same page.
- *
- * Usage — add once in your root layout:
- *   import ChatWidget from "@/components/ChatWidget";
- *   ...
- *   <body>{children}<ChatWidget /></body>
- */
 
 "use client";
 
@@ -89,7 +77,7 @@ export default function ChatWidget() {
       <button
         onClick={toggleOpen}
         aria-label={open ? "Close support chat" : "Open support chat"}
-        className="fixed bottom-4 right-4 z-[70] group"
+        className="fixed bottom-5 right-3 z-[70] group"
       >
         <div className="relative">
           {!open && (
