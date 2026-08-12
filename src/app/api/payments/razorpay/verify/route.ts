@@ -590,22 +590,6 @@ export async function POST(
       );
     }
 
-    // ----------------------------------------------------
-    // 12. PROCESS SHIPMOZO
-    // ----------------------------------------------------
-    //
-    // This calls:
-    //
-    // pushShipmozoOrder()
-    //        ↓
-    // save Shipmozo order ID
-    //        ↓
-    // autoAssignShipmozoOrder()
-    //        ↓
-    // save courier + AWB
-    //
-    // If Shipmozo fails, the paid order remains valid.
-    // ----------------------------------------------------
 
     try {
       console.log(

@@ -8,11 +8,6 @@ import Order from "@/models/Order";
 import Product from "@/models/Product";
 import { sendAdminOrderNotification, sendOrderConfirmation } from "@/lib/sendEmail";
 import { processShipmozoOrder } from "@/lib/processShipmozoOrder";
-import {
-  pushShipmozoOrder,
-  autoAssignShipmozoOrder,
-} from "@/lib/shipmozo";
-
 // Source of truth for coupons — the browser is never trusted for the
 // discount percentage or eligibility, only for which code the customer
 // typed in. Keep this in sync with any coupon codes shown in the UI
@@ -310,97 +305,47 @@ const shipping = subtotal >= 499 ? 0 : 50;
       console.error("Order email failed. Order still placed:", emailError);
     }
 
-    // ----------------------------------------------------
-    // STEP 5: PUSH ORDER TO SHIPMOZO
-    // ----------------------------------------------------
+let finalOrder = order;
 
-    let finalOrder = order;
+try {
+  console.log(
+    "Processing Shipmozo order:",
+    order._id.toString()
+  );
 
-    try {
-      console.log("Sending order to Shipmozo:", order._id.toString());
+  finalOrder = await processShipmozoOrder(order);
 
-      const shipmozoResponse = await pushShipmozoOrder(order);
-
-      console.log("Shipmozo push successful:", shipmozoResponse);
-
-      // Shipmozo normally returns its order/reference data
-      // inside the response data object. We keep this flexible
-      // so the integration does not depend on one exact response shape.
-      const shipmozoData = shipmozoResponse?.data || {};
-
-      const shipmozoOrderId =
-        shipmozoData?.order_id ||
-        shipmozoData?.shipmozo_order_id ||
-        shipmozoData?.id ||
-        order._id.toString();
-
-      // Save Shipmozo order ID immediately.
-      await Order.findByIdAndUpdate(order._id, {
-        shipmozoOrderId: String(shipmozoOrderId),
-        status: "Processing",
-      });
-
-      // --------------------------------------------------
-      // STEP 6: AUTO ASSIGN COURIER + GENERATE AWB
-      // --------------------------------------------------
-
-      try {
-        const assignResponse = await autoAssignShipmozoOrder(
-          String(shipmozoOrderId)
-        );
-
-        console.log("Shipmozo auto-assignment successful:", assignResponse);
-
-        const assignData = assignResponse?.data || {};
-
-        const courierName =
-          assignData?.courier_name ||
-          assignData?.courierName ||
-          assignData?.courier ||
-          "";
-
-        const trackingNumber =
-          assignData?.awb_number ||
-          assignData?.awb ||
-          assignData?.tracking_number ||
-          assignData?.trackingNumber ||
-          "";
-
-        const estimatedDelivery =
-          assignData?.estimated_delivery || assignData?.estimatedDelivery || "";
-
-        await Order.findByIdAndUpdate(order._id, {
-          courierName: String(courierName || ""),
-          trackingNumber: String(trackingNumber || ""),
-          estimatedDelivery: String(estimatedDelivery || ""),
-          shipmozoOrderId: String(shipmozoOrderId),
-          status: trackingNumber ? "Shipped" : "Processing",
-        });
-      } catch (assignError) {
-        // Order is already successfully created.
-        // Do NOT cancel the customer's order just because
-        // courier assignment failed.
-        console.error("Shipmozo courier assignment failed:", assignError);
-      }
-
-      // Get the latest version from MongoDB.
-      finalOrder = (await Order.findById(order._id)) || order;
-    } catch (shipmozoError) {
-      // Shipmozo failure must NOT destroy a successfully
-      // created customer order.
-      console.error("Shipmozo order push failed:", shipmozoError);
-
-      await Order.findByIdAndUpdate(order._id, {
-        status: "Processing",
-      });
-
-      finalOrder = (await Order.findById(order._id)) || order;
+  console.log(
+    "Shipmozo order processed successfully:",
+    {
+      orderId: finalOrder._id?.toString(),
+      shipmozoOrderId: finalOrder.shipmozoOrderId,
+      courierName: finalOrder.courierName,
+      trackingNumber: finalOrder.trackingNumber,
+      status: finalOrder.status,
+      shippingStatus: finalOrder.shippingStatus,
     }
+  );
+} catch (shipmozoError) {
+  // Shipmozo failure must NOT cancel the customer's order.
+  console.error(
+    "Shipmozo processing failed:",
+    shipmozoError
+  );
+
+  await Order.findByIdAndUpdate(order._id, {
+    status: "Processing",
+    shippingStatus: "Pending",
+  });
+
+  finalOrder =
+    (await Order.findById(order._id)) || order;
 
     // ----------------------------------------------------
-    // STEP 7: RETURN SUCCESS
-    // ----------------------------------------------------
+// STEP 6: RETURN SUCCESS
+// ----------------------------------------------------
 
+}
     return NextResponse.json({
       success: true,
       order: finalOrder,

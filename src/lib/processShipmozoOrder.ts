@@ -68,7 +68,10 @@ export async function processShipmozoOrder(
 
   const pushResponse =
     await pushShipmozoOrder(order);
-
+  console.log(
+    "FULL SHIPMOZO PUSH RESPONSE:",
+    JSON.stringify(pushResponse, null, 2)
+  );
   const shipmozoData =
     pushResponse?.data || {};
 
@@ -76,6 +79,10 @@ export async function processShipmozoOrder(
     extractShipmozoOrderId(
       shipmozoData
     );
+  console.log(
+    "EXTRACTED SHIPMOZO ORDER ID:",
+    shipmozoOrderId
+  );
 
   if (!shipmozoOrderId) {
     throw new Error(
@@ -113,10 +120,9 @@ export async function processShipmozoOrder(
       );
 
     console.log(
-      "Shipmozo courier assignment response:",
-      assignResponse
+      "FULL SHIPMOZO AUTO-ASSIGN RESPONSE:",
+      JSON.stringify(assignResponse, null, 2)
     );
-
     const assignData =
       assignResponse?.data || {};
 
