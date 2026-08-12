@@ -33,7 +33,7 @@ type Product = {
   comboUnitWeight?: string;
   comboPrice?: number;
   comboStock?: number;
-  comboVariants?: { unitWeight: string; price: number; stock: number }[]; 
+  comboVariants?: { unitWeight: string; price: number; stock: number }[];
 };
 
 const STANDARD_SIZES = ["120g", "220g", "330g", "430g"];
@@ -64,27 +64,28 @@ export default function ProductDetailsClient({
     product.category?.toLowerCase().includes("combo") ||
     product._id.startsWith("combo-");
 
- const displayWeights: Weight[] = isCombo
-  ? (product.comboVariants && product.comboVariants.length > 0
+  const displayWeights: Weight[] = isCombo
+    ? (product.comboVariants && product.comboVariants.length > 0
       ? product.comboVariants.map((v) => ({
-          size: `${v.unitWeight} × ${product.comboSize || 2} jars`,
-          price: Number(v.price || 0),
-          stock: Number(v.stock || 0),
-        }))
+        size: `${v.unitWeight} × ${product.comboSize || 2} jars`,
+        price: Number(v.price || 0),
+        stock: Number(v.stock || 0),
+      }))
       : [{
-          size: product.comboUnitWeight && product.comboSize
-            ? `${product.comboUnitWeight} × ${product.comboSize} jars`
-            : `${product.comboSize || 2}-Pack Combo`,
-          price: Number(product.comboPrice || 0),
-          stock: Number(product.comboStock || 0),
-        }])
-  : (product.weights || []).filter((weight) => {
+        size: product.comboUnitWeight && product.comboSize
+          ? `${product.comboUnitWeight} × ${product.comboSize} jars`
+          : `${product.comboSize || 2}-Pack Combo`,
+        price: Number(product.comboPrice || 0),
+        stock: Number(product.comboStock || 0),
+      }])
+    : (product.weights || []).filter((weight) => {
       const size = weight.size || weight.quantity || weight.weight;
       return STANDARD_SIZES.includes(size || "") && Number(weight.price) > 0;
     });
 
   const [activeImage, setActiveImage] = useState(0);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [modalImageIndex, setModalImageIndex] = useState(0);
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifySubmitted, setNotifySubmitted] = useState(false);
 
@@ -107,7 +108,23 @@ export default function ProductDetailsClient({
     const clamped = Math.max(0, Math.min(gallery.length - 1, index));
     setActiveImage(clamped);
   };
+  const openImageModal = (index = activeImage) => {
+    setModalImageIndex(index);
+    setIsImageModalOpen(true);
+  };
 
+  const closeImageModal = () => {
+    setIsImageModalOpen(false);
+  };
+
+  const goToModalImage = (index: number) => {
+    if (gallery.length === 0) return;
+
+    const newIndex =
+      (index + gallery.length) % gallery.length;
+
+    setModalImageIndex(newIndex);
+  };
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchDeltaX.current = 0;
@@ -254,27 +271,111 @@ export default function ProductDetailsClient({
         <div
           role="dialog"
           aria-modal="true"
-          aria-label={`Full-size ${product.name} photo`}
-          className="fixed inset-0 z-60 flex items-center justify-center bg-black/90 p-4"
-          onClick={() => setIsImageModalOpen(false)}
+          aria-label={`Full-screen ${product.name} gallery`}
+          className="fixed inset-0 z-[9999] bg-black"
         >
-          <button
-            type="button"
-            aria-label="Close full-size image"
-            className="absolute right-5 top-5 z-10 rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/25"
-            onClick={() => setIsImageModalOpen(false)}
+          {/* Top controls */}
+          <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between p-4 sm:p-6">
+            <button
+              type="button"
+              aria-label="Close image gallery"
+              onClick={closeImageModal}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-3xl font-light text-white backdrop-blur-md transition hover:bg-white/25"
+            >
+              ×
+            </button>
+
+            {gallery.length > 1 && (
+              <span className="rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-white backdrop-blur-md">
+                {modalImageIndex + 1} / {gallery.length}
+              </span>
+            )}
+          </div>
+
+          {/* Fullscreen image */}
+          <div
+            className="flex h-full w-full items-center justify-center px-3 py-20 sm:px-16"
+            onTouchStart={(e) => {
+              touchStartX.current = e.touches[0].clientX;
+              touchDeltaX.current = 0;
+            }}
+            onTouchMove={(e) => {
+              if (touchStartX.current === null) return;
+              touchDeltaX.current =
+                e.touches[0].clientX - touchStartX.current;
+            }}
+            onTouchEnd={() => {
+              if (touchStartX.current === null) return;
+
+              if (touchDeltaX.current <= -SWIPE_THRESHOLD) {
+                goToModalImage(modalImageIndex + 1);
+              } else if (touchDeltaX.current >= SWIPE_THRESHOLD) {
+                goToModalImage(modalImageIndex - 1);
+              }
+
+              touchStartX.current = null;
+              touchDeltaX.current = 0;
+            }}
           >
-            Close ×
-          </button>
-          <Image
-            src={gallery[activeImage]}
-            alt={`${product.name} full-size photo ${activeImage + 1}`}
-            width={1600}
-            height={1600}
-            sizes="100vw"
-            className="max-h-[88vh] w-auto max-w-full rounded-xl object-contain"
-            onClick={(event) => event.stopPropagation()}
-          />
+            <Image
+              src={gallery[modalImageIndex]}
+              alt={`${product.name} full-size photo ${modalImageIndex + 1}`}
+              width={2000}
+              height={2000}
+              sizes="100vw"
+              priority
+              className="h-full w-full object-contain select-none"
+              draggable={false}
+            />
+          </div>
+
+          {/* Previous button - desktop */}
+          {gallery.length > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label="Previous image"
+                onClick={() => goToModalImage(modalImageIndex - 1)}
+                className="hidden sm:flex absolute left-6 top-1/2 z-20 h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-4xl text-white backdrop-blur-md transition hover:bg-white/25"
+              >
+                ‹
+              </button>
+
+              <button
+                type="button"
+                aria-label="Next image"
+                onClick={() => goToModalImage(modalImageIndex + 1)}
+                className="hidden sm:flex absolute right-6 top-1/2 z-20 h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-4xl text-white backdrop-blur-md transition hover:bg-white/25"
+              >
+                ›
+              </button>
+            </>
+          )}
+
+          {/* Bottom thumbnails */}
+          {gallery.length > 1 && (
+            <div className="absolute bottom-5 left-1/2 z-20 flex max-w-[90vw] -translate-x-1/2 gap-3 overflow-x-auto rounded-2xl bg-black/30 p-2 backdrop-blur-md">
+              {gallery.map((img, index) => (
+                <button
+                  key={`modal-${img}-${index}`}
+                  type="button"
+                  onClick={() => setModalImageIndex(index)}
+                  className={`relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg border-2 transition sm:h-16 sm:w-16 ${modalImageIndex === index
+                      ? "border-white"
+                      : "border-white/30 opacity-70 hover:opacity-100"
+                    }`}
+                >
+                  <Image
+                    src={img}
+                    alt={`${product.name} thumbnail ${index + 1}`}
+                    fill
+                    sizes="64px"
+                    className="object-contain bg-white"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
       {/* Mobile Sticky Cart Bar — Flipkart-style: Add to Cart | Buy at ₹price */}
@@ -324,26 +425,29 @@ export default function ProductDetailsClient({
             onMouseMove={handleMouseMove}
             onMouseUp={endDrag}
             onMouseLeave={endDrag}
-            onClick={() => setIsImageModalOpen(true)}
+            onClick={() => openImageModal(activeImage)}
             role="button"
             tabIndex={0}
             aria-label="Open full-size product photo"
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
-                setIsImageModalOpen(true);
+                openImageModal(activeImage);
               }
             }}
           >
-            <Image
-              src={gallery[activeImage]}
-              alt={product.name}
-              width={720}
-              height={480}
-              priority
-              draggable={false}
-              className="w-full h-[480px] object-cover pointer-events-none"
-            />
+            <div className="relative flex w-full items-center justify-center bg-white h-[320px] sm:h-[420px] md:h-[480px]">
+              <Image
+                src={gallery[activeImage]}
+                alt={product.name}
+                width={1200}
+                height={1200}
+                priority
+                draggable={false}
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="h-full w-full object-contain pointer-events-none"
+              />
+            </div>
 
             <span className="absolute right-4 top-4 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white">
               Click to enlarge
