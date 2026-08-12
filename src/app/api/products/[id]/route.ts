@@ -3,10 +3,103 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
-
+import { sendBackInStockNotifications } from "@/lib/stockNotificationEmail";
 const ALLOWED_SIZES = ["120g", "220g", "330g", "430g"];
 const ALLOWED_COMBO_SIZES = [2, 3, 4];
 const ALLOWED_COMBO_UNIT_WEIGHTS = ["120g", "220g", "330g", "430g"];
+
+function getStockMap(product: any) {
+  const stockMap = new Map<string, number>();
+
+  const isCombo =
+    product?.isCombo === true ||
+    product?.category?.toLowerCase().includes("combo") ||
+    (Array.isArray(product?.comboItems) &&
+      product.comboItems.length > 0);
+
+  // NORMAL PRODUCTS: 120g, 220g, 330g, 430g
+  if (!isCombo) {
+    for (const weight of product?.weights || []) {
+      const size = String(
+        weight.size || weight.quantity || weight.weight || ""
+      ).trim();
+
+      if (size) {
+        stockMap.set(size, Math.max(0, Number(weight.stock || 0)));
+      }
+    }
+
+    return stockMap;
+  }
+
+  // COMBOS WITH MULTIPLE VARIANTS
+  if (
+    Array.isArray(product?.comboVariants) &&
+    product.comboVariants.length > 0
+  ) {
+    for (const variant of product.comboVariants) {
+      const unitWeight = String(variant.unitWeight || "").trim();
+
+      if (!unitWeight) continue;
+
+      const label = `${unitWeight} × ${product.comboSize || 2} jars`;
+
+      stockMap.set(
+        label,
+        Math.max(0, Number(variant.stock || 0))
+      );
+    }
+
+    return stockMap;
+  }
+
+  // OLD/SINGLE COMBO
+  const label =
+    product?.comboUnitWeight && product?.comboSize
+      ? `${product.comboUnitWeight} × ${product.comboSize} jars`
+      : `${product?.comboSize || 2}-Pack Combo`;
+
+  stockMap.set(
+    label,
+    Math.max(0, Number(product?.comboStock || 0))
+  );
+
+  return stockMap;
+}
+
+async function notifyVariantsThatCameBackInStock(
+  oldProduct: any,
+  updatedProduct: any
+) {
+  const oldStockMap = getStockMap(oldProduct);
+  const newStockMap = getStockMap(updatedProduct);
+
+  for (const [variant, newStock] of newStockMap.entries()) {
+    const oldStock = oldStockMap.get(variant) || 0;
+
+    // Send email ONLY if:
+    // OLD STOCK = 0
+    // NEW STOCK > 0
+    if (oldStock <= 0 && newStock > 0) {
+      try {
+        await sendBackInStockNotifications({
+          productId: String(updatedProduct._id),
+          productName: updatedProduct.name,
+          variant,
+        });
+
+        console.log(
+          `Back-in-stock email sent for ${updatedProduct.name} - ${variant}`
+        );
+      } catch (error) {
+        console.error(
+          `Failed to send back-in-stock email for ${variant}:`,
+          error
+        );
+      }
+    }
+  }
+}
 
 function normalizeWeights(weights: any[] = []) {
   const seen = new Set<string>();
@@ -201,18 +294,18 @@ export async function PATCH(
       weights: isCombo ? [] : normalizedWeights,
       ...(isCombo
         ? {
-            comboSize,
-            ...(comboUnitWeight ? { comboUnitWeight } : {}),
-            comboPrice,
-            comboStock: Math.max(0, Math.floor(comboStock)),
-          }
+          comboSize,
+          ...(comboUnitWeight ? { comboUnitWeight } : {}),
+          comboPrice,
+          comboStock: Math.max(0, Math.floor(comboStock)),
+        }
         : {
-            comboSize: undefined,
-            comboUnitWeight: undefined,
-            comboItems: [],
-            comboPrice: undefined,
-            comboStock: undefined,
-          }),
+          comboSize: undefined,
+          comboUnitWeight: undefined,
+          comboItems: [],
+          comboPrice: undefined,
+          comboStock: undefined,
+        }),
     };
 
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -221,10 +314,31 @@ export async function PATCH(
       { new: true }
     );
 
+    if (!updatedProduct) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Failed to update product",
+        },
+        { status: 500 }
+      );
+    }
+
+    // IMPORTANT:
+    // Compare old stock with new stock.
+    // If a product changes from 0 to more than 0,
+    // send emails to customers waiting for it.
+    await notifyVariantsThatCameBackInStock(
+      existingProduct,
+      updatedProduct.toObject()
+    );
+
     return NextResponse.json({
       success: true,
       product: updatedProduct,
     });
+
+
   } catch (error) {
     console.error(error);
 

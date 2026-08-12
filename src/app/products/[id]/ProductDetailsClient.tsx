@@ -88,6 +88,7 @@ export default function ProductDetailsClient({
   const [modalImageIndex, setModalImageIndex] = useState(0);
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notifySubmitted, setNotifySubmitted] = useState(false);
+  const [notifyLoading, setNotifyLoading] = useState(false);
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -228,31 +229,52 @@ export default function ProductDetailsClient({
 
   const handleNotify = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!notifyEmail) return;
+
+    const email = notifyEmail.trim().toLowerCase();
+
+    if (!email || !selectedWeight) {
+      return;
+    }
+
+    setNotifyLoading(true);
 
     try {
       const res = await fetch("/api/notify", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           productId: product._id,
           productName: product.name,
-          variant: selectedWeight?.size,
-          email: notifyEmail,
+          variant: selectedWeightLabel,
+          email,
         }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Failed to save notify request");
+        throw new Error(
+          data.message || "Failed to save notification request"
+        );
       }
 
       setNotifySubmitted(true);
-      setToast("We'll email you when it's back in stock");
-    } catch {
-      setToast("Something went wrong - please try again");
-    }
 
-    setTimeout(() => setToast(null), 3000);
+      setToast(
+        data.alreadyRegistered
+          ? "You're already on the notification list"
+          : "We'll email you when it's back in stock"
+      );
+    } catch (error: any) {
+      setToast(
+        error?.message || "Something went wrong - please try again"
+      );
+    } finally {
+      setNotifyLoading(false);
+      setTimeout(() => setToast(null), 3000);
+    }
   };
   const rating = product.rating ?? 0;
   const reviewsCount = product.reviewsCount ?? 0;
@@ -361,8 +383,8 @@ export default function ProductDetailsClient({
                   type="button"
                   onClick={() => setModalImageIndex(index)}
                   className={`relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg border-2 transition sm:h-16 sm:w-16 ${modalImageIndex === index
-                      ? "border-white"
-                      : "border-white/30 opacity-70 hover:opacity-100"
+                    ? "border-white"
+                    : "border-white/30 opacity-70 hover:opacity-100"
                     }`}
                 >
                   <Image
@@ -620,9 +642,10 @@ export default function ProductDetailsClient({
                   />
                   <button
                     type="submit"
-                    className="bg-[#3D5640] hover:bg-[#2F4533] text-white px-6 py-3 rounded-xl font-bold transition"
+                    disabled={notifyLoading}
+                    className="bg-[#3D5640] hover:bg-[#2F4533] disabled:opacity-60 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl font-bold transition"
                   >
-                    Notify Me
+                    {notifyLoading ? "Adding..." : "Notify Me"}
                   </button>
                 </form>
               )}
