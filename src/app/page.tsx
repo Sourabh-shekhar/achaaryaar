@@ -1092,7 +1092,7 @@ export default function HomePage() {
       if (!a.featured && b.featured) return 1;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     })
-    .slice(0, 3);
+    .slice(0, 6);
 
   return (
     <div style={{ fontFamily: FONT_BODY, background: COLORS.cream, minHeight: "100vh", overflowX: "hidden" }}>
