@@ -469,29 +469,39 @@ function OfferBanner() {
           margin: "0 auto",
         }}
       >
-        <div
+        <Link
+          href="/products"
+          aria-label="Shop AchaarYaar products"
           style={{
+            display: "block",
             width: "100%",
-            borderRadius: RADIUS.xxl,
-            overflow: "hidden",
-            boxShadow: SHADOW.lg,
-            lineHeight: 0,
+            cursor: "pointer",
           }}
         >
-          <Image
-            src="/image/banner/promotion.png"
-            alt="AchaarYaar promotional banner"
-            width={1254}
-            height={650}
-            priority
-            sizes="(max-width: 768px) 100vw, 1320px"
+          <div
             style={{
               width: "100%",
-              height: "auto",
-              display: "block",
+              borderRadius: RADIUS.xxl,
+              overflow: "hidden",
+              boxShadow: SHADOW.lg,
+              lineHeight: 0,
             }}
-          />
-        </div>
+          >
+            <Image
+              src="/image/banner/promotion.png"
+              alt="AchaarYaar promotional banner - Shop our pickle collection"
+              width={1254}
+              height={650}
+              priority
+              sizes="(max-width: 768px) 100vw, 1320px"
+              style={{
+                width: "100%",
+                height: "auto",
+                display: "block",
+              }}
+            />
+          </div>
+        </Link>
       </div>
     </section>
   );
