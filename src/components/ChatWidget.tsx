@@ -186,7 +186,7 @@ export default function ChatWidget() {
             ? "Close support chat"
             : "Open support chat"
         }
-        className="fixed bottom-5 right-3 z-[70] group"
+        className="fixed bottom-18 right-3 z-[70] group"
       >
         <div className="relative">
           {!open && (

@@ -143,6 +143,12 @@ function normalizeImages(images: any[] = [], fallbackCover?: string) {
   return cleaned;
 }
 
+function normalizeVideos(videos: any[] = []) {
+  return (videos || []).filter(
+    (url) => typeof url === "string" && url.trim().length > 0
+  );
+}
+
 // Shared admin check — any session with role "admin" (set only via the
 // admin-credentials login using the shared ADMIN_PASSWORD) passes.
 async function requireAdmin() {
@@ -225,6 +231,7 @@ export async function PATCH(
     const body = await req.json();
 
     const images = normalizeImages(body.images, body.image);
+    const videos = normalizeVideos(body.videos);
 
     if (images.length === 0) {
       return NextResponse.json(
@@ -257,57 +264,93 @@ export async function PATCH(
       );
     }
 
-    const comboSize = Number(body.comboSize);
-    // Older combo products had no saved per-jar weight.  Do not turn them
-    // into 120g packs merely because another field is edited.
-    const requestedComboUnitWeight = String(body.comboUnitWeight || "").trim();
-    const comboUnitWeight =
-      requestedComboUnitWeight || String((existingProduct as any).comboUnitWeight || "").trim();
-    const comboPrice = Number(body.comboPrice);
-    const comboStock = Number(body.comboStock);
+   const comboSize = Number(body.comboSize);
 
-    if (
-      isCombo &&
-      (!ALLOWED_COMBO_SIZES.includes(comboSize) ||
-        (comboUnitWeight.length > 0 && !ALLOWED_COMBO_UNIT_WEIGHTS.includes(comboUnitWeight)) ||
-        !Number.isFinite(comboPrice) ||
-        comboPrice <= 0 ||
-        !Number.isFinite(comboStock) ||
-        comboStock < 0)
-    ) {
-      return NextResponse.json(
-        { success: false, message: "Enter valid combo pack details" },
-        { status: 400 }
-      );
+const normalizedComboVariants = isCombo
+  ? (Array.isArray(body.comboVariants) ? body.comboVariants : [])
+      .map((variant: any) => ({
+        unitWeight: String(variant.unitWeight || "").trim(),
+        price: Number(variant.price),
+        stock: Number(variant.stock || 0),
+      }))
+      .filter(
+        (variant: any) =>
+          ALLOWED_COMBO_UNIT_WEIGHTS.includes(variant.unitWeight) &&
+          Number.isFinite(variant.price) &&
+          variant.price > 0 &&
+          Number.isFinite(variant.stock) &&
+          variant.stock >= 0
+      )
+      .map((variant: any) => ({
+        ...variant,
+        stock: Math.max(0, Math.floor(variant.stock)),
+      }))
+  : [];
+
+if (
+  isCombo &&
+  (!ALLOWED_COMBO_SIZES.includes(comboSize) ||
+    normalizedComboVariants.length === 0)
+) {
+  return NextResponse.json(
+    {
+      success: false,
+      message:
+        "Enter a valid combo size and at least one valid combo variant",
+    },
+    { status: 400 }
+  );
+}
+
+// Prevent duplicate weights in combo variants
+const seenComboWeights = new Set<string>();
+
+const uniqueComboVariants = normalizedComboVariants.filter(
+  (variant: any) => {
+    if (seenComboWeights.has(variant.unitWeight)) {
+      return false;
     }
 
-    // Do not let an empty value sent by the edit form overwrite the
-    // missing/previous value of an older combo product.
-    const bodyWithoutComboUnitWeight = { ...body };
-    delete bodyWithoutComboUnitWeight.comboUnitWeight;
+    seenComboWeights.add(variant.unitWeight);
+    return true;
+  }
+);
 
-    const nextBody = {
-      ...bodyWithoutComboUnitWeight,
-      images,
-      image: images[0],
-      isCombo,
-      weights: isCombo ? [] : normalizedWeights,
-      ...(isCombo
-        ? {
-          comboSize,
-          ...(comboUnitWeight ? { comboUnitWeight } : {}),
-          comboPrice,
-          comboStock: Math.max(0, Math.floor(comboStock)),
-        }
-        : {
-          comboSize: undefined,
-          comboUnitWeight: undefined,
-          comboItems: [],
-          comboPrice: undefined,
-          comboStock: undefined,
-        }),
-    };
+const nextBody = {
+  ...body,
+  images,
+  image: images[0],
+  videos,
+  isCombo,
+  weights: isCombo ? [] : normalizedWeights,
 
+  ...(isCombo
+    ? {
+        comboSize,
+
+        // Save all combo weight variants
+        comboVariants: uniqueComboVariants,
+
+        // Keep old fields synchronized with first variant
+        // for compatibility with older code
+        comboUnitWeight:
+          uniqueComboVariants[0]?.unitWeight || undefined,
+
+        comboPrice:
+          uniqueComboVariants[0]?.price || undefined,
+
+        comboStock:
+          uniqueComboVariants[0]?.stock || 0,
+      }
+    : {
+        comboSize: undefined,
+        comboUnitWeight: undefined,
+        comboVariants: [],
+        comboItems: [],
+        comboPrice: undefined,
+        comboStock: undefined,
+      }),
+};
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       nextBody,
@@ -388,3 +431,4 @@ export async function DELETE(
     );
   }
 }
+
