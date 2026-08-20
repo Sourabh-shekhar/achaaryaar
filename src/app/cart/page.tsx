@@ -7,7 +7,9 @@ import { useEffect, useState } from "react";
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 
 type StockInfo = {
-  size: string;
+  size?: string;
+  quantity?: string;
+  weight?: string;
   stock: number;
 };
 
@@ -122,10 +124,12 @@ export default function CartPage() {
       return false;
     }
 
-    const variant = variants.find(
-      (v) => v.size === item.selectedVariant
-    );
+ const variant = variants.find((v) => {
+  const variantLabel =
+    v.size || v.quantity || v.weight;
 
+  return variantLabel === item.selectedVariant;
+});
     // Variant no longer exists.
     if (!variant) {
       return true;
