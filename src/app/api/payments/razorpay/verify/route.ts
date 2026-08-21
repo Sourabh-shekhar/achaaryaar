@@ -1222,13 +1222,51 @@ export async function POST(req: Request) {
         paymentId: razorpay_payment_id,
       });
 
-    if (existingOrder) {
-      return NextResponse.json({
-        success: true,
-        order: existingOrder,
-        alreadyProcessed: true,
-      });
-    }
+   if (existingOrder) {
+  // Order already exists and was successfully pushed
+  if (existingOrder.shipmozoOrderId) {
+    return NextResponse.json({
+      success: true,
+      order: existingOrder,
+      alreadyProcessed: true,
+    });
+  }
+
+  // Paid order exists but Shipmozo push failed earlier.
+  // Retry Shipmozo instead of permanently ignoring it.
+  try {
+    console.log(
+      "Retrying existing order in Shipmozo:",
+      existingOrder._id.toString()
+    );
+
+    const updatedOrder =
+      await processShipmozoOrder(existingOrder);
+
+    return NextResponse.json({
+      success: true,
+      order: updatedOrder,
+      alreadyProcessed: true,
+      shipmozoRetried: true,
+    });
+  } catch (shipmozoError) {
+    console.error(
+      "Shipmozo retry failed:",
+      shipmozoError
+    );
+
+    return NextResponse.json({
+      success: true,
+      order: existingOrder,
+      alreadyProcessed: true,
+      shipmozoRetried: false,
+      shipmozoError:
+        shipmozoError instanceof Error
+          ? shipmozoError.message
+          : "Shipmozo retry failed",
+    });
+  }
+}
 
     // ----------------------------------------------------
     // 7. VALIDATE COUPON
