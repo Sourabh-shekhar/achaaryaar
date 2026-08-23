@@ -681,7 +681,7 @@ function getPackageDimensions(
   if (
     jarCounts["430g"] === 1
   ) {
-    return {
+    return {  
       length: inchToCm(7),
       width: inchToCm(4),
       height: inchToCm(3.5),
