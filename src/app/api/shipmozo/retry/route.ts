@@ -5,14 +5,15 @@ import { isValidObjectId } from "mongoose";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
-import {
-  processShipmozoOrder,
-} from "@/lib/processShipmozoOrder";
+import { processShipmozoOrder } from "@/lib/processShipmozoOrder";
 
 export async function POST(req: Request) {
   try {
-    const session =
-      await getServerSession(authOptions);
+    // --------------------------------------------
+    // CHECK LOGIN
+    // --------------------------------------------
+
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json(
@@ -26,13 +27,19 @@ export async function POST(req: Request) {
       );
     }
 
+    // --------------------------------------------
+    // CONNECT DATABASE
+    // --------------------------------------------
+
     await connectDB();
+
+    // --------------------------------------------
+    // GET ORDER ID
+    // --------------------------------------------
 
     const body = await req.json();
 
-    const orderId = String(
-      body.orderId || ""
-    );
+    const orderId = String(body.orderId || "");
 
     if (!isValidObjectId(orderId)) {
       return NextResponse.json(
@@ -46,8 +53,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const order =
-      await Order.findById(orderId);
+    // --------------------------------------------
+    // FIND ORDER
+    // --------------------------------------------
+
+    const order = await Order.findById(orderId);
 
     if (!order) {
       return NextResponse.json(
@@ -61,9 +71,11 @@ export async function POST(req: Request) {
       );
     }
 
-    if (
-      order.paymentStatus !== "Paid"
-    ) {
+    // --------------------------------------------
+    // ONLY PAID ORDERS
+    // --------------------------------------------
+
+    if (order.paymentStatus !== "Paid") {
       return NextResponse.json(
         {
           success: false,
@@ -76,6 +88,10 @@ export async function POST(req: Request) {
       );
     }
 
+    // --------------------------------------------
+    // PREVENT DUPLICATE PUSH
+    // --------------------------------------------
+
     if (order.shipmozoOrderId) {
       return NextResponse.json({
         success: true,
@@ -86,23 +102,33 @@ export async function POST(req: Request) {
       });
     }
 
+    // --------------------------------------------
+    // PUSH OLD ORDER TO SHIPMOZO
+    // --------------------------------------------
+
     console.log(
-      "RETRYING OLD ORDER TO SHIPMOZO:",
+      "RETRYING ORDER TO SHIPMOZO:",
       order._id.toString()
     );
 
     const updatedOrder =
       await processShipmozoOrder(order);
 
+    console.log(
+      "ORDER SUCCESSFULLY PUSHED TO SHIPMOZO:",
+      updatedOrder._id.toString()
+    );
+
     return NextResponse.json({
       success: true,
       message:
         "Order successfully pushed to Shipmozo.",
       order: updatedOrder,
+      alreadyProcessed: false,
     });
   } catch (error) {
     console.error(
-      "Shipmozo retry failed:",
+      "SHIPMOZO RETRY FAILED:",
       error
     );
 

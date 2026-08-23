@@ -1,1164 +1,34 @@
-// const SHIPMOZO_BASE_URL =
-//   "https://shipping-api.com/app/api/v1";
-
-// interface ShipmozoResponse {
-//   result: string | number;
-//   message: string;
-//   data?: any;
-// }
-
-// interface CartonProfile {
-//   code: string;
-//   capacity: number;
-//   length: number;
-//   width: number;
-//   height: number;
-//   exactType?: string;
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | CARTON PROFILES
-// |--------------------------------------------------------------------------
-// |
-// | Dimensions = inches
-// | Packed shipping weight/capacity = grams
-// |
-// | 120g x 2       -> 6 x 4 x 3.5
-// | 120g x 4       -> 6 x 6 x 6
-// | 220g single    -> 4 x 4 x 4
-// | 220g x 2       -> 7 x 4 x 3.5
-// | 330g single    -> 5 x 5 x 5
-// | 330g x 2       -> 8 x 6 x 6
-// | 430g single    -> 6 x 4 x 3.5
-// |--------------------------------------------------------------------------
-// */
-
-// const CARTONS: CartonProfile[] = [
-//   {
-//     code: "120_DOUBLE",
-//     capacity: 450,
-//     length: 6,
-//     width: 4,
-//     height: 3.5,
-//     exactType: "120_DOUBLE",
-//   },
-//   {
-//     code: "120_FOUR",
-//     capacity: 700,
-//     length: 6,
-//     width: 6,
-//     height: 6,
-//     exactType: "120_FOUR",
-//   },
-//   {
-//     code: "220_SINGLE",
-//     capacity: 400,
-//     length: 4,
-//     width: 4,
-//     height: 4,
-//     exactType: "220_SINGLE",
-//   },
-//   {
-//     code: "220_DOUBLE",
-//     capacity: 600,
-//     length: 7,
-//     width: 4,
-//     height: 3.5,
-//     exactType: "220_DOUBLE",
-//   },
-//   {
-//     code: "330_SINGLE",
-//     capacity: 450,
-//     length: 5,
-//     width: 5,
-//     height: 5,
-//     exactType: "330_SINGLE",
-//   },
-//   {
-//     code: "330_DOUBLE",
-//     capacity: 800,
-//     length: 8,
-//     width: 6,
-//     height: 6,
-//     exactType: "330_DOUBLE",
-//   },
-//   {
-//     code: "430_SINGLE",
-//     capacity: 600,
-//     length: 6,
-//     width: 4,
-//     height: 3.5,
-//     exactType: "430_SINGLE",
-//   },
-// ];
-
-// /*
-// |--------------------------------------------------------------------------
-// | MIXED CARTONS
-// |--------------------------------------------------------------------------
-// */
-
-// const MIXED_CARTONS: CartonProfile[] = [];
-
-// /*
-// |--------------------------------------------------------------------------
-// | AUTHENTICATION
-// |--------------------------------------------------------------------------
-// */
-
-// function getHeaders() {
-//   const publicKey = process.env.SHIPMOZO_PUBLIC_KEY;
-//   const privateKey = process.env.SHIPMOZO_PRIVATE_KEY;
-
-//   if (!publicKey) {
-//     throw new Error("SHIPMOZO_PUBLIC_KEY is missing");
-//   }
-
-//   if (!privateKey) {
-//     throw new Error("SHIPMOZO_PRIVATE_KEY is missing");
-//   }
-
-//   return {
-//     "Content-Type": "application/json",
-//     "public-key": publicKey,
-//     "private-key": privateKey,
-//   };
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | RESPONSE PARSER
-// |--------------------------------------------------------------------------
-// */
-
-// async function parseResponse(
-//   response: Response
-// ): Promise<ShipmozoResponse> {
-//   const text = await response.text();
-
-//   console.log("=================================");
-//   console.log("SHIPMOZO RESPONSE STATUS:", response.status);
-//   console.log("SHIPMOZO RESPONSE TEXT:", text);
-//   console.log("=================================");
-
-//   let data: ShipmozoResponse;
-
-//   try {
-//     data = JSON.parse(text);
-//   } catch {
-//     console.error(
-//       "Shipmozo returned non-JSON response:",
-//       text
-//     );
-
-//     throw new Error(
-//       `Shipmozo returned invalid response. HTTP ${response.status}: ${text}`
-//     );
-//   }
-
-//   console.log(
-//     "SHIPMOZO PARSED RESPONSE:",
-//     JSON.stringify(data, null, 2)
-//   );
-
-//   if (
-//     !response.ok ||
-//     String(data.result) !== "1"
-//   ) {
-//     throw new Error(
-//       `Shipmozo API failed (${response.status}): ${
-//         data.message || "Unknown Shipmozo error"
-//       }`
-//     );
-//   }
-
-//   return data;
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | NORMALIZE PRODUCT WEIGHT
-// |--------------------------------------------------------------------------
-// */
-
-// function normalizeWeight(value: any): string | null {
-//   if (value === undefined || value === null) {
-//     return null;
-//   }
-
-//   const valueString = String(value)
-//     .trim()
-//     .toLowerCase();
-
-//   if (
-//     valueString === "120" ||
-//     valueString === "120g"
-//   ) {
-//     return "120g";
-//   }
-
-//   if (
-//     valueString === "220" ||
-//     valueString === "220g"
-//   ) {
-//     return "220g";
-//   }
-
-//   if (
-//     valueString === "330" ||
-//     valueString === "330g"
-//   ) {
-//     return "330g";
-//   }
-
-//   if (
-//     valueString === "430" ||
-//     valueString === "430g"
-//   ) {
-//     return "430g";
-//   }
-
-//   return null;
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | GET ITEM WEIGHT
-// |--------------------------------------------------------------------------
-// */
-
-// function getItemWeight(item: any): string | null {
-//   const possibleValues = [
-//     item.size,
-//     item.weight,
-//     item.unitWeight,
-//     item.comboUnitWeight,
-//     item.selectedWeight,
-//     item.productWeight,
-//     item.selectedVariant,
-//   ];
-
-//   for (const value of possibleValues) {
-//     const normalized = normalizeWeight(value);
-
-//     if (normalized) {
-//       return normalized;
-//     }
-//   }
-
-//   return null;
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | CHECK COMBO
-// |--------------------------------------------------------------------------
-// */
-
-// function isCombo(item: any): boolean {
-//   return (
-//     item.isCombo === true ||
-//     item.comboSize !== undefined ||
-//     item.comboQuantity !== undefined ||
-//     item.comboUnitWeight !== undefined ||
-//     item.jarCount !== undefined ||
-//     Array.isArray(item.comboItems)
-//   );
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | GET COMBO SIZE
-// |--------------------------------------------------------------------------
-// */
-
-// function getComboSize(item: any): number {
-//   const possibleValues = [
-//     item.comboSize,
-//     item.comboQuantity,
-//     item.jarCount,
-//   ];
-
-//   for (const value of possibleValues) {
-//     const numberValue = Number(value);
-
-//     if (
-//       Number.isFinite(numberValue) &&
-//       numberValue > 0
-//     ) {
-//       return numberValue;
-//     }
-//   }
-
-//   if (
-//     Array.isArray(item.comboItems) &&
-//     item.comboItems.length > 0
-//   ) {
-//     return item.comboItems.reduce(
-//       (total: number, comboItem: any) =>
-//         total +
-//         Number(comboItem.quantity || 1),
-//       0
-//     );
-//   }
-
-//   return 1;
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | GET PACKED SHIPPING WEIGHT
-// |--------------------------------------------------------------------------
-// */
-
-// function getPackedWeight(item: any): number {
-//   const size = getItemWeight(item);
-
-//   if (!size) {
-//     throw new Error(
-//       `Shipping weight is missing for "${
-//         item.name || "Unknown product"
-//       }".`
-//     );
-//   }
-
-//   const quantity = Math.max(
-//     1,
-//     Number(item.quantity || 1)
-//   );
-
-//   const combo = isCombo(item);
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | INDIVIDUAL PRODUCTS
-//   |--------------------------------------------------------------------------
-//   */
-
-//   if (!combo) {
-//     if (size === "120g") {
-//       throw new Error(
-//         `Invalid product "${
-//           item.name || "Unknown"
-//         }": individual 120g products are not supported.`
-//       );
-//     }
-
-//     if (size === "220g") {
-//       return 400 * quantity;
-//     }
-
-//     if (size === "330g") {
-//       return 450 * quantity;
-//     }
-
-//     if (size === "430g") {
-//       return 600 * quantity;
-//     }
-//   }
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | COMBOS
-//   |--------------------------------------------------------------------------
-//   */
-
-//   const comboSize = getComboSize(item);
-
-//   if (
-//     size === "120g" &&
-//     comboSize === 2
-//   ) {
-//     return 450 * quantity;
-//   }
-
-//   if (
-//     size === "120g" &&
-//     comboSize === 4
-//   ) {
-//     return 700 * quantity;
-//   }
-
-//   if (
-//     size === "220g" &&
-//     comboSize === 2
-//   ) {
-//     return 600 * quantity;
-//   }
-
-//   if (
-//     size === "330g" &&
-//     comboSize === 2
-//   ) {
-//     return 800 * quantity;
-//   }
-
-//   throw new Error(
-//     `No shipping/carton profile exists for ${size} x ${comboSize}.`
-//   );
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | GET EXACT CARTON
-// |--------------------------------------------------------------------------
-// */
-
-// function getExactCarton(
-//   item: any
-// ): CartonProfile | null {
-//   const size = getItemWeight(item);
-
-//   if (!size) {
-//     return null;
-//   }
-
-//   const quantity = Number(item.quantity || 1);
-//   const combo = isCombo(item);
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | SINGLE PRODUCTS
-//   |--------------------------------------------------------------------------
-//   */
-
-//   if (!combo && quantity === 1) {
-//     if (size === "220g") {
-//       return (
-//         CARTONS.find(
-//           (carton) =>
-//             carton.exactType === "220_SINGLE"
-//         ) || null
-//       );
-//     }
-
-//     if (size === "330g") {
-//       return (
-//         CARTONS.find(
-//           (carton) =>
-//             carton.exactType === "330_SINGLE"
-//         ) || null
-//       );
-//     }
-
-//     if (size === "430g") {
-//       return (
-//         CARTONS.find(
-//           (carton) =>
-//             carton.exactType === "430_SINGLE"
-//         ) || null
-//       );
-//     }
-//   }
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | COMBOS
-//   |--------------------------------------------------------------------------
-//   */
-
-//   if (combo && quantity === 1) {
-//     const comboSize = getComboSize(item);
-
-//     if (
-//       size === "120g" &&
-//       comboSize === 2
-//     ) {
-//       return (
-//         CARTONS.find(
-//           (carton) =>
-//             carton.exactType === "120_DOUBLE"
-//         ) || null
-//       );
-//     }
-
-//     if (
-//       size === "120g" &&
-//       comboSize === 4
-//     ) {
-//       return (
-//         CARTONS.find(
-//           (carton) =>
-//             carton.exactType === "120_FOUR"
-//         ) || null
-//       );
-//     }
-
-//     if (
-//       size === "220g" &&
-//       comboSize === 2
-//     ) {
-//       return (
-//         CARTONS.find(
-//           (carton) =>
-//             carton.exactType === "220_DOUBLE"
-//         ) || null
-//       );
-//     }
-
-//     if (
-//       size === "330g" &&
-//       comboSize === 2
-//     ) {
-//       return (
-//         CARTONS.find(
-//           (carton) =>
-//             carton.exactType === "330_DOUBLE"
-//         ) || null
-//       );
-//     }
-//   }
-
-//   return null;
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | CREATE ORDER LINES
-// |--------------------------------------------------------------------------
-// */
-
-// function getOrderLines(order: any) {
-//   if (
-//     !Array.isArray(order.items) ||
-//     order.items.length === 0
-//   ) {
-//     throw new Error(
-//       "Cannot calculate shipping: order has no items."
-//     );
-//   }
-
-//   return order.items.map((item: any) => ({
-//     item,
-
-//     name:
-//       item.name ||
-//       item.productName ||
-//       "AchaarYaar Product",
-
-//     packedWeight:
-//       getPackedWeight(item),
-
-//     exactCarton:
-//       getExactCarton(item),
-//   }));
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | FIND SMALLEST CARTON
-// |--------------------------------------------------------------------------
-// */
-
-// function findSmallestCarton(
-//   weight: number
-// ): CartonProfile | null {
-//   const allCartons = [
-//     ...CARTONS,
-//     ...MIXED_CARTONS,
-//   ];
-
-//   return (
-//     allCartons
-//       .filter(
-//         (carton) =>
-//           carton.capacity >= weight
-//       )
-//       .sort(
-//         (a, b) =>
-//           a.capacity - b.capacity
-//       )[0] || null
-//   );
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | CALCULATE PACKAGES
-// |--------------------------------------------------------------------------
-// */
-
-// function calculatePackages(order: any) {
-//   const lines = getOrderLines(order);
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | EXACT SINGLE PACKAGE
-//   |--------------------------------------------------------------------------
-//   */
-
-//   if (lines.length === 1) {
-//     const line = lines[0];
-
-//     const quantity = Number(
-//       line.item.quantity || 1
-//     );
-
-//     if (
-//       line.exactCarton &&
-//       quantity === 1
-//     ) {
-//       return [
-//         {
-//           carton: line.exactCarton,
-//           weight: line.packedWeight,
-//           items: [line.name],
-//         },
-//       ];
-//     }
-//   }
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | MIXED / MULTIPLE ORDER
-//   |--------------------------------------------------------------------------
-//   */
-
-//   const totalWeight = lines.reduce(
-//     (total: number, line: any) =>
-//       total + line.packedWeight,
-//     0
-//   );
-
-//   console.log(
-//     "Mixed order total packed weight:",
-//     totalWeight,
-//     "g"
-//   );
-
-//   const mixedCarton =
-//     MIXED_CARTONS
-//       .filter(
-//         (carton) =>
-//           carton.capacity >= totalWeight
-//       )
-//       .sort(
-//         (a, b) =>
-//           a.capacity - b.capacity
-//       )[0];
-
-//   if (mixedCarton) {
-//     return [
-//       {
-//         carton: mixedCarton,
-//         weight: totalWeight,
-//         items: lines.map(
-//           (line: any) => line.name
-//         ),
-//       },
-//     ];
-//   }
-
-//   const currentCarton =
-//     CARTONS
-//       .filter(
-//         (carton) =>
-//           carton.capacity >= totalWeight
-//       )
-//       .sort(
-//         (a, b) =>
-//           a.capacity - b.capacity
-//       )[0];
-
-//   if (currentCarton) {
-//     return [
-//       {
-//         carton: currentCarton,
-//         weight: totalWeight,
-//         items: lines.map(
-//           (line: any) => line.name
-//         ),
-//       },
-//     ];
-//   }
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | MULTIPLE CARTONS
-//   |--------------------------------------------------------------------------
-//   */
-
-//   const sortedLines = [...lines].sort(
-//     (a, b) =>
-//       b.packedWeight - a.packedWeight
-//   );
-
-//   const packages: Array<{
-//     carton: CartonProfile;
-//     weight: number;
-//     items: string[];
-//   }> = [];
-
-//   for (const line of sortedLines) {
-//     let placed = false;
-
-//     for (const pkg of packages) {
-//       if (
-//         pkg.weight +
-//           line.packedWeight <=
-//         pkg.carton.capacity
-//       ) {
-//         pkg.weight += line.packedWeight;
-//         pkg.items.push(line.name);
-//         placed = true;
-//         break;
-//       }
-//     }
-
-//     if (placed) {
-//       continue;
-//     }
-
-//     const carton = findSmallestCarton(
-//       line.packedWeight
-//     );
-
-//     if (!carton) {
-//       throw new Error(
-//         `No carton can hold ${line.packedWeight}g for "${line.name}".`
-//       );
-//     }
-
-//     packages.push({
-//       carton,
-//       weight: line.packedWeight,
-//       items: [line.name],
-//     });
-//   }
-
-//   return packages;
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | PUSH ORDER TO SHIPMOZO
-// |--------------------------------------------------------------------------
-// */
-
-// export async function pushShipmozoOrder(
-//   order: any
-// ) {
-//   const warehouseId =
-//     process.env.SHIPMOZO_WAREHOUSE_ID;
-
-//   if (!warehouseId) {
-//     throw new Error(
-//       "SHIPMOZO_WAREHOUSE_ID is missing"
-//     );
-//   }
-
-//   const orderDate = new Date(
-//     order.createdAt || Date.now()
-//   )
-//     .toISOString()
-//     .split("T")[0];
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | PRODUCTS
-//   |--------------------------------------------------------------------------
-//   */
-
-//   const productDetail = (order.items || []).map(
-//     (item: any) => ({
-//       name:
-//         item.name ||
-//         item.productName ||
-//         "AchaarYaar Product",
-
-//       sku_number:
-//         item._id?.toString() ||
-//         item.productId?.toString() ||
-//         "",
-
-//       quantity: Number(
-//         item.quantity || 1
-//       ),
-
-//       discount: "",
-
-//       hsn: item.hsn || "",
-
-//       unit_price: Number(
-//         item.price ||
-//           item.unitPrice ||
-//           item.salePrice ||
-//           0
-//       ),
-
-//       product_category:
-//         item.productCategory || "Food",
-//     })
-//   );
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | CALCULATE PACKAGE
-//   |--------------------------------------------------------------------------
-//   */
-
-//   const packages = calculatePackages(order);
-
-//   console.log(
-//     "AchaarYaar calculated packages:",
-//     JSON.stringify(packages, null, 2)
-//   );
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | CURRENT API SUPPORTS ONE PACKAGE
-//   |--------------------------------------------------------------------------
-//   */
-
-//   if (packages.length !== 1) {
-//     const summary = packages
-//       .map(
-//         (pkg, index) =>
-//           `Carton ${index + 1}: ${pkg.weight}g | ` +
-//           `${pkg.carton.length} x ` +
-//           `${pkg.carton.width} x ` +
-//           `${pkg.carton.height} inch | ` +
-//           `${pkg.items.join(", ")}`
-//       )
-//       .join(" ; ");
-
-//     throw new Error(
-//       `This order requires ${packages.length} physical cartons. ${summary}. ` +
-//         `Order was NOT pushed to Shipmozo because the current implementation sends one package.`
-//     );
-//   }
-
-//   const shipment = packages[0];
-
-//   /*
-//   |--------------------------------------------------------------------------
-//   | FINAL SHIPMOZO PAYLOAD
-//   |--------------------------------------------------------------------------
-//   */
-
-//   const body = {
-//     order_id: order._id.toString(),
-
-//     order_date: orderDate,
-
-//     order_type: "ESSENTIALS",
-
-//     /*
-//     |--------------------------------------------------------------------------
-//     | CONSIGNEE
-//     |--------------------------------------------------------------------------
-//     */
-
-//     consignee_name:
-//       order.fullName || "",
-
-//     consignee_phone:
-//       String(order.phone || "")
-//         .replace(/\D/g, ""),
-
-//     consignee_alternate_phone: "",
-
-//     consignee_email:
-//       order.email || "",
-
-//     consignee_address_line_one:
-//       order.address || "",
-
-//     consignee_address_line_two: "",
-
-//     consignee_pin_code:
-//       String(order.pincode || "").trim(),
-
-//     consignee_city:
-//       order.city || "",
-
-//     consignee_state:
-//       order.state || "",
-
-//     /*
-//     |--------------------------------------------------------------------------
-//     | PRODUCTS
-//     |--------------------------------------------------------------------------
-//     */
-
-//     product_detail: productDetail,
-
-//     /*
-//     |--------------------------------------------------------------------------
-//     | PAYMENT
-//     |--------------------------------------------------------------------------
-//     */
-
-//     payment_type: "PREPAID",
-
-//     cod_amount: "",
-
-//     shipping_charges: String(
-//       order.shipping || ""
-//     ),
-
-//     /*
-//     |--------------------------------------------------------------------------
-//     | PACKAGE
-//     |--------------------------------------------------------------------------
-//     */
-
-//     weight: shipment.weight,
-
-//     length: shipment.carton.length,
-
-//     width: shipment.carton.width,
-
-//     height: shipment.carton.height,
-
-//     /*
-//     |--------------------------------------------------------------------------
-//     | WAREHOUSE
-//     |--------------------------------------------------------------------------
-//     */
-
-//     warehouse_id: warehouseId,
-
-//     /*
-//     |--------------------------------------------------------------------------
-//     | GST
-//     |--------------------------------------------------------------------------
-//     */
-
-//     gst_ewaybill_number: "",
-
-//     gstin_number: "",
-//   };
-
-//   console.log(
-//     "Shipmozo push-order payload:",
-//     JSON.stringify(body, null, 2)
-//   );
-
-//   const response = await fetch(
-//     `${SHIPMOZO_BASE_URL}/push-order`,
-//     {
-//       method: "POST",
-
-//       headers: getHeaders(),
-
-//       body: JSON.stringify(body),
-
-//       cache: "no-store",
-//     }
-//   );
-
-//   return parseResponse(response);
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | AUTO ASSIGN COURIER
-// |--------------------------------------------------------------------------
-// */
-
-// export async function autoAssignShipmozoOrder(
-//   orderId: string
-// ) {
-//   if (!orderId) {
-//     throw new Error(
-//       "Shipmozo order ID is required for auto assignment."
-//     );
-//   }
-
-//   const response = await fetch(
-//     `${SHIPMOZO_BASE_URL}/auto-assign-order`,
-//     {
-//       method: "POST",
-
-//       headers: getHeaders(),
-
-//       body: JSON.stringify({
-//         order_id: orderId,
-//       }),
-
-//       cache: "no-store",
-//     }
-//   );
-
-//   return parseResponse(response);
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | TRACK SHIPMENT
-// |--------------------------------------------------------------------------
-// */
-
-// export async function trackShipmozoOrder(
-//   awbNumber: string
-// ) {
-//   if (!awbNumber) {
-//     throw new Error(
-//       "AWB number is required for tracking."
-//     );
-//   }
-
-//   const response = await fetch(
-//     `${SHIPMOZO_BASE_URL}/track-order?awb_number=${encodeURIComponent(
-//       awbNumber
-//     )}`,
-//     {
-//       method: "GET",
-
-//       headers: getHeaders(),
-
-//       cache: "no-store",
-//     }
-//   );
-
-//   return parseResponse(response);
-// }
-
-// /*
-// |--------------------------------------------------------------------------
-// | CANCEL SHIPMENT
-// |--------------------------------------------------------------------------
-// */
-
-// export async function cancelShipmozoOrder(
-//   orderId: string,
-//   awbNumber: string
-// ) {
-//   if (!orderId) {
-//     throw new Error(
-//       "Shipmozo order ID is required."
-//     );
-//   }
-
-//   if (!awbNumber) {
-//     throw new Error(
-//       "AWB number is required."
-//     );
-//   }
-
-//   const response = await fetch(
-//     `${SHIPMOZO_BASE_URL}/cancel-order`,
-//     {
-//       method: "POST",
-
-//       headers: getHeaders(),
-
-//       body: JSON.stringify({
-//         order_id: orderId,
-//         awb_number: awbNumber,
-//       }),
-
-//       cache: "no-store",
-//     }
-//   );
-
-//   return parseResponse(response);
-// }
-
-const SHIPMOZO_BASE_URL =
-  "https://shipping-api.com/app/api/v1";
-
-interface ShipmozoResponse {
-  result: string | number;
-  message: string;
-  data?: any;
-}
-
-interface CartonProfile {
-  code: string;
-  capacity: number;
-  length: number;
-  width: number;
-  height: number;
-  exactType?: string;
-}
-
 /*
 |--------------------------------------------------------------------------
-| CARTON PROFILES
+| SHIPMOZO CONFIGURATION
 |--------------------------------------------------------------------------
 */
 
-const CARTONS: CartonProfile[] = [
-  {
-    code: "120_DOUBLE",
-    capacity: 450,
-    length: 6,
-    width: 4,
-    height: 3.5,
-    exactType: "120_DOUBLE",
-  },
-  {
-    code: "120_FOUR",
-    capacity: 700,
-    length: 6,
-    width: 6,
-    height: 6,
-    exactType: "120_FOUR",
-  },
-  {
-    code: "220_SINGLE",
-    capacity: 400,
-    length: 4,
-    width: 4,
-    height: 4,
-    exactType: "220_SINGLE",
-  },
-  {
-    code: "220_DOUBLE",
-    capacity: 600,
-    length: 7,
-    width: 4,
-    height: 3.5,
-    exactType: "220_DOUBLE",
-  },
-  {
-    code: "330_SINGLE",
-    capacity: 450,
-    length: 5,
-    width: 5,
-    height: 5,
-    exactType: "330_SINGLE",
-  },
-  {
-    code: "330_DOUBLE",
-    capacity: 800,
-    length: 8,
-    width: 6,
-    height: 6,
-    exactType: "330_DOUBLE",
-  },
-  {
-    code: "430_SINGLE",
-    capacity: 600,
-    length: 6,
-    width: 4,
-    height: 3.5,
-    exactType: "430_SINGLE",
-  },
-];
+const SHIPMOZO_BASE_URL = (
+  process.env.SHIPMOZO_BASE_URL ||
+  "https://shipping-api.com/app/api/v1"
+).replace(/\/$/, "");
 
 /*
 |--------------------------------------------------------------------------
-| AUTHENTICATION
+| GET SHIPMOZO HEADERS
 |--------------------------------------------------------------------------
 */
 
-function getHeaders() {
+function getHeaders(): HeadersInit {
   const publicKey = process.env.SHIPMOZO_PUBLIC_KEY;
   const privateKey = process.env.SHIPMOZO_PRIVATE_KEY;
 
-  if (!publicKey) {
-    throw new Error("SHIPMOZO_PUBLIC_KEY is missing");
-  }
-
-  if (!privateKey) {
-    throw new Error("SHIPMOZO_PRIVATE_KEY is missing");
+  if (!publicKey || !privateKey) {
+    throw new Error(
+      "SHIPMOZO_PUBLIC_KEY or SHIPMOZO_PRIVATE_KEY is missing."
+    );
   }
 
   return {
     "Content-Type": "application/json",
+    Accept: "application/json",
+
     "public-key": publicKey,
     "private-key": privateKey,
   };
@@ -1166,47 +36,51 @@ function getHeaders() {
 
 /*
 |--------------------------------------------------------------------------
-| RESPONSE PARSER
+| PARSE RESPONSE
 |--------------------------------------------------------------------------
 */
 
-async function parseResponse(
-  response: Response
-): Promise<ShipmozoResponse> {
-  const text = await response.text();
+async function parseResponse(response: Response): Promise<any> {
+  const responseText = await response.text();
 
-  console.log(
-    "================================="
-  );
-  console.log(
-    "SHIPMOZO RESPONSE STATUS:",
-    response.status
-  );
-  console.log(
-    "SHIPMOZO RESPONSE TEXT:",
-    text
-  );
-  console.log(
-    "================================="
-  );
+  console.log("=================================");
+  console.log("SHIPMOZO RESPONSE STATUS:", response.status);
+  console.log("SHIPMOZO RESPONSE TEXT:", responseText);
+  console.log("=================================");
 
-  let data: ShipmozoResponse;
+  let data: any = {};
 
   try {
-    data = JSON.parse(text);
+    data = responseText ? JSON.parse(responseText) : {};
   } catch {
     throw new Error(
-      `Shipmozo returned invalid JSON. HTTP ${response.status}: ${text}`
+      `Shipmozo returned an invalid response: ${responseText}`
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Shipmozo API failed (${response.status}): ${
+        data?.data?.error ||
+        data?.error ||
+        data?.message ||
+        data?.data?.message ||
+        "Unknown error"
+      }`
     );
   }
 
   if (
-    !response.ok ||
+    data?.result !== undefined &&
     String(data.result) !== "1"
   ) {
     throw new Error(
-      `Shipmozo API failed (${response.status}): ${
-        data.message || "Unknown error"
+      `Shipmozo API failed: ${
+        data?.data?.error ||
+        data?.error ||
+        data?.message ||
+        data?.data?.message ||
+        "Unknown error"
       }`
     );
   }
@@ -1216,80 +90,30 @@ async function parseResponse(
 
 /*
 |--------------------------------------------------------------------------
-| VARIANT PARSING
+| ROUND CM
+|--------------------------------------------------------------------------
+|
+| Shipmozo does not accept decimal dimensions.
+|
+| Example:
+| 17.78 cm -> 18 cm
+| 20.32 cm -> 21 cm
+| 8.89 cm  -> 9 cm
 |--------------------------------------------------------------------------
 */
 
-function getVariantText(item: any): string {
-  return String(
-    item.selectedVariant ||
-      item.size ||
-      item.weight ||
-      item.unitWeight ||
-      item.comboUnitWeight ||
-      ""
-  )
-    .trim()
-    .toLowerCase();
-}
-
-function normalizeWeight(
-  value: any
-): string | null {
-  if (value === undefined || value === null) {
-    return null;
-  }
-
-  const text = String(value)
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "");
-
-  if (text.includes("120g") || text === "120") {
-    return "120g";
-  }
-
-  if (text.includes("220g") || text === "220") {
-    return "220g";
-  }
-
-  if (text.includes("330g") || text === "330") {
-    return "330g";
-  }
-
-  if (text.includes("430g") || text === "430") {
-    return "430g";
-  }
-
-  return null;
+function roundUpCm(value: number): number {
+  return Math.ceil(value);
 }
 
 /*
 |--------------------------------------------------------------------------
-| GET ITEM WEIGHT
+| INCH TO CM
 |--------------------------------------------------------------------------
 */
 
-function getItemWeight(item: any): string | null {
-  const possibleValues = [
-    item.selectedVariant,
-    item.size,
-    item.weight,
-    item.unitWeight,
-    item.comboUnitWeight,
-    item.selectedWeight,
-    item.productWeight,
-  ];
-
-  for (const value of possibleValues) {
-    const normalized = normalizeWeight(value);
-
-    if (normalized) {
-      return normalized;
-    }
-  }
-
-  return null;
+function inchToCm(inches: number): number {
+  return roundUpCm(inches * 2.54);
 }
 
 /*
@@ -1299,49 +123,69 @@ function getItemWeight(item: any): string | null {
 */
 
 function isCombo(item: any): boolean {
-  if (item.isCombo === true) {
+  if (item?.isCombo === true) {
     return true;
   }
 
-  if (
-    item.comboSize !== undefined ||
-    item.comboQuantity !== undefined ||
-    item.comboUnitWeight !== undefined ||
-    item.jarCount !== undefined
-  ) {
-    return true;
-  }
+  const text = [
+    item?.selectedVariant,
+    item?.quantityType,
+    item?.variant,
+    item?.name,
+    item?.productName,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
 
-  if (
-    Array.isArray(item.comboItems) &&
-    item.comboItems.length > 0
-  ) {
-    return true;
-  }
-
-  const variant = getVariantText(item);
-
-  return (
-    variant.includes("×") ||
-    variant.includes("x") ||
-    variant.includes("jar")
-  );
+  return text.includes("combo");
 }
 
 /*
 |--------------------------------------------------------------------------
-| GET COMBO SIZE
+| GET JAR SIZE
+|--------------------------------------------------------------------------
+*/
+
+function getItemWeight(item: any): string {
+  const values = [
+    item?.selectedVariant,
+    item?.quantityType,
+    item?.size,
+    item?.weight,
+    item?.variant,
+    item?.name,
+    item?.productName,
+  ];
+
+  for (const value of values) {
+    const text = String(value || "")
+      .toLowerCase()
+      .replace(/\s+/g, "");
+
+    if (text.includes("120g")) return "120g";
+    if (text.includes("220g")) return "220g";
+    if (text.includes("330g")) return "330g";
+    if (text.includes("430g")) return "430g";
+  }
+
+  return "";
+}
+
+/*
+|--------------------------------------------------------------------------
+| GET COMBO JAR COUNT
 |--------------------------------------------------------------------------
 */
 
 function getComboSize(item: any): number {
-  const possibleValues = [
-    item.comboSize,
-    item.comboQuantity,
-    item.jarCount,
+  const directValues = [
+    item?.comboSize,
+    item?.comboQuantity,
+    item?.jarCount,
   ];
 
-  for (const value of possibleValues) {
+  for (const value of directValues) {
     const numberValue = Number(value);
 
     if (
@@ -1352,29 +196,108 @@ function getComboSize(item: any): number {
     }
   }
 
+  const text = [
+    item?.selectedVariant,
+    item?.quantityType,
+    item?.variant,
+    item?.name,
+    item?.productName,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  /*
+  |--------------------------------------------------------------------------
+  | Examples:
+  | 2 Jar Combo
+  | 4 Jar Combo
+  |--------------------------------------------------------------------------
+  */
+
+  const jarMatch = text.match(
+    /(\d+)\s*jar[s]?/i
+  );
+
+  if (jarMatch?.[1]) {
+    const value = Number(jarMatch[1]);
+
+    if (
+      Number.isFinite(value) &&
+      value > 0
+    ) {
+      return Math.floor(value);
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | Examples:
+  | Combo x 2
+  | Combo × 2
+  |--------------------------------------------------------------------------
+  */
+
+  const xMatch = text.match(
+    /(?:x|×)\s*(\d+)/i
+  );
+
+  if (xMatch?.[1]) {
+    const value = Number(xMatch[1]);
+
+    if (
+      Number.isFinite(value) &&
+      value > 0
+    ) {
+      return Math.floor(value);
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | COMBO ITEMS
+  |--------------------------------------------------------------------------
+  */
+
   if (
-    Array.isArray(item.comboItems) &&
+    Array.isArray(item?.comboItems) &&
     item.comboItems.length > 0
   ) {
     return item.comboItems.reduce(
-      (total: number, comboItem: any) =>
-        total +
-        Math.max(
-          1,
-          Number(comboItem.quantity || 1)
-        ),
+      (
+        total: number,
+        comboItem: any
+      ) => {
+        const quantity =
+          Number(
+            comboItem?.quantity || 1
+          );
+
+        return (
+          total +
+          (
+            Number.isFinite(quantity) &&
+            quantity > 0
+              ? quantity
+              : 1
+          )
+        );
+      },
       0
     );
   }
 
-  const variant = getVariantText(item);
+  /*
+  |--------------------------------------------------------------------------
+  | DEFAULT
+  |--------------------------------------------------------------------------
+  |
+  | Your normal combo is 2 jars.
+  |--------------------------------------------------------------------------
+  */
 
-  const match = variant.match(
-    /(?:×|x)\s*(\d+)\s*jar/
-  );
-
-  if (match?.[1]) {
-    return Number(match[1]);
+  if (isCombo(item)) {
+    return 2;
   }
 
   return 1;
@@ -1382,255 +305,195 @@ function getComboSize(item: any): number {
 
 /*
 |--------------------------------------------------------------------------
-| GET PACKED WEIGHT FOR ONE ORDER LINE
+| CALCULATE PACKED WEIGHT
 |--------------------------------------------------------------------------
 */
 
-function getPackedWeight(item: any): number {
-  const size = getItemWeight(item);
-
-  if (!size) {
-    throw new Error(
-      `Cannot detect product weight for "${
-        item.name ||
-        item.productName ||
-        "Unknown product"
-      }". Variant: ${
-        item.selectedVariant || "not provided"
-      }`
-    );
-  }
-
-  const quantity = Math.max(
-    1,
-    Math.floor(Number(item.quantity || 1))
-  );
-
-  const combo = isCombo(item);
-
-  /*
-  --------------------------------------------------------
-  NORMAL PRODUCTS
-  --------------------------------------------------------
-  */
-
-  if (!combo) {
-    if (size === "220g") {
-      return 400 * quantity;
-    }
-
-    if (size === "330g") {
-      return 450 * quantity;
-    }
-
-    if (size === "430g") {
-      return 600 * quantity;
-    }
-
-    if (size === "120g") {
-      throw new Error(
-        "Individual 120g product has no carton profile."
-      );
-    }
-  }
-
-  /*
-  --------------------------------------------------------
-  COMBO PRODUCTS
-  --------------------------------------------------------
-  */
-
-  const comboSize = getComboSize(item);
-
-  if (size === "120g" && comboSize === 2) {
-    return 450 * quantity;
-  }
-
-  if (size === "120g" && comboSize === 4) {
-    return 700 * quantity;
-  }
-
-  if (size === "220g" && comboSize === 2) {
-    return 600 * quantity;
-  }
-
-  if (size === "330g" && comboSize === 2) {
-    return 800 * quantity;
-  }
-
-  throw new Error(
-    `No carton profile for ${size} × ${comboSize} jars.`
-  );
-}
-
-/*
-|--------------------------------------------------------------------------
-| GET EXACT CARTON
-|--------------------------------------------------------------------------
-*/
-
-function getExactCarton(
-  item: any
-): CartonProfile | null {
-  const size = getItemWeight(item);
-
-  if (!size) {
-    return null;
-  }
-
-  const quantity = Math.max(
-    1,
-    Math.floor(Number(item.quantity || 1))
-  );
-
-  const combo = isCombo(item);
-
-  if (!combo && quantity === 1) {
-    if (size === "220g") {
-      return CARTONS.find(
-        (carton) =>
-          carton.exactType === "220_SINGLE"
-      ) || null;
-    }
-
-    if (size === "330g") {
-      return CARTONS.find(
-        (carton) =>
-          carton.exactType === "330_SINGLE"
-      ) || null;
-    }
-
-    if (size === "430g") {
-      return CARTONS.find(
-        (carton) =>
-          carton.exactType === "430_SINGLE"
-      ) || null;
-    }
-  }
-
-  if (combo && quantity === 1) {
-    const comboSize = getComboSize(item);
-
-    if (
-      size === "120g" &&
-      comboSize === 2
-    ) {
-      return CARTONS.find(
-        (carton) =>
-          carton.exactType === "120_DOUBLE"
-      ) || null;
-    }
-
-    if (
-      size === "120g" &&
-      comboSize === 4
-    ) {
-      return CARTONS.find(
-        (carton) =>
-          carton.exactType === "120_FOUR"
-      ) || null;
-    }
-
-    if (
-      size === "220g" &&
-      comboSize === 2
-    ) {
-      return CARTONS.find(
-        (carton) =>
-          carton.exactType === "220_DOUBLE"
-      ) || null;
-    }
-
-    if (
-      size === "330g" &&
-      comboSize === 2
-    ) {
-      return CARTONS.find(
-        (carton) =>
-          carton.exactType === "330_DOUBLE"
-      ) || null;
-    }
-  }
-
-  return null;
-}
-
-/*
-|--------------------------------------------------------------------------
-| CREATE ORDER LINES
-|--------------------------------------------------------------------------
-*/
-
-function getOrderLines(order: any) {
+function calculateTotalPackedWeight(
+  order: any
+): number {
   if (
-    !Array.isArray(order.items) ||
+    !Array.isArray(order?.items) ||
     order.items.length === 0
   ) {
     throw new Error(
-      "Order has no items."
+      "Cannot calculate shipping weight: order has no items."
     );
   }
 
-  return order.items.map((item: any) => ({
-    item,
-    name:
-      item.name ||
-      item.productName ||
-      "AchaarYaar Product",
-    packedWeight: getPackedWeight(item),
-    exactCarton: getExactCarton(item),
-  }));
-}
+  const jarCounts: Record<string, number> = {
+    "120g": 0,
+    "220g": 0,
+    "330g": 0,
+    "430g": 0,
+  };
 
-/*
-|--------------------------------------------------------------------------
-| CALCULATE PACKAGES
-|--------------------------------------------------------------------------
-*/
+  for (const item of order.items) {
+    const size =
+      getItemWeight(item);
 
-function calculatePackages(order: any) {
-  const lines = getOrderLines(order);
-
-  /*
-  --------------------------------------------------------
-  ONE PRODUCT / ONE COMBO
-  --------------------------------------------------------
-  */
-
-  if (lines.length === 1) {
-    const line = lines[0];
+    if (!size) {
+      throw new Error(
+        `Weight/variant is missing for "${
+          item?.name ||
+          item?.productName ||
+          "Unknown product"
+        }".`
+      );
+    }
 
     const quantity = Math.max(
       1,
       Math.floor(
-        Number(line.item.quantity || 1)
+        Number(item?.quantity || 1)
       )
     );
 
-    if (
-      line.exactCarton &&
-      quantity === 1
-    ) {
-      return [
-        {
-          carton: line.exactCarton,
-          weight: line.packedWeight,
-          items: [line.name],
-        },
-      ];
+    const jarsPerItem =
+      isCombo(item)
+        ? getComboSize(item)
+        : 1;
+
+    const totalJars =
+      quantity * jarsPerItem;
+
+    jarCounts[size] += totalJars;
+
+    console.log(
+      "PRODUCT:",
+      item?.name ||
+        item?.productName ||
+        "Unknown"
+    );
+
+    console.log(
+      "SIZE:",
+      size
+    );
+
+    console.log(
+      "ORDER QUANTITY:",
+      quantity
+    );
+
+    console.log(
+      "JARS PER ITEM:",
+      jarsPerItem
+    );
+
+    console.log(
+      "TOTAL JARS:",
+      totalJars
+    );
+  }
+
+  let totalWeight = 0;
+
+  /*
+  |--------------------------------------------------------------------------
+  | 120g
+  |--------------------------------------------------------------------------
+  |
+  | 1 jar = 250g
+  | 2 jars = 450g
+  | 4 jars = 700g
+  |--------------------------------------------------------------------------
+  */
+
+  if (jarCounts["120g"] > 0) {
+    let jars =
+      jarCounts["120g"];
+
+    while (jars >= 4) {
+      totalWeight += 700;
+      jars -= 4;
+    }
+
+    while (jars >= 2) {
+      totalWeight += 450;
+      jars -= 2;
+    }
+
+    if (jars === 1) {
+      totalWeight += 250;
     }
   }
 
   /*
-  --------------------------------------------------------
-  TRY ONE CARTON FOR COMPLETE ORDER
-  --------------------------------------------------------
+  |--------------------------------------------------------------------------
+  | 220g
+  |--------------------------------------------------------------------------
+  |
+  | 1 jar = 400g
+  | 2 jars = 600g
+  |--------------------------------------------------------------------------
   */
 
-  const totalWeight = lines.reduce(
-    (total: number, line: any) =>
-      total + line.packedWeight,
-    0
+  if (jarCounts["220g"] > 0) {
+    let jars =
+      jarCounts["220g"];
+
+    while (jars >= 2) {
+      totalWeight += 600;
+      jars -= 2;
+    }
+
+    if (jars === 1) {
+      totalWeight += 400;
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 330g
+  |--------------------------------------------------------------------------
+  |
+  | 1 jar = 450g
+  | 2 jars = 800g
+  |--------------------------------------------------------------------------
+  */
+
+  if (jarCounts["330g"] > 0) {
+    let jars =
+      jarCounts["330g"];
+
+    while (jars >= 2) {
+      totalWeight += 800;
+      jars -= 2;
+    }
+
+    if (jars === 1) {
+      totalWeight += 450;
+    }
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 430g
+  |--------------------------------------------------------------------------
+  |
+  | 1 jar = 600g
+  |--------------------------------------------------------------------------
+  */
+
+  if (jarCounts["430g"] > 0) {
+    totalWeight +=
+      jarCounts["430g"] * 600;
+  }
+
+  if (totalWeight <= 0) {
+    throw new Error(
+      "Could not calculate order shipping weight."
+    );
+  }
+
+  console.log(
+    "================================="
+  );
+
+  console.log(
+    "TOTAL JAR COUNTS:",
+    jarCounts
   );
 
   console.log(
@@ -1639,31 +502,219 @@ function calculatePackages(order: any) {
     "g"
   );
 
-  const carton = [...CARTONS]
-    .filter(
-      (carton) =>
-        carton.capacity >= totalWeight
-    )
-    .sort(
-      (a, b) =>
-        a.capacity - b.capacity
-    )[0];
+  console.log(
+    "================================="
+  );
 
-  if (carton) {
-    return [
-      {
-        carton,
-        weight: totalWeight,
-        items: lines.map(
-          (line: any) => line.name
-        ),
-      },
-    ];
+  return totalWeight;
+}
+
+/*
+|--------------------------------------------------------------------------
+| GET CARTON DIMENSIONS
+|--------------------------------------------------------------------------
+|
+| ORIGINAL DIMENSIONS ARE IN INCHES.
+|
+| 2 bottle combo:
+| 7 x 4 x 3.5 inch
+|
+| 430g single:
+| 7 x 4 x 3.5 inch
+|
+| REMAINING:
+| 120g x 4 = 6 x 6 x 6 inch
+| 220g single = 4 x 4 x 4 inch
+| 220g x 2 = 7 x 4 x 3.5 inch
+| 330g single = 5 x 5 x 5 inch
+| 330g x 2 = 8 x 6 x 6 inch
+|--------------------------------------------------------------------------
+*/
+
+function getPackageDimensions(
+  order: any
+): {
+  length: number;
+  width: number;
+  height: number;
+} {
+  const jarCounts: Record<string, number> = {
+    "120g": 0,
+    "220g": 0,
+    "330g": 0,
+    "430g": 0,
+  };
+
+  for (const item of order.items) {
+    const size =
+      getItemWeight(item);
+
+    if (!size) {
+      continue;
+    }
+
+    const quantity = Math.max(
+      1,
+      Math.floor(
+        Number(item?.quantity || 1)
+      )
+    );
+
+    const jarsPerItem =
+      isCombo(item)
+        ? getComboSize(item)
+        : 1;
+
+    jarCounts[size] +=
+      quantity * jarsPerItem;
   }
 
-  throw new Error(
-    `Order packed weight ${totalWeight}g requires more than one carton. Multi-carton orders are not supported by this Shipmozo implementation.`
-  );
+  /*
+  |--------------------------------------------------------------------------
+  | MIXED / MULTIPLE PRODUCTS
+  |--------------------------------------------------------------------------
+  |
+  | Shipmozo accepts one package.
+  |
+  | For mixed orders we choose a safe larger carton.
+  |--------------------------------------------------------------------------
+  */
+
+  const totalJars =
+    Object.values(jarCounts).reduce(
+      (sum, value) =>
+        sum + value,
+      0
+    );
+
+  /*
+  |--------------------------------------------------------------------------
+  | 330g x 2 or larger
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    jarCounts["330g"] >= 2 ||
+    totalJars >= 5
+  ) {
+    return {
+      length: inchToCm(8),
+      width: inchToCm(6),
+      height: inchToCm(6),
+    };
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 120g x 4
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    jarCounts["120g"] >= 4
+  ) {
+    return {
+      length: inchToCm(6),
+      width: inchToCm(6),
+      height: inchToCm(6),
+    };
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 2 JAR COMBO
+  |--------------------------------------------------------------------------
+  |
+  | 7 x 4 x 3.5 inch
+  |--------------------------------------------------------------------------
+  */
+
+  if (totalJars === 2) {
+    return {
+      length: inchToCm(7),
+      width: inchToCm(4),
+      height: inchToCm(3.5),
+    };
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 220g x 2
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    jarCounts["220g"] >= 2
+  ) {
+    return {
+      length: inchToCm(7),
+      width: inchToCm(4),
+      height: inchToCm(3.5),
+    };
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 330g SINGLE
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    jarCounts["330g"] === 1
+  ) {
+    return {
+      length: inchToCm(5),
+      width: inchToCm(5),
+      height: inchToCm(5),
+    };
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 430g SINGLE
+  |--------------------------------------------------------------------------
+  |
+  | 7 x 4 x 3.5 inch
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    jarCounts["430g"] === 1
+  ) {
+    return {
+      length: inchToCm(7),
+      width: inchToCm(4),
+      height: inchToCm(3.5),
+    };
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | 220g SINGLE
+  |--------------------------------------------------------------------------
+  */
+
+  if (
+    jarCounts["220g"] === 1
+  ) {
+    return {
+      length: inchToCm(4),
+      width: inchToCm(4),
+      height: inchToCm(4),
+    };
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | DEFAULT 120g SINGLE
+  |--------------------------------------------------------------------------
+  */
+
+  return {
+    length: inchToCm(4),
+    width: inchToCm(4),
+    height: inchToCm(4),
+  };
 }
 
 /*
@@ -1680,150 +731,258 @@ export async function pushShipmozoOrder(
 
   if (!warehouseId) {
     throw new Error(
-      "SHIPMOZO_WAREHOUSE_ID is missing"
+      "SHIPMOZO_WAREHOUSE_ID is missing."
     );
   }
 
   if (!order?._id) {
     throw new Error(
-      "Order ID is missing"
+      "Order ID is missing."
     );
   }
 
-  const packages =
-    calculatePackages(order);
-
-  if (packages.length !== 1) {
+  if (
+    !Array.isArray(order?.items) ||
+    order.items.length === 0
+  ) {
     throw new Error(
-      "Exactly one package is required."
+      "Order has no items."
     );
   }
 
-  const shipment = packages[0];
-
-  const orderDate = new Date(
-    order.createdAt || Date.now()
-  )
-    .toISOString()
-    .split("T")[0];
+  const orderDate =
+    new Date(
+      order.createdAt ||
+        Date.now()
+    )
+      .toISOString()
+      .split("T")[0];
 
   const productDetail =
-    (order.items || []).map(
+    order.items.map(
       (item: any) => ({
         name:
-          item.name ||
-          item.productName ||
+          item?.name ||
+          item?.productName ||
           "AchaarYaar Product",
 
         sku_number:
-          item._id?.toString() ||
-          item.productId?.toString() ||
+          item?.productId?.toString() ||
+          item?._id?.toString() ||
+          item?.sku ||
           "",
 
-        quantity: Math.max(
-          1,
-          Number(item.quantity || 1)
-        ),
+        quantity:
+          Math.max(
+            1,
+            Math.floor(
+              Number(
+                item?.quantity || 1
+              )
+            )
+          ),
 
         discount: "",
 
-        hsn: String(item.hsn || ""),
+        hsn:
+          item?.hsn || "",
 
-        unit_price: Number(
-          item.price ||
-            item.unitPrice ||
-            item.salePrice ||
+        unit_price:
+          Number(
+            item?.price ||
+            item?.unitPrice ||
+            item?.salePrice ||
             0
-        ),
+          ),
 
         product_category:
-          item.productCategory ||
+          item?.productCategory ||
           "Food",
       })
     );
 
+  const isCOD =
+    String(
+      order?.paymentMethod ||
+      order?.payment_type ||
+      ""
+    ).toLowerCase() ===
+    "cod";
+
+  const totalWeight =
+    calculateTotalPackedWeight(
+      order
+    );
+
+  const dimensions =
+    getPackageDimensions(
+      order
+    );
+
   const body = {
-    order_id: order._id.toString(),
+    order_id:
+      order._id.toString(),
 
-    order_date: orderDate,
-
-    order_type: "ESSENTIALS",
+    order_date:
+      orderDate,
 
     consignee_name:
-      String(order.fullName || ""),
+      order?.fullName ||
+      order?.name ||
+      "",
 
     consignee_phone:
-      String(order.phone || "")
-        .replace(/\D/g, ""),
+      String(
+        order?.phone || ""
+      ),
 
-    consignee_alternate_phone: "",
+    consignee_alternate_phone:
+      "",
 
     consignee_email:
-      String(order.email || ""),
+      String(
+        order?.email || ""
+      ),
 
     consignee_address_line_one:
-      String(order.address || ""),
+      order?.address || "",
 
-    consignee_address_line_two: "",
+    consignee_address_line_two:
+      order?.address2 ||
+      order?.addressLine2 ||
+      "",
 
     consignee_pin_code:
-      String(order.pincode || "").trim(),
+      String(
+        order?.pincode || ""
+      ),
 
     consignee_city:
-      String(order.city || ""),
+      order?.city || "",
 
     consignee_state:
-      String(order.state || ""),
+      order?.state || "",
 
-    product_detail: productDetail,
+    product_detail:
+      productDetail,
 
-    payment_type: "PREPAID",
+    payment_type:
+      isCOD
+        ? "COD"
+        : "PREPAID",
 
-    cod_amount: "",
+    cod_amount:
+      isCOD
+        ? String(
+            order?.total || 0
+          )
+        : "",
 
-    shipping_charges: String(
-      Number(order.shipping || 0)
-    ),
+    shipping_charges:
+      String(
+        order?.shipping ||
+        order?.shippingCharges ||
+        0
+      ),
 
-    weight: shipment.weight,
+    weight:
+      totalWeight,
 
-    length: shipment.carton.length,
+    /*
+    |--------------------------------------------------------------------------
+    | DIMENSIONS IN WHOLE CENTIMETERS
+    |--------------------------------------------------------------------------
+    */
 
-    width: shipment.carton.width,
+    length:
+      dimensions.length,
 
-    height: shipment.carton.height,
+    width:
+      dimensions.width,
 
-    warehouse_id: warehouseId,
+    height:
+      dimensions.height,
 
-    gst_ewaybill_number: "",
+    warehouse_id:
+      String(
+        warehouseId
+      ),
 
-    gstin_number: "",
+    gst_ewaybill_number:
+      "",
+
+    gstin_number:
+      "",
   };
 
   console.log(
     "================================="
   );
+
   console.log(
-    "PUSHING ORDER TO SHIPMOZO"
+    "SHIPMOZO PUSH URL:",
+    `${SHIPMOZO_BASE_URL}/push-order`
   );
+
   console.log(
-    JSON.stringify(body, null, 2)
+    "SHIPMOZO DIMENSIONS:",
+    dimensions
   );
+
+  console.log(
+    "SHIPMOZO PAYLOAD:"
+  );
+
+  console.log(
+    JSON.stringify(
+      body,
+      null,
+      2
+    )
+  );
+
   console.log(
     "================================="
   );
 
-  const response = await fetch(
-    `${SHIPMOZO_BASE_URL}/push-order`,
-    {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(body),
-      cache: "no-store",
-    }
-  );
+  let response: Response;
 
-  return parseResponse(response);
+  try {
+    response =
+      await fetch(
+        `${SHIPMOZO_BASE_URL}/push-order`,
+        {
+          method: "POST",
+
+          headers:
+            getHeaders(),
+
+          body:
+            JSON.stringify(
+              body
+            ),
+
+          cache:
+            "no-store",
+        }
+      );
+  } catch (error: any) {
+    console.error(
+      "SHIPMOZO NETWORK ERROR:",
+      error
+    );
+
+    throw new Error(
+      `Could not connect to Shipmozo API: ${
+        error?.message ||
+        "Network error"
+      }`
+    );
+  }
+
+  return parseResponse(
+    response
+  );
 }
 
 /*
@@ -1835,66 +994,133 @@ export async function pushShipmozoOrder(
 export async function autoAssignShipmozoOrder(
   orderId: string
 ) {
-  const response = await fetch(
-    `${SHIPMOZO_BASE_URL}/auto-assign-order`,
-    {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify({
-        order_id: orderId,
-      }),
-      cache: "no-store",
-    }
+  if (!orderId) {
+    throw new Error(
+      "Shipmozo order ID is required for auto assignment."
+    );
+  }
+
+  console.log(
+    "Auto assigning Shipmozo order:",
+    orderId
   );
 
-  return parseResponse(response);
+  console.log(
+    "SHIPMOZO AUTO ASSIGN URL:",
+    `${SHIPMOZO_BASE_URL}/auto-assign-order`
+  );
+
+  const response =
+    await fetch(
+      `${SHIPMOZO_BASE_URL}/auto-assign-order`,
+      {
+        method: "POST",
+
+        headers:
+          getHeaders(),
+
+        body:
+          JSON.stringify({
+            order_id:
+              orderId,
+          }),
+
+        cache:
+          "no-store",
+      }
+    );
+
+  return parseResponse(
+    response
+  );
 }
 
 /*
 |--------------------------------------------------------------------------
-| TRACK ORDER
+| ASSIGN COURIER MANUALLY
 |--------------------------------------------------------------------------
 */
 
-export async function trackShipmozoOrder(
-  awbNumber: string
+export async function assignShipmozoCourier(
+  orderId: string,
+  courierId: string
 ) {
-  const response = await fetch(
-    `${SHIPMOZO_BASE_URL}/track-order?awb_number=${encodeURIComponent(
-      awbNumber
-    )}`,
-    {
-      method: "GET",
-      headers: getHeaders(),
-      cache: "no-store",
-    }
-  );
+  if (!orderId) {
+    throw new Error(
+      "Shipmozo order ID is required."
+    );
+  }
 
-  return parseResponse(response);
+  if (!courierId) {
+    throw new Error(
+      "Courier ID is required."
+    );
+  }
+
+  const response =
+    await fetch(
+      `${SHIPMOZO_BASE_URL}/assign-courier`,
+      {
+        method: "POST",
+
+        headers:
+          getHeaders(),
+
+        body:
+          JSON.stringify({
+            order_id:
+              orderId,
+
+            courier_id:
+              courierId,
+          }),
+
+        cache:
+          "no-store",
+      }
+    );
+
+  return parseResponse(
+    response
+  );
 }
 
 /*
 |--------------------------------------------------------------------------
-| CANCEL ORDER
+| CANCEL SHIPMENT
 |--------------------------------------------------------------------------
 */
 
 export async function cancelShipmozoOrder(
-  orderId: string,
-  awbNumber: string
+  orderId: string
 ) {
-  const response = await fetch(
-    `${SHIPMOZO_BASE_URL}/cancel-order`,
-    {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify({
-        order_id: orderId,
-        awb_number: awbNumber,
-      }),
-      cache: "no-store",
-    }
-  );
+  if (!orderId) {
+    throw new Error(
+      "Shipmozo order ID is required."
+    );
+  }
 
-  return parseResponse(response);
+  const response =
+    await fetch(
+      `${SHIPMOZO_BASE_URL}/cancel-order`,
+      {
+        method: "POST",
+
+        headers:
+          getHeaders(),
+
+        body:
+          JSON.stringify({
+            order_id:
+              orderId,
+          }),
+
+        cache:
+          "no-store",
+      }
+    );
+
+  return parseResponse(
+    response
+  );
 }
