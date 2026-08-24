@@ -1128,31 +1128,31 @@ export default function ProductDetailsClient({
   const displayWeights: Weight[] = isCombo
     ? product.comboVariants && product.comboVariants.length > 0
       ? product.comboVariants.map((v) => ({
-          size: `${v.unitWeight} × ${product.comboSize || 2} jars`,
-          price: Number(v.price || 0),
-          stock: Number(v.stock || 0),
-        }))
+        size: `${v.unitWeight} × ${product.comboSize || 2} jars`,
+        price: Number(v.price || 0),
+        stock: Number(v.stock || 0),
+      }))
       : [
-          {
-            size:
-              product.comboUnitWeight && product.comboSize
-                ? `${product.comboUnitWeight} × ${product.comboSize} jars`
-                : `${product.comboSize || 2}-Pack Combo`,
-            price: Number(product.comboPrice || 0),
-            stock: Number(product.comboStock || 0),
-          },
-        ]
+        {
+          size:
+            product.comboUnitWeight && product.comboSize
+              ? `${product.comboUnitWeight} × ${product.comboSize} jars`
+              : `${product.comboSize || 2}-Pack Combo`,
+          price: Number(product.comboPrice || 0),
+          stock: Number(product.comboStock || 0),
+        },
+      ]
     : (product.weights || []).filter((weight) => {
-        const size =
-          weight.size ||
-          weight.quantity ||
-          weight.weight;
+      const size =
+        weight.size ||
+        weight.quantity ||
+        weight.weight;
 
-        return (
-          STANDARD_SIZES.includes(size || "") &&
-          Number(weight.price) > 0
-        );
-      });
+      return (
+        STANDARD_SIZES.includes(size || "") &&
+        Number(weight.price) > 0
+      );
+    });
 
   // ============================================================
   // STATES
@@ -1274,7 +1274,7 @@ export default function ProductDetailsClient({
     } catch (error: any) {
       setToast(
         error?.message ||
-          "Failed to upload media"
+        "Failed to upload media"
       );
     } finally {
       setReviewUploading(false);
@@ -1343,7 +1343,7 @@ export default function ProductDetailsClient({
       if (!res.ok || !data.success) {
         throw new Error(
           data.message ||
-            "Failed to submit review"
+          "Failed to submit review"
         );
       }
 
@@ -1362,7 +1362,7 @@ export default function ProductDetailsClient({
     } catch (error: any) {
       setToast(
         error?.message ||
-          "Something went wrong. Please try again."
+        "Something went wrong. Please try again."
       );
     } finally {
       setReviewSubmitting(false);
@@ -1660,7 +1660,7 @@ export default function ProductDetailsClient({
       if (!res.ok) {
         throw new Error(
           data.message ||
-            "Failed to save notification request"
+          "Failed to save notification request"
         );
       }
 
@@ -1674,7 +1674,7 @@ export default function ProductDetailsClient({
     } catch (error: any) {
       setToast(
         error?.message ||
-          "Something went wrong - please try again"
+        "Something went wrong - please try again"
       );
     } finally {
       setNotifyLoading(false);
@@ -1696,10 +1696,10 @@ export default function ProductDetailsClient({
   const rating =
     reviewsCount > 0
       ? reviews.reduce(
-          (sum, review) =>
-            sum + Number(review.rating || 0),
-          0
-        ) / reviewsCount
+        (sum, review) =>
+          sum + Number(review.rating || 0),
+        0
+      ) / reviewsCount
       : product.rating ?? 0;
 
   const fullStars = Math.round(rating);
@@ -1759,7 +1759,7 @@ export default function ProductDetailsClient({
 
             <div className="flex h-full w-full items-center justify-center px-3 py-20 sm:px-16">
               {modalMedia.type ===
-              "image" ? (
+                "image" ? (
                 <Image
                   src={modalMedia.src}
                   alt={`${product.name} ${modalImageIndex + 1}`}
@@ -1820,11 +1820,10 @@ export default function ProductDetailsClient({
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={handleAddToCart}
-                className={`flex items-center justify-center py-4 rounded-xl font-bold text-base border-2 transition ${
-                  added
+                className={`flex items-center justify-center py-4 rounded-xl font-bold text-base border-2 transition ${added
                     ? "border-[#4F6B52] bg-[#4F6B52] text-white"
                     : "border-[#2D2A26] bg-white text-[#2D2A26]"
-                }`}
+                  }`}
               >
                 {added
                   ? "Go to Cart"
@@ -1891,7 +1890,7 @@ export default function ProductDetailsClient({
           >
             <div className="relative flex w-full items-center justify-center bg-white h-[320px] sm:h-[420px] md:h-[480px]">
               {activeMedia?.type ===
-              "image" ? (
+                "image" ? (
                 <Image
                   src={activeMedia.src}
                   alt={product.name}
@@ -1924,10 +1923,10 @@ export default function ProductDetailsClient({
 
             {activeMedia?.type ===
               "image" && (
-              <span className="absolute right-4 top-4 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white">
-                Click to enlarge
-              </span>
-            )}
+                <span className="absolute right-4 top-4 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white">
+                  Click to enlarge
+                </span>
+              )}
 
             {gallery.length > 1 && (
               <span className="absolute bottom-4 right-4 rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white">
@@ -1947,14 +1946,13 @@ export default function ProductDetailsClient({
                     onClick={() =>
                       setActiveImage(index)
                     }
-                    className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 ${
-                      activeImage === index
+                    className={`relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 ${activeImage === index
                         ? "border-[#C18A42]"
                         : "border-[#E8DDD1]"
-                    }`}
+                      }`}
                   >
                     {media.type ===
-                    "image" ? (
+                      "image" ? (
                       <Image
                         src={media.src}
                         alt={`${product.name} ${index + 1}`}
@@ -2001,13 +1999,14 @@ export default function ProductDetailsClient({
           </div>
 
           <h1
-            className="text-5xl font-extrabold mt-6 text-[#2D2A26]"
+            className="mt-4 text-2xl sm:text-3xl font-bold tracking-[-0.02em] leading-[1.2] text-[#2D2A26]"
             style={{
               fontFamily: FONT_DISPLAY,
-            }}  
+            }}
           >
             {product.name}
           </h1>
+
 
           <div className="mt-4 flex items-center gap-2">
             <div className="text-[#C18A42] text-xl">
@@ -2017,11 +2016,10 @@ export default function ProductDetailsClient({
 
             <span className="text-[#7A6F65] text-base">
               {rating > 0
-                ? `${rating.toFixed(1)} (${reviewsCount} ${
-                    reviewsCount === 1
-                      ? "Review"
-                      : "Reviews"
-                  })`
+                ? `${rating.toFixed(1)} (${reviewsCount} ${reviewsCount === 1
+                  ? "Review"
+                  : "Reviews"
+                })`
                 : "No reviews yet"}
             </span>
           </div>
@@ -2137,11 +2135,10 @@ export default function ProductDetailsClient({
             <div className="hidden sm:grid grid-cols-2 gap-3 mt-8">
               <button
                 onClick={handleAddToCart}
-                className={`py-4 rounded-2xl text-lg font-bold ${
-                  added
+                className={`py-4 rounded-2xl text-lg font-bold ${added
                     ? "bg-[#4F6B52] text-white"
                     : "bg-[#1877F2] text-white"
-                }`}
+                  }`}
               >
                 {added
                   ? "Go to Cart"
@@ -2202,11 +2199,10 @@ export default function ProductDetailsClient({
               onClick={() =>
                 setActiveTab("specifications")
               }
-              className={`px-6 py-3 rounded-xl font-semibold ${
-                activeTab === "specifications"
+              className={`px-6 py-3 rounded-xl font-semibold ${activeTab === "specifications"
                   ? "bg-[#3D5640] text-white"
                   : "bg-[#F3EDE3] text-[#2D2A26]"
-              }`}
+                }`}
             >
               Specifications
             </button>
@@ -2215,11 +2211,10 @@ export default function ProductDetailsClient({
               onClick={() =>
                 setActiveTab("description")
               }
-              className={`px-6 py-3 rounded-xl font-semibold ${
-                activeTab === "description"
+              className={`px-6 py-3 rounded-xl font-semibold ${activeTab === "description"
                   ? "bg-[#3D5640] text-white"
                   : "bg-[#F3EDE3] text-[#2D2A26]"
-              }`}
+                }`}
             >
               Description
             </button>
@@ -2228,24 +2223,22 @@ export default function ProductDetailsClient({
               onClick={() =>
                 setActiveTab("reviews")
               }
-              className={`px-6 py-3 rounded-xl font-semibold ${
-                activeTab === "reviews"
+              className={`px-6 py-3 rounded-xl font-semibold ${activeTab === "reviews"
                   ? "bg-[#3D5640] text-white"
                   : "bg-[#F3EDE3] text-[#2D2A26]"
-              }`}
+                }`}
             >
-              Reviews 
+              Reviews
             </button>
 
             <button
               onClick={() =>
                 setActiveTab("manufacturer")
               }
-              className={`px-6 py-3 rounded-xl font-semibold ${
-                activeTab === "manufacturer"
+              className={`px-6 py-3 rounded-xl font-semibold ${activeTab === "manufacturer"
                   ? "bg-[#3D5640] text-white"
                   : "bg-[#F3EDE3] text-[#2D2A26]"
-              }`}
+                }`}
             >
               Manufacturer Info
             </button>
@@ -2664,15 +2657,15 @@ export default function ProductDetailsClient({
                               <span className="text-xs text-[#7A6F65]">
                                 {review.createdAt
                                   ? new Date(
-                                      review.createdAt
-                                    ).toLocaleDateString(
-                                      "en-IN",
-                                      {
-                                        day: "numeric",
-                                        month: "short",
-                                        year: "numeric",
-                                      }
-                                    )
+                                    review.createdAt
+                                  ).toLocaleDateString(
+                                    "en-IN",
+                                    {
+                                      day: "numeric",
+                                      month: "short",
+                                      year: "numeric",
+                                    }
+                                  )
                                   : ""}
                               </span>
                             </div>

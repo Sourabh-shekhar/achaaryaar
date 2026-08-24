@@ -356,513 +356,513 @@ export default function AdminProductsClient() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
-            <div>
+                <div>
 
-            <div className="bg-white p-8 rounded-2xl shadow-lg max-w-3xl">
+                    <div className="bg-white p-8 rounded-2xl shadow-lg max-w-3xl">
 
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                    Add New Product
-                </h2>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                            Add New Product
+                        </h2>
 
-                {/* Combo toggle */}
-                <label className="flex items-center gap-3 mb-6 bg-orange-50 border border-orange-200 rounded-xl p-4 cursor-pointer">
-                    <input
-                        type="checkbox"
-                        checked={isCombo}
-                        onChange={(e) => setIsCombo(e.target.checked)}
-                        className="w-5 h-5 accent-orange-600"
-                    />
-                    <span className="font-bold text-gray-900">
-                        This is a Combo Pack
-                    </span>
-                </label>
+                        {/* Combo toggle */}
+                        <label className="flex items-center gap-3 mb-6 bg-orange-50 border border-orange-200 rounded-xl p-4 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={isCombo}
+                                onChange={(e) => setIsCombo(e.target.checked)}
+                                className="w-5 h-5 accent-orange-600"
+                            />
+                            <span className="font-bold text-gray-900">
+                                This is a Combo Pack
+                            </span>
+                        </label>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                        <form onSubmit={handleSubmit} className="space-y-5">
 
-                    <input
-                        type="text"
-                        placeholder={isCombo ? "Combo Pack Name (e.g. Festive Combo)" : "Product Name"}
-                        value={formData.name}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                name: e.target.value,
-                            })
-                        }
-                        className="w-full border rounded-xl p-3 text-gray-900"
-                        required
-                    />
-                    <input
-                        type="text"
-                        placeholder="Short Description (shown on product page, keep it brief)"
-                        value={formData.shortDescription}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                shortDescription: e.target.value,
-                            })
-                        }
-                        className="w-full border rounded-xl p-3 text-gray-900"
-                        maxLength={120}
-                    />
+                            <input
+                                type="text"
+                                placeholder={isCombo ? "Combo Pack Name (e.g. Festive Combo)" : "Product Name"}
+                                value={formData.name}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        name: e.target.value,
+                                    })
+                                }
+                                className="w-full border rounded-xl p-3 text-gray-900"
+                                required
+                            />
+                            <input
+                                type="text"
+                                placeholder="Short Description (shown on product page, keep it brief)"
+                                value={formData.shortDescription}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        shortDescription: e.target.value,
+                                    })
+                                }
+                                className="w-full border rounded-xl p-3 text-gray-900"
+                                maxLength={120}
+                            />
 
-                    {/* Photos — multiple allowed. First photo picked becomes the
+                            {/* Photos — multiple allowed. First photo picked becomes the
                         cover image; all of them power the swipeable gallery on
                         the product page. */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Product Photos (first photo = cover image)
-                        </label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={handleImageSelect}
-                            className="w-full border rounded-xl p-3 text-gray-900"
-                        />
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Product Photos (first photo = cover image)
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleImageSelect}
+                                    className="w-full border rounded-xl p-3 text-gray-900"
+                                />
 
-                        {imageFiles.length > 0 && (
-                            <div className="mt-3 flex flex-wrap gap-3">
-                                {imageFiles.map((file, index) => (
-                                    <div key={`${file.name}-${index}`} className="relative">
-                                        <Image
-                                            src={URL.createObjectURL(file)}
-                                            alt={file.name}
-                                            width={80}
-                                            height={80}
-                                            className="object-cover rounded-lg border"
-                                            unoptimized
-                                        />
-                                        {index === 0 && (
-                                            <span className="absolute -top-2 -left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                                Cover
-                                            </span>
-                                        )}
-                                        <button
-                                            type="button"
-                                            onClick={() => removeSelectedImage(index)}
-                                            className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center"
+                                {imageFiles.length > 0 && (
+                                    <div className="mt-3 flex flex-wrap gap-3">
+                                        {imageFiles.map((file, index) => (
+                                            <div key={`${file.name}-${index}`} className="relative">
+                                                <Image
+                                                    src={URL.createObjectURL(file)}
+                                                    alt={file.name}
+                                                    width={80}
+                                                    height={80}
+                                                    className="object-cover rounded-lg border"
+                                                    unoptimized
+                                                />
+                                                {index === 0 && (
+                                                    <span className="absolute -top-2 -left-2 bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                        Cover
+                                                    </span>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeSelectedImage(index)}
+                                                    className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <textarea
+                                placeholder="Description"
+                                rows={4}
+                                value={formData.description}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        description: e.target.value,
+                                    })
+                                }
+                                className="w-full border rounded-xl p-3 text-gray-900"
+                                required
+                            />
+
+                            {isCombo ? (
+                                <div className="space-y-5">
+
+                                    {/* Combo size picker */}
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-3">
+                                            Combo Size
+                                        </h3>
+                                        <div className="flex gap-3">
+                                            {([2, 3, 4] as const).map((size) => (
+                                                <button
+                                                    type="button"
+                                                    key={size}
+                                                    onClick={() => {
+                                                        setComboSize(size);
+                                                        setSelectedProductIds([]);
+                                                    }}
+                                                    className={`flex-1 py-3 rounded-xl font-bold border-2 transition ${comboSize === size
+                                                        ? "border-orange-600 bg-orange-600 text-white"
+                                                        : "border-gray-300 bg-white text-gray-700"
+                                                        }`}
+                                                >
+                                                    {size}-Pack
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Combo weight options — one row per weight,
+                                admin fills a price for whichever ones this
+                                combo should offer. */}
+                                    <div className="space-y-4">
+                                        <h3 className="text-xl font-bold text-gray-900">
+                                            Combo Weight Options
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            Set a price for each weight you want to offer for
+                                            this combo. Leave a price blank to skip that
+                                            option — customers will be able to choose between
+                                            whichever ones you fill in.
+                                        </p>
+
+                                        {comboVariants.map((variant, index) => (
+                                            <div
+                                                key={variant.unitWeight}
+                                                className="border p-4 rounded-xl bg-white"
+                                            >
+                                                <h4 className="font-semibold mb-2 text-gray-900">
+                                                    {variant.unitWeight} per jar × {comboSize} jars
+                                                </h4>
+
+                                                <input
+                                                    type="number"
+                                                    placeholder="Combo Price"
+                                                    value={variant.price}
+                                                    onChange={(e) => {
+                                                        const updated = [...comboVariants];
+                                                        updated[index].price = e.target.value;
+                                                        setComboVariants(updated);
+                                                    }}
+                                                    className="w-full border rounded-xl p-3 mb-3 text-gray-900"
+                                                />
+
+                                                <input
+                                                    type="number"
+                                                    placeholder="Combo Stock"
+                                                    value={variant.stock}
+                                                    onChange={(e) => {
+                                                        const updated = [...comboVariants];
+                                                        updated[index].stock = e.target.value;
+                                                        setComboVariants(updated);
+                                                    }}
+                                                    className="w-full border rounded-xl p-3 text-gray-900"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Product checklist */}
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-1">
+                                            Select {comboSize} Products
+                                        </h3>
+                                        <p className="text-sm text-gray-500 mb-3">
+                                            {selectedProductIds.length} / {comboSize} selected
+                                        </p>
+
+                                        <div className="max-h-72 overflow-y-auto border rounded-xl divide-y">
+                                            {products
+                                                .filter((p) => !p.isCombo)
+                                                .map((product) => {
+                                                    const isSelected = selectedProductIds.includes(
+                                                        product._id
+                                                    );
+                                                    return (
+                                                        <label
+                                                            key={product._id}
+                                                            className={`flex items-center gap-3 p-3 cursor-pointer ${isSelected ? "bg-orange-50" : "bg-white"
+                                                                }`}
+                                                        >
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isSelected}
+                                                                onChange={() =>
+                                                                    toggleComboProduct(product._id)
+                                                                }
+                                                                className="w-5 h-5 accent-orange-600"
+                                                            />
+                                                            <Image
+                                                                src={product.image}
+                                                                alt={product.name}
+                                                                width={48}
+                                                                height={48}
+                                                                className="rounded-lg object-cover"
+                                                            />
+                                                            <span className="font-semibold text-gray-900">
+                                                                {product.name}
+                                                            </span>
+                                                        </label>
+                                                    );
+                                                })}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+
+                                    <h3 className="text-xl font-bold text-gray-900">
+                                        Product Variants
+                                    </h3>
+
+                                    {formData.weights.map((weight, index) => (
+
+                                        <div
+                                            key={index}
+                                            className="border p-4 rounded-xl bg-white"
                                         >
-                                            ×
+                                            <h4 className="font-semibold mb-2 text-gray-900">
+                                                {weight.size}
+                                            </h4>
+
+                                            <input
+                                                type="number"
+                                                placeholder="Price"
+                                                value={weight.price}
+                                                onChange={(e) => {
+                                                    const updated = [...formData.weights];
+
+                                                    updated[index].price = e.target.value;
+
+                                                    setFormData({
+                                                        ...formData,
+                                                        weights: updated,
+                                                    });
+                                                }}
+                                                className="w-full border rounded-xl p-3 mb-3 text-gray-900 bg-white"
+                                            />
+
+                                            <input
+                                                type="number"
+                                                placeholder="Stock"
+                                                value={weight.stock}
+                                                onChange={(e) => {
+                                                    const updated = [...formData.weights];
+
+                                                    updated[index].stock = e.target.value;
+
+                                                    setFormData({
+                                                        ...formData,
+                                                        weights: updated,
+                                                    });
+                                                }}
+                                                className="w-full border rounded-xl p-3 text-gray-900"
+                                            />
+
+                                        </div>
+
+                                    ))}
+
+                                </div>
+                            )}
+
+
+                            <button
+                                type="submit"
+                                disabled={isUploading}
+                                className="bg-orange-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-700 disabled:opacity-50"
+                            >
+                                {isUploading
+                                    ? "Uploading images..."
+                                    : isCombo
+                                        ? "Add Combo Pack"
+                                        : "Add Product"}
+                            </button>
+
+                        </form>
+
+                    </div>
+                    <div className="mt-10">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                            All Products
+                        </h2>
+
+                        <div className="grid md:grid-cols-3 gap-6">
+                            {products.map((product) => {
+                                // Combo products may have several weight variants now,
+                                // or (for older records) just the single legacy fields.
+                                const comboDisplayVariants =
+                                    product.isCombo
+                                        ? (product.comboVariants && product.comboVariants.length > 0
+                                            ? product.comboVariants
+                                            : [
+                                                {
+                                                    unitWeight: product.comboUnitWeight,
+                                                    price: product.comboPrice,
+                                                    stock: product.comboStock,
+                                                },
+                                            ])
+                                        : [];
+
+                                const comboTotalStock = comboDisplayVariants.reduce(
+                                    (sum: number, v: any) => sum + Number(v.stock || 0),
+                                    0
+                                );
+                                const comboHasLowStock = comboDisplayVariants.some(
+                                    (v: any) => Number(v.stock || 0) > 0 && Number(v.stock || 0) <= 10
+                                );
+
+                                return (
+                                    <div
+                                        key={product._id}
+                                        className="bg-white p-6 rounded-2xl shadow-lg"
+                                    >
+                                        <Image
+                                            src={product.image}
+                                            alt={product.name}
+                                            width={500}
+                                            height={300}
+                                            className="h-48 w-full object-cover rounded-xl mb-4"
+                                            loading="lazy"
+                                        />
+
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2">
+                                                {product.name}
+                                            </h3>
+                                            {product.isCombo && (
+                                                <span className="text-[10px] font-bold uppercase tracking-wide bg-orange-600 text-white px-2 py-0.5 rounded-full">
+                                                    {product.comboSize}-Pack Combo
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {product.isCombo ? (
+                                            <div className="mt-2">
+                                                {comboDisplayVariants.map((variant: any, index: number) => (
+                                                    <div key={index} className="border-b py-1">
+                                                        <p className="font-semibold">
+                                                            {variant.unitWeight 
+                                                                ? `${variant.unitWeight} × ${product.comboSize} jars`
+                                                                : `${product.comboSize}-Pack Combo`}
+                                                        </p>
+                                                        <p className="text-orange-600">
+                                                            ₹{variant.price}
+                                                        </p>
+                                                        <p className="text-gray-700">
+                                                            Stock: {variant.stock}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                                <div className="mt-2 space-y-1">
+                                                    {product.comboItems?.map((item: any, i: number) => (
+                                                        <p key={i} className="text-sm text-gray-600">
+                                                            • {item.name} x{item.quantity}
+                                                        </p>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="mt-2">
+                                                {product.weights?.map((variant: any, index: number) => (
+                                                    <div key={index} className="border-b py-1">
+                                                        <p className="font-semibold">
+                                                            {variant.size || variant.quantity}
+                                                        </p>
+
+                                                        <p className="text-orange-600">
+                                                            ₹{variant.price}
+                                                        </p>
+
+                                                        <p className="text-gray-700">
+                                                            Stock: {variant.stock}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <div className="flex gap-3 mt-4">
+                                            <Link
+                                                href={`/admin/products/edit/${product._id}`}
+                                                className="bg-blue-600 text-white px-4 py-2 rounded-xl"
+                                            >
+                                                Edit
+                                            </Link>
+                                        </div>
+                                        <button
+                                            onClick={() => deleteProduct(product._id)}
+                                            className="mt-4 w-full bg-red-600 text-white py-2 rounded-xl hover:bg-red-700"
+                                        >
+                                            Delete Product
                                         </button>
+                                        <button
+                                            onClick={() =>
+                                                router.push(`/admin/products/edit/${product._id}`)
+                                            }
+                                            className="mt-2 w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700"
+                                        >
+                                            Edit Product
+                                        </button>
+                                        {product.isCombo ? (
+                                            comboTotalStock <= 0 ? (
+                                                <p className="text-red-600 font-bold mt-2">
+                                                    ❌ Out of Stock
+                                                </p>
+                                            ) : comboHasLowStock ? (
+                                                <p className="text-yellow-600 font-bold mt-2">
+                                                    ⚠️ Low Stock
+                                                </p>
+                                            ) : (
+                                                <p className="text-green-600 font-bold mt-2">
+                                                    ✅ In Stock
+                                                </p>
+                                            )
+                                        ) : !product.weights?.some(
+                                            (v: any) => Number(v.stock || 0) > 0
+                                        ) ? (
+                                            <p className="text-red-600 font-bold mt-2">
+                                                ❌ Out of Stock
+                                            </p>
+                                        ) : product.weights?.some(
+                                            (v: any) => v.stock <= 10
+                                        ) ? (
+                                            <p className="text-yellow-600 font-bold mt-2">
+                                                ⚠️ Low Stock
+                                            </p>
+                                        ) : (
+                                            <p className="text-green-600 font-bold mt-2">
+                                                ✅ In Stock
+                                            </p>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* In Stock Summary — sticky sidebar, right of the form and
+                product list. Shows only items that currently have stock,
+                one row per weight/combo-variant, with quantity. */}
+                <aside className="lg:sticky lg:top-8">
+                    <div className="bg-white p-6 rounded-2xl shadow-lg">
+                        <h2 className="text-lg font-bold text-gray-900 mb-1">
+                            In Stock Summary
+                        </h2>
+                        <p className="text-xs text-gray-500 mb-4">
+                            {inStockSummary.length} item{inStockSummary.length === 1 ? "" : "s"} in stock
+                        </p>
+
+                        {inStockSummary.length === 0 ? (
+                            <p className="text-sm text-gray-500">
+                                Nothing in stock right now.
+                            </p>
+                        ) : (
+                            <div className="max-h-[70vh] overflow-y-auto divide-y">
+                                {inStockSummary.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="flex items-center justify-between py-2.5 gap-3"
+                                    >
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-semibold text-gray-900 truncate">
+                                                {item.name}
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                {item.variantLabel}
+                                            </p>
+                                        </div>
+                                        <span className="shrink-0 text-sm font-bold text-green-700 bg-green-50 px-2.5 py-1 rounded-lg">
+                                            {item.stock}
+                                        </span>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
-
-                    <textarea
-                        placeholder="Description"
-                        rows={4}
-                        value={formData.description}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                description: e.target.value,
-                            })
-                        }
-                        className="w-full border rounded-xl p-3 text-gray-900"
-                        required
-                    />
-
-                    {isCombo ? (
-                        <div className="space-y-5">
-
-                            {/* Combo size picker */}
-                            <div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                                    Combo Size
-                                </h3>
-                                <div className="flex gap-3">
-                                    {([2, 3, 4] as const).map((size) => (
-                                        <button
-                                            type="button"
-                                            key={size}
-                                            onClick={() => {
-                                                setComboSize(size);
-                                                setSelectedProductIds([]);
-                                            }}
-                                            className={`flex-1 py-3 rounded-xl font-bold border-2 transition ${comboSize === size
-                                                ? "border-orange-600 bg-orange-600 text-white"
-                                                : "border-gray-300 bg-white text-gray-700"
-                                                }`}
-                                        >
-                                            {size}-Pack
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Combo weight options — one row per weight,
-                                admin fills a price for whichever ones this
-                                combo should offer. */}
-                            <div className="space-y-4">
-                                <h3 className="text-xl font-bold text-gray-900">
-                                    Combo Weight Options
-                                </h3>
-                                <p className="text-sm text-gray-500">
-                                    Set a price for each weight you want to offer for
-                                    this combo. Leave a price blank to skip that
-                                    option — customers will be able to choose between
-                                    whichever ones you fill in.
-                                </p>
-
-                                {comboVariants.map((variant, index) => (
-                                    <div
-                                        key={variant.unitWeight}
-                                        className="border p-4 rounded-xl bg-white"
-                                    >
-                                        <h4 className="font-semibold mb-2 text-gray-900">
-                                            {variant.unitWeight} per jar × {comboSize} jars
-                                        </h4>
-
-                                        <input
-                                            type="number"
-                                            placeholder="Combo Price"
-                                            value={variant.price}
-                                            onChange={(e) => {
-                                                const updated = [...comboVariants];
-                                                updated[index].price = e.target.value;
-                                                setComboVariants(updated);
-                                            }}
-                                            className="w-full border rounded-xl p-3 mb-3 text-gray-900"
-                                        />
-
-                                        <input
-                                            type="number"
-                                            placeholder="Combo Stock"
-                                            value={variant.stock}
-                                            onChange={(e) => {
-                                                const updated = [...comboVariants];
-                                                updated[index].stock = e.target.value;
-                                                setComboVariants(updated);
-                                            }}
-                                            className="w-full border rounded-xl p-3 text-gray-900"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Product checklist */}
-                            <div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-1">
-                                    Select {comboSize} Products
-                                </h3>
-                                <p className="text-sm text-gray-500 mb-3">
-                                    {selectedProductIds.length} / {comboSize} selected
-                                </p>
-
-                                <div className="max-h-72 overflow-y-auto border rounded-xl divide-y">
-                                    {products
-                                        .filter((p) => !p.isCombo)
-                                        .map((product) => {
-                                            const isSelected = selectedProductIds.includes(
-                                                product._id
-                                            );
-                                            return (
-                                                <label
-                                                    key={product._id}
-                                                    className={`flex items-center gap-3 p-3 cursor-pointer ${isSelected ? "bg-orange-50" : "bg-white"
-                                                        }`}
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={isSelected}
-                                                        onChange={() =>
-                                                            toggleComboProduct(product._id)
-                                                        }
-                                                        className="w-5 h-5 accent-orange-600"
-                                                    />
-                                                    <Image
-                                                        src={product.image}
-                                                        alt={product.name}
-                                                        width={48}
-                                                        height={48}
-                                                        className="rounded-lg object-cover"
-                                                    />
-                                                    <span className="font-semibold text-gray-900">
-                                                        {product.name}
-                                                    </span>
-                                                </label>
-                                            );
-                                        })}
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-
-                            <h3 className="text-xl font-bold text-gray-900">
-                                Product Variants
-                            </h3>
-
-                            {formData.weights.map((weight, index) => (
-
-                                <div
-                                    key={index}
-                                    className="border p-4 rounded-xl bg-white"
-                                >
-                                    <h4 className="font-semibold mb-2 text-gray-900">
-                                        {weight.size}
-                                    </h4>
-
-                                    <input
-                                        type="number"
-                                        placeholder="Price"
-                                        value={weight.price}
-                                        onChange={(e) => {
-                                            const updated = [...formData.weights];
-
-                                            updated[index].price = e.target.value;
-
-                                            setFormData({
-                                                ...formData,
-                                                weights: updated,
-                                            });
-                                        }}
-                                        className="w-full border rounded-xl p-3 mb-3 text-gray-900 bg-white"
-                                    />
-
-                                    <input
-                                        type="number"
-                                        placeholder="Stock"
-                                        value={weight.stock}
-                                        onChange={(e) => {
-                                            const updated = [...formData.weights];
-
-                                            updated[index].stock = e.target.value;
-
-                                            setFormData({
-                                                ...formData,
-                                                weights: updated,
-                                            });
-                                        }}
-                                        className="w-full border rounded-xl p-3 text-gray-900"
-                                    />
-
-                                </div>
-
-                            ))}
-
-                        </div>
-                    )}
-
-
-                    <button
-                        type="submit"
-                        disabled={isUploading}
-                        className="bg-orange-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-orange-700 disabled:opacity-50"
-                    >
-                        {isUploading
-                            ? "Uploading images..."
-                            : isCombo
-                                ? "Add Combo Pack"
-                                : "Add Product"}
-                    </button>
-
-                </form>
-
-            </div>
-            <div className="mt-10">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                    All Products
-                </h2>
-
-                <div className="grid md:grid-cols-3 gap-6">
-                    {products.map((product) => {
-                        // Combo products may have several weight variants now,
-                        // or (for older records) just the single legacy fields.
-                        const comboDisplayVariants =
-                            product.isCombo
-                                ? (product.comboVariants && product.comboVariants.length > 0
-                                    ? product.comboVariants
-                                    : [
-                                        {
-                                            unitWeight: product.comboUnitWeight,
-                                            price: product.comboPrice,
-                                            stock: product.comboStock,
-                                        },
-                                    ])
-                                : [];
-
-                        const comboTotalStock = comboDisplayVariants.reduce(
-                            (sum: number, v: any) => sum + Number(v.stock || 0),
-                            0
-                        );
-                        const comboHasLowStock = comboDisplayVariants.some(
-                            (v: any) => Number(v.stock || 0) > 0 && Number(v.stock || 0) <= 10
-                        );
-
-                        return (
-                            <div
-                                key={product._id}
-                                className="bg-white p-6 rounded-2xl shadow-lg"
-                            >
-                                <Image
-                                    src={product.image}
-                                    alt={product.name}
-                                    width={500}
-                                    height={300}
-                                    className="h-48 w-full object-cover rounded-xl mb-4"
-                                    loading="lazy"
-                                />
-
-                                <div className="flex items-center gap-2 flex-wrap">
-                                    <h3 className="text-xl font-bold text-gray-900">
-                                        {product.name}
-                                    </h3>
-                                    {product.isCombo && (
-                                        <span className="text-[10px] font-bold uppercase tracking-wide bg-orange-600 text-white px-2 py-0.5 rounded-full">
-                                            {product.comboSize}-Pack Combo
-                                        </span>
-                                    )}
-                                </div>
-
-                                {product.isCombo ? (
-                                    <div className="mt-2">
-                                        {comboDisplayVariants.map((variant: any, index: number) => (
-                                            <div key={index} className="border-b py-1">
-                                                <p className="font-semibold">
-                                                    {variant.unitWeight
-                                                        ? `${variant.unitWeight} × ${product.comboSize} jars`
-                                                        : `${product.comboSize}-Pack Combo`}
-                                                </p>
-                                                <p className="text-orange-600">
-                                                    ₹{variant.price}
-                                                </p>
-                                                <p className="text-gray-700">
-                                                    Stock: {variant.stock}
-                                                </p>
-                                            </div>
-                                        ))}
-                                        <div className="mt-2 space-y-1">
-                                            {product.comboItems?.map((item: any, i: number) => (
-                                                <p key={i} className="text-sm text-gray-600">
-                                                    • {item.name} x{item.quantity}
-                                                </p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="mt-2">
-                                        {product.weights?.map((variant: any, index: number) => (
-                                            <div key={index} className="border-b py-1">
-                                                <p className="font-semibold">
-                                                    {variant.size || variant.quantity}
-                                                </p>
-
-                                                <p className="text-orange-600">
-                                                    ₹{variant.price}
-                                                </p>
-
-                                                <p className="text-gray-700">
-                                                    Stock: {variant.stock}
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                <div className="flex gap-3 mt-4">
-                                    <Link
-                                        href={`/admin/products/edit/${product._id}`}
-                                        className="bg-blue-600 text-white px-4 py-2 rounded-xl"
-                                    >
-                                        Edit
-                                    </Link>
-                                </div>
-                                <button
-                                    onClick={() => deleteProduct(product._id)}
-                                    className="mt-4 w-full bg-red-600 text-white py-2 rounded-xl hover:bg-red-700"
-                                >
-                                    Delete Product
-                                </button>
-                                <button
-                                    onClick={() =>
-                                        router.push(`/admin/products/edit/${product._id}`)
-                                    }
-                                    className="mt-2 w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700"
-                                >
-                                    Edit Product
-                                </button>
-                                {product.isCombo ? (
-                                    comboTotalStock <= 0 ? (
-                                        <p className="text-red-600 font-bold mt-2">
-                                            ❌ Out of Stock
-                                        </p>
-                                    ) : comboHasLowStock ? (
-                                        <p className="text-yellow-600 font-bold mt-2">
-                                            ⚠️ Low Stock
-                                        </p>
-                                    ) : (
-                                        <p className="text-green-600 font-bold mt-2">
-                                            ✅ In Stock
-                                        </p>
-                                    )
-                                ) : !product.weights?.some(
-                                    (v: any) => Number(v.stock || 0) > 0
-                                ) ? (
-                                    <p className="text-red-600 font-bold mt-2">
-                                        ❌ Out of Stock
-                                    </p>
-                                ) : product.weights?.some(
-                                    (v: any) => v.stock <= 10
-                                ) ? (
-                                    <p className="text-yellow-600 font-bold mt-2">
-                                        ⚠️ Low Stock
-                                    </p>
-                                ) : (
-                                    <p className="text-green-600 font-bold mt-2">
-                                        ✅ In Stock
-                                    </p>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-
-            </div>
-
-            {/* In Stock Summary — sticky sidebar, right of the form and
-                product list. Shows only items that currently have stock,
-                one row per weight/combo-variant, with quantity. */}
-            <aside className="lg:sticky lg:top-8">
-                <div className="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 className="text-lg font-bold text-gray-900 mb-1">
-                        In Stock Summary
-                    </h2>
-                    <p className="text-xs text-gray-500 mb-4">
-                        {inStockSummary.length} item{inStockSummary.length === 1 ? "" : "s"} in stock
-                    </p>
-
-                    {inStockSummary.length === 0 ? (
-                        <p className="text-sm text-gray-500">
-                            Nothing in stock right now.
-                        </p>
-                    ) : (
-                        <div className="max-h-[70vh] overflow-y-auto divide-y">
-                            {inStockSummary.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="flex items-center justify-between py-2.5 gap-3"
-                                >
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-semibold text-gray-900 truncate">
-                                            {item.name}
-                                        </p>
-                                        <p className="text-xs text-gray-500">
-                                            {item.variantLabel}
-                                        </p>
-                                    </div>
-                                    <span className="shrink-0 text-sm font-bold text-green-700 bg-green-50 px-2.5 py-1 rounded-lg">
-                                        {item.stock}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </aside>
+                </aside>
 
             </div>
         </div>
