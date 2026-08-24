@@ -26,6 +26,13 @@ const OrderSchema = new mongoose.Schema(
       trim: true,
     },
 
+    // Normalized phone used for coupon/customer matching
+    normalizedPhone: {
+      type: String,
+      default: "",
+      index: true,
+    },
+
     address: {
       type: String,
       required: true,
@@ -65,14 +72,14 @@ const OrderSchema = new mongoose.Schema(
       default: "Pending",
     },
 
-    // Razorpay payment ID
     paymentId: {
       type: String,
       default: "",
       index: true,
+      unique: true,
+      sparse: true,
     },
 
-    // Razorpay order ID
     gatewayOrderId: {
       type: String,
       default: "",
@@ -135,40 +142,34 @@ const OrderSchema = new mongoose.Schema(
     // SHIPMOZO
     // ----------------------------------------------------
 
-    // Shipmozo order/reference ID
     shipmozoOrderId: {
       type: String,
       default: "",
       index: true,
     },
 
-    // Courier selected by Shipmozo
     courierName: {
       type: String,
       default: "",
     },
 
-    // AWB / tracking number
     trackingNumber: {
       type: String,
       default: "",
       index: true,
     },
 
-    // Estimated delivery date
     estimatedDelivery: {
       type: String,
       default: "",
     },
 
-    // Current shipping status
     shippingStatus: {
       type: String,
       default: "Pending",
       index: true,
     },
 
-    // Tracking URL if available
     trackingUrl: {
       type: String,
       default: "",
@@ -178,25 +179,21 @@ const OrderSchema = new mongoose.Schema(
     // SHIPMENT DIMENSIONS
     // ----------------------------------------------------
 
-    // Actual packed shipping weight in grams
     shipmentWeight: {
       type: Number,
       default: 500,
     },
 
-    // Carton length in inches
     shipmentLength: {
       type: Number,
       default: 20,
     },
 
-    // Carton width in inches
     shipmentWidth: {
       type: Number,
       default: 15,
     },
 
-    // Carton height in inches
     shipmentHeight: {
       type: Number,
       default: 10,

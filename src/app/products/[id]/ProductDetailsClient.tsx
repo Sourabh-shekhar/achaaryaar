@@ -2004,7 +2004,7 @@ export default function ProductDetailsClient({
             className="text-5xl font-extrabold mt-6 text-[#2D2A26]"
             style={{
               fontFamily: FONT_DISPLAY,
-            }}
+            }}  
           >
             {product.name}
           </h1>
