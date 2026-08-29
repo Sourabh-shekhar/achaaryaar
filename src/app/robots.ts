@@ -5,24 +5,21 @@ const SITE_URL =
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: [
-          "/admin",
-          "/admin/*",
-          "/search",
-          "/api/*",
-          "/checkout",
-          "/cart",
-          "/profile",
-          "/login",
-          "/signup",
-          "/order-success",
-        ],
-      },
-    ],
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: [
+        "/admin",
+        "/search",
+        "/api",
+        "/checkout",
+        "/cart",
+        "/profile",
+        "/login",
+        "/signup",
+        "/order-success",
+      ],
+    },
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,
   };
