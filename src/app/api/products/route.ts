@@ -4,10 +4,34 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
+
+
 const ALLOWED_SIZES = ["120g", "220g", "330g", "430g"];
 const ALLOWED_COMBO_SIZES = [2, 3, 4];
 const ALLOWED_COMBO_UNIT_WEIGHTS = ["120g", "220g", "330g", "430g"];
 const ALLOWED_ORIGIN = "https://www.achaaryaar.com";
+
+function createSlug(text: string) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+async function createUniqueSlug(name: string) {
+  const baseSlug = createSlug(name);
+
+  let slug = baseSlug;
+  let counter = 2;
+
+  while (await Product.exists({ slug })) {
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
+  return slug;
+}
 
 function normalizeWeights(weights: any[] = []) {
   const seen = new Set<string>();
@@ -137,6 +161,23 @@ export async function POST(req: Request) {
     const body = await req.json();
     const images = normalizeImages(body.images, body.image);
 
+    if (!body.name || typeof body.name !== "string") {
+  return NextResponse.json(
+    {
+      success: false,
+      message: "Product name is required",
+    },
+    {
+      status: 400,
+      headers: {
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+      },
+    }
+  );
+}
+
+const slug = await createUniqueSlug(body.name);
+
     // Combo pack — fixed set of existing products bundled at one price.
     if (body.isCombo) {
       const comboSize = Number(body.comboSize);
@@ -186,6 +227,7 @@ export async function POST(req: Request) {
 
     const product = await Product.create({
         name: body.name,
+        slug,
         description: body.description,
         shortDescription: body.shortDescription || "",
         category: body.category,
@@ -222,6 +264,7 @@ export async function POST(req: Request) {
 
 const product = await Product.create({
       name: body.name,
+      slug,
       description: body.description,
       shortDescription: body.shortDescription || "",
       category: body.category,
