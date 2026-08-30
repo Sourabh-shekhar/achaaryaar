@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     google: "Fw-cO-qK9kDEQVQp4yAgN9XbCW84gCTVZZrawpAWzRE",
   },
   title: {
-    default: "Homemade Bihar Pickles Online | AchaarYaar",
+    default: "AchaarYaar | Homemade Bihar Pickles Online",
     template: "%s | AchaarYaar",
   },
   description:

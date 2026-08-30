@@ -124,12 +124,11 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-
   const product = await getProduct(slug);
 
   if (!product) {
     return {
-      title: "Product Not Found",
+      title: "Product Not Found | AchaarYaar",
       description:
         "The requested AchaarYaar product could not be found.",
       robots: {
@@ -139,32 +138,96 @@ export async function generateMetadata({
     };
   }
 
+  const productName = cleanText(product.name);
   const productSlug = String(product.slug || slug);
 
   const productUrl =
     `${SITE_URL}/products/${encodeURIComponent(productSlug)}`;
 
   /* ---------------------------------------------------------
-     PRODUCT TITLE
+     SEO TITLE
   --------------------------------------------------------- */
 
-  const productName = cleanText(product.name);
+  let title: string;
 
-  const title = `${productName} | AchaarYaar`;
+  if (product.isCombo) {
+    const comboItems = Array.isArray(product.comboItems)
+      ? product.comboItems
+      : [];
+
+    const comboNames = comboItems
+      .map((item: any) => cleanText(item.name || ""))
+      .filter(Boolean);
+
+    if (comboNames.length > 0) {
+      const shortComboNames = comboNames
+        .slice(0, 3)
+        .map((name: string) => {
+          return name
+            .replace(/\s*[-–—|].*$/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+        });
+
+      title = `4 Jar Pickle Combo – ${shortComboNames.join(
+        ", "
+      )} | AchaarYaar`;
+    } else {
+      title = `Pickle Combo – ${productName} | AchaarYaar`;
+    }
+  } else {
+    title = `${productName} | AchaarYaar`;
+
+    // Keep normal product titles reasonably short.
+    if (title.length > 60) {
+      title = `${productName
+        .replace(/\s*[-–—|].*$/g, "")
+        .trim()} | AchaarYaar`;
+    }
+  }
 
   /* ---------------------------------------------------------
      DESCRIPTION
-
-     Prefer shortDescription.
-
-     Otherwise use the main description.
   --------------------------------------------------------- */
 
-  const description = truncateDescription(
-    product.shortDescription ||
-      product.description ||
-      `Buy ${productName} online from AchaarYaar.`
-  );
+  let description: string;
+
+  if (product.isCombo) {
+    const comboItems = Array.isArray(product.comboItems)
+      ? product.comboItems
+      : [];
+
+    const comboNames = comboItems
+      .map((item: any) => cleanText(item.name || ""))
+      .filter(Boolean)
+      .slice(0, 4)
+      .map((name: string) =>
+        name
+          .replace(/\s*[-–—|].*$/g, "")
+          .replace(/\s+/g, " ")
+          .trim()
+      );
+
+    if (comboNames.length > 0) {
+      description = truncateDescription(
+        `Shop AchaarYaar's ${comboNames.join(
+          ", "
+        )} pickle combo. Authentic homemade Bihar flavours with traditional taste, perfect for everyday meals and delivered across India.`
+      );
+    } else {
+      description = truncateDescription(
+        product.shortDescription ||
+          product.description ||
+          `Buy ${productName} online from AchaarYaar.`
+      );
+    }
+  } else {
+    description = truncateDescription(
+      product.shortDescription ||
+        product.description ||
+        `Buy ${productName} online from AchaarYaar.`
+    );
+  }
 
   /* ---------------------------------------------------------
      IMAGE
@@ -195,6 +258,8 @@ export async function generateMetadata({
     "traditional pickle",
     "Indian pickle",
     "buy pickle online",
+    "pickle combo",
+    "pickle gift pack",
     "AchaarYaar",
   ];
 
@@ -204,9 +269,7 @@ export async function generateMetadata({
 
   return {
     title,
-
     description,
-
     keywords,
 
     authors: [
@@ -216,9 +279,7 @@ export async function generateMetadata({
     ],
 
     creator: "AchaarYaar",
-
     publisher: "AchaarYaar",
-
     category: "Food",
 
     robots: {
