@@ -2,13 +2,28 @@
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import { baseUrl } from "@/lib/baseUrl";
-   
+
 export const metadata: Metadata = {
-  title: "Shop Bihar Pickles | Mango, Lemon, Garlic & Spicy Achaar | AchaarYaar",
+  title: "Shop Homemade Bihar Pickles Online",
   description:
-    "Browse authentic homemade Bihar pickles — mango, lemon, garlic, spicy, and combo achaar. 100% natural, small-batch, delivered fresh across India.",
+    "Shop authentic homemade Bihar pickles online at AchaarYaar. Explore traditional mango, lemon, garlic, chilli, jackfruit pickles and curated pickle combos, delivered across India.",
   alternates: {
     canonical: "/products",
+  },
+  openGraph: {
+    title: "Shop Homemade Bihar Pickles Online | AchaarYaar",
+    description:
+      "Explore authentic homemade Bihar pickles from AchaarYaar, including mango, lemon, garlic, chilli, jackfruit pickles and traditional pickle combos.",
+    url: "https://www.achaaryaar.com/products",
+    siteName: "AchaarYaar",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Shop Homemade Bihar Pickles Online | AchaarYaar",
+    description:
+      "Explore authentic homemade Bihar pickles from AchaarYaar, including traditional mango, lemon, garlic, chilli and jackfruit pickles.",
   },
 };
 
@@ -193,7 +208,7 @@ export default async function ProductsPage({
               maxWidth: 760,
             }}
           >
-            Pickle jars for everyday meals, gifting, and cravings.
+            Shop Authentic Homemade Bihar Pickles
           </h1>
 
           <p
@@ -205,8 +220,9 @@ export default async function ProductsPage({
               margin: "0 auto",
             }}
           >
-            Explore handcrafted mango, lemon, garlic, chilli, and seasonal
-            achaar made with balanced spices and traditional recipes.
+            Explore authentic homemade Bihar pickles made with traditional recipes.
+            Discover mango, lemon, garlic, chilli, jackfruit and other Indian achaar,
+            along with carefully curated pickle combos for everyday meals and gifting.
           </p>
         </div>
       </section>
