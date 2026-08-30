@@ -69,12 +69,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  // IMPORTANT:
+  // Only include products that have a proper SEO slug.
+  // Never put MongoDB _id values into the sitemap.
   const productPages: MetadataRoute.Sitemap = products
-    .filter((product) => product.slug || product._id)
+    .filter(
+      (product) =>
+        typeof product.slug === "string" &&
+        product.slug.trim().length > 0
+    )
     .map((product) => ({
-      url: `${SITE_URL}/products/${product.slug ?? product._id}`,
+      url: `${SITE_URL}/products/${product.slug!.trim()}`,
       ...(product.updatedAt
-        ? { lastModified: new Date(product.updatedAt) }
+        ? {
+            lastModified: new Date(product.updatedAt),
+          }
         : {}),
     }));
 

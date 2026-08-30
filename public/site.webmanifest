@@ -1,0 +1,9 @@
+{
+  "name": "AchaarYaar",
+  "short_name": "AchaarYaar",
+  "description": "Authentic Homemade Bihar Pickles",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7A2E1B"
+}

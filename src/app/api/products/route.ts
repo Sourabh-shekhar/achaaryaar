@@ -4,8 +4,6 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
 
-
-
 const ALLOWED_SIZES = ["120g", "220g", "330g", "430g"];
 const ALLOWED_COMBO_SIZES = [2, 3, 4];
 const ALLOWED_COMBO_UNIT_WEIGHTS = ["120g", "220g", "330g", "430g"];
