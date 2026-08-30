@@ -965,7 +965,6 @@ export default async function ProductDetails({
           __html: JSON.stringify([
             productSchema,
             breadcrumbSchema,
-            faqSchema,
             webpageSchema,
           ]),
         }}
